@@ -288,19 +288,32 @@ class OpenAICompatibleLLM(BaseLLM):
         return f"OpenAICompatibleLLM(base_url={self.base_url!r}, model={self.model!r})"
 
 
-class GroqLLM(OpenAICompatibleLLM):
-    """Groq — fast LLM inference. Zero SDK dependencies.
+class GroqLLM(BaseLLM):
+    """Groq — fast LLM inference.
 
+    Uses the official `groq` SDK (pip install groq).
     Get your API key at: https://console.groq.com
     """
 
-    def __init__(self, api_key: str, model: str = "llama-3.3-70b-versatile", **kwargs):
-        super().__init__(
-            base_url="https://api.groq.com/openai/v1",
-            model=model,
-            api_key=api_key,
-            **kwargs,
+    def __init__(self, api_key: str, model: str = "llama-3.3-70b-versatile"):
+        self.api_key = api_key
+        self.model = model
+        self._client = None
+
+    def _get_client(self):
+        if self._client is None:
+            from groq import Groq
+
+            self._client = Groq(api_key=self.api_key)
+        return self._client
+
+    def generate(self, prompt: str) -> str:
+        client = self._get_client()
+        response = client.chat.completions.create(
+            model=self.model,
+            messages=[{"role": "user", "content": prompt}],
         )
+        return response.choices[0].message.content
 
     def __repr__(self):
         return f"GroqLLM(model={self.model!r})"
