@@ -139,9 +139,10 @@ class TestOpenAICompatibleLLM:
 class TestConvenienceWrappers:
     """Test that convenience wrappers set the correct base_url."""
 
-    def test_groq_url(self):
+    def test_groq_init(self):
         llm = GroqLLM(api_key="test")
-        assert "groq.com" in llm.base_url
+        assert llm.api_key == "test"
+        assert "llama" in llm.model
 
     def test_together_url(self):
         llm = TogetherLLM(api_key="test")
@@ -168,9 +169,8 @@ class TestConvenienceWrappers:
         assert "sambanova.ai" in llm.base_url
 
     def test_wrappers_inherit_generate(self, mock_server):
-        """All wrappers can call generate via the parent class."""
-        llm = GroqLLM(api_key="test")
-        # Override base_url to use mock
+        """OpenAICompatibleLLM wrappers can call generate via the parent."""
+        llm = TogetherLLM(api_key="test")
         llm.base_url = f"{mock_server}/v1"
         result = llm.generate("test")
         assert "mock response" in result
