@@ -247,7 +247,10 @@ class OpenAICompatibleLLM(BaseLLM):
 
         data = json.dumps(payload).encode("utf-8")
 
-        headers = {"Content-Type": "application/json"}
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": "TreeDex/0.1",
+        }
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
         headers.update(self.extra_headers)
@@ -428,6 +431,7 @@ class HuggingFaceLLM(BaseLLM):
         data = json.dumps(payload).encode("utf-8")
         headers = {
             "Content-Type": "application/json",
+            "User-Agent": "TreeDex/0.1",
             "Authorization": f"Bearer {self.api_key}",
         }
 
@@ -476,7 +480,10 @@ class OllamaLLM(BaseLLM):
         }
 
         data = json.dumps(payload).encode("utf-8")
-        headers = {"Content-Type": "application/json"}
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": "TreeDex/0.1",
+        }
 
         req = urllib.request.Request(url, data=data, headers=headers, method="POST")
 
