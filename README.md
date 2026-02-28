@@ -5,14 +5,17 @@
 Index any document into a navigable tree structure, then retrieve relevant sections using **any LLM**. No vector databases, no embeddings — just structured tree retrieval.
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mithun50/TreeDex/blob/main/treedex_demo.ipynb)
+[![PyPI](https://img.shields.io/pypi/v/treedex)](https://pypi.org/project/treedex/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://python.org)
 
 ---
 
 ## How It Works
 
-```
-PDF/TXT/HTML/DOCX → Pages → LLM extracts structure → Tree Index → Query → Relevant sections
-```
+<p align="center">
+  <img src="assets/how-treedex-works.svg" alt="How TreeDex Works" width="800"/>
+</p>
 
 1. **Load** — Extract pages from any supported format
 2. **Index** — LLM analyzes page groups and extracts hierarchical structure
@@ -20,9 +23,19 @@ PDF/TXT/HTML/DOCX → Pages → LLM extracts structure → Tree Index → Query 
 4. **Query** — LLM selects relevant tree nodes for your question
 5. **Return** — Get context text, source pages, and reasoning
 
+### Why TreeDex instead of Vector DB?
+
+<p align="center">
+  <img src="assets/treedex-vs-vectordb.svg" alt="TreeDex vs Vector DB" width="800"/>
+</p>
+
 ---
 
 ## Supported LLM Providers
+
+<p align="center">
+  <img src="assets/llm-providers.svg" alt="LLM Providers" width="800"/>
+</p>
 
 TreeDex works with **every major AI provider** out of the box. Pick what works for you:
 
@@ -61,7 +74,28 @@ TreeDex works with **every major AI provider** out of the box. Pick what works f
 ### Install
 
 ```bash
-pip install pymupdf tiktoken
+# pip
+pip install treedex
+
+# uv (faster)
+uv pip install treedex
+
+# With optional LLM SDK
+pip install treedex[gemini]      # Google Gemini
+pip install treedex[openai]      # OpenAI
+pip install treedex[claude]      # Anthropic Claude
+pip install treedex[mistral]     # Mistral AI
+pip install treedex[cohere]      # Cohere
+pip install treedex[litellm]     # LiteLLM (100+ providers)
+pip install treedex[all]         # Everything
+
+# From source
+pip install git+https://github.com/mithun50/TreeDex.git
+
+# Development
+git clone https://github.com/mithun50/TreeDex.git
+cd TreeDex
+pip install -e ".[dev]"
 ```
 
 ### Pick your LLM and go
@@ -273,30 +307,24 @@ index = TreeDex.from_file("notes.txt", llm=llm, loader=TextLoader())
 
 ## Architecture
 
-```
-┌─────────────┐
-│  Document    │  PDF, TXT, HTML, DOCX
-└──────┬──────┘
-       │  Loader
-       ▼
-┌─────────────┐
-│   Pages     │  [{page_num, text, token_count}, ...]
-└──────┬──────┘
-       │  group_pages() → token-budget chunks
-       ▼
-┌─────────────┐
-│  LLM Call   │  Any of 18+ backends
-└──────┬──────┘
-       │  list_to_tree() → assign_page_ranges() → embed_text()
-       ▼
-┌─────────────┐
-│  Tree Index │  Navigable hierarchy with text at each node
-└──────┬──────┘
-       │  query() → LLM selects relevant nodes
-       ▼
-┌─────────────┐
-│ QueryResult │  context + page references + reasoning
-└─────────────┘
+<p align="center">
+  <img src="assets/architecture.svg" alt="Architecture" width="800"/>
+</p>
+
+## Running Tests
+
+```bash
+# Install dev dependencies
+pip install -e ".[dev]"
+
+# Run all tests
+pytest
+
+# With coverage
+pytest --cov=treedex
+
+# Run specific test file
+pytest tests/test_core.py -v
 ```
 
 ---

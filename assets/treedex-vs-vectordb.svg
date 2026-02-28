@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 580" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="treeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#16a34a"/>
+    </linearGradient>
+    <linearGradient id="vecGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ef4444"/>
+      <stop offset="100%" style="stop-color:#dc2626"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="580" rx="12" fill="#fafafa"/>
+
+  <!-- Title -->
+  <rect x="0" y="0" width="900" height="56" rx="12" fill="#1e293b"/>
+  <rect x="0" y="20" width="900" height="36" fill="#1e293b"/>
+  <text x="450" y="36" text-anchor="middle" fill="white" font-size="20" font-weight="700">TreeDex vs Vector Database RAG</text>
+
+  <!-- VS divider -->
+  <line x1="450" y1="70" x2="450" y2="560" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="6,4"/>
+  <circle cx="450" cy="90" r="18" fill="#1e293b"/>
+  <text x="450" y="95" text-anchor="middle" fill="white" font-size="12" font-weight="700">VS</text>
+
+  <!-- LEFT: TreeDex -->
+  <rect x="30" y="70" width="390" height="44" rx="8" fill="url(#treeGrad)"/>
+  <text x="225" y="98" text-anchor="middle" fill="white" font-size="16" font-weight="700">TreeDex (Tree-Based)</text>
+
+  <!-- TreeDex items -->
+  <rect x="30" y="130" width="390" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="50" y="152" fill="#22c55e" font-size="16" font-weight="700">1.</text>
+  <text x="72" y="152" fill="#1e293b" font-size="13" font-weight="600">Structure-Aware</text>
+  <text x="72" y="170" fill="#64748b" font-size="11">Preserves document hierarchy (chapters, sections)</text>
+
+  <rect x="30" y="190" width="390" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="50" y="212" fill="#22c55e" font-size="16" font-weight="700">2.</text>
+  <text x="72" y="212" fill="#1e293b" font-size="13" font-weight="600">No Embeddings Needed</text>
+  <text x="72" y="230" fill="#64748b" font-size="11">Zero vectors, no embedding models, no cosine similarity</text>
+
+  <rect x="30" y="250" width="390" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="50" y="272" fill="#22c55e" font-size="16" font-weight="700">3.</text>
+  <text x="72" y="272" fill="#1e293b" font-size="13" font-weight="600">Page-Level Attribution</text>
+  <text x="72" y="290" fill="#64748b" font-size="11">Exact source pages for every answer</text>
+
+  <rect x="30" y="310" width="390" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="50" y="332" fill="#22c55e" font-size="16" font-weight="700">4.</text>
+  <text x="72" y="332" fill="#1e293b" font-size="13" font-weight="600">Human-Readable Index</text>
+  <text x="72" y="350" fill="#64748b" font-size="11">JSON tree you can inspect, edit, and understand</text>
+
+  <rect x="30" y="370" width="390" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="50" y="392" fill="#22c55e" font-size="16" font-weight="700">5.</text>
+  <text x="72" y="392" fill="#1e293b" font-size="13" font-weight="600">No Infrastructure</text>
+  <text x="72" y="410" fill="#64748b" font-size="11">No vector DB to run — just JSON files</text>
+
+  <rect x="30" y="430" width="390" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="50" y="452" fill="#22c55e" font-size="16" font-weight="700">6.</text>
+  <text x="72" y="452" fill="#1e293b" font-size="13" font-weight="600">LLM-Powered Retrieval</text>
+  <text x="72" y="470" fill="#64748b" font-size="11">LLM understands context, not just keyword matching</text>
+
+  <!-- RIGHT: Vector DB -->
+  <rect x="480" y="70" width="390" height="44" rx="8" fill="url(#vecGrad)"/>
+  <text x="675" y="98" text-anchor="middle" fill="white" font-size="16" font-weight="700">Vector DB RAG (Traditional)</text>
+
+  <!-- Vector DB items -->
+  <rect x="480" y="130" width="390" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="500" y="152" fill="#ef4444" font-size="16" font-weight="700">1.</text>
+  <text x="522" y="152" fill="#1e293b" font-size="13" font-weight="600">Flat Chunks</text>
+  <text x="522" y="170" fill="#64748b" font-size="11">Splits document into equal-sized chunks, loses structure</text>
+
+  <rect x="480" y="190" width="390" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="500" y="212" fill="#ef4444" font-size="16" font-weight="700">2.</text>
+  <text x="522" y="212" fill="#1e293b" font-size="13" font-weight="600">Requires Embedding Model</text>
+  <text x="522" y="230" fill="#64748b" font-size="11">Extra model + API costs for generating vectors</text>
+
+  <rect x="480" y="250" width="390" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="500" y="272" fill="#ef4444" font-size="16" font-weight="700">3.</text>
+  <text x="522" y="272" fill="#1e293b" font-size="13" font-weight="600">Approximate Matching</text>
+  <text x="522" y="290" fill="#64748b" font-size="11">Cosine similarity can miss semantically relevant content</text>
+
+  <rect x="480" y="310" width="390" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="500" y="332" fill="#ef4444" font-size="16" font-weight="700">4.</text>
+  <text x="522" y="332" fill="#1e293b" font-size="13" font-weight="600">Opaque Vectors</text>
+  <text x="522" y="350" fill="#64748b" font-size="11">Cannot inspect or understand the index directly</text>
+
+  <rect x="480" y="370" width="390" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="500" y="392" fill="#ef4444" font-size="16" font-weight="700">5.</text>
+  <text x="522" y="392" fill="#1e293b" font-size="13" font-weight="600">Database Required</text>
+  <text x="522" y="410" fill="#64748b" font-size="11">Need Pinecone, Chroma, Weaviate, etc.</text>
+
+  <rect x="480" y="430" width="390" height="50" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#shadow)"/>
+  <text x="500" y="452" fill="#ef4444" font-size="16" font-weight="700">6.</text>
+  <text x="522" y="452" fill="#1e293b" font-size="13" font-weight="600">Keyword-Similarity Retrieval</text>
+  <text x="522" y="470" fill="#64748b" font-size="11">Finds similar text, not necessarily the right answer</text>
+
+  <!-- Summary bar -->
+  <rect x="30" y="500" width="840" height="56" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="225" y="524" text-anchor="middle" fill="#16a34a" font-size="12" font-weight="700">TreeDex: Structure + Understanding</text>
+  <text x="225" y="544" text-anchor="middle" fill="#64748b" font-size="11">LLM navigates the tree to find answers</text>
+  <text x="675" y="524" text-anchor="middle" fill="#dc2626" font-size="12" font-weight="700">Vector DB: Similarity + Approximation</text>
+  <text x="675" y="544" text-anchor="middle" fill="#64748b" font-size="11">Embedding model finds similar chunks</text>
+</svg>

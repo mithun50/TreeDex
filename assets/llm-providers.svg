@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 480" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <filter id="sh">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+    <linearGradient id="hg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="480" rx="12" fill="#fafafa"/>
+
+  <!-- Title -->
+  <rect x="0" y="0" width="900" height="56" rx="12" fill="url(#hg)"/>
+  <rect x="0" y="20" width="900" height="36" fill="url(#hg)"/>
+  <text x="450" y="36" text-anchor="middle" fill="white" font-size="20" font-weight="700">Supported LLM Providers</text>
+
+  <!-- Center: TreeDex hub -->
+  <circle cx="450" cy="260" r="55" fill="#ede9fe" stroke="#8b5cf6" stroke-width="2.5"/>
+  <text x="450" y="254" text-anchor="middle" fill="#4c1d95" font-size="15" font-weight="800">TreeDex</text>
+  <text x="450" y="274" text-anchor="middle" fill="#6d28d9" font-size="10">Any LLM</text>
+
+  <!-- SDK Providers (top) -->
+  <text x="450" y="84" text-anchor="middle" fill="#64748b" font-size="11" font-weight="600">SDK PROVIDERS</text>
+
+  <!-- Gemini -->
+  <rect x="80" y="96" width="120" height="44" rx="8" fill="white" stroke="#4285f4" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="140" y="116" text-anchor="middle" fill="#4285f4" font-size="12" font-weight="700">Google Gemini</text>
+  <text x="140" y="132" text-anchor="middle" fill="#64748b" font-size="9">gemini-2.0-flash</text>
+  <line x1="140" y1="140" x2="400" y2="220" stroke="#4285f4" stroke-width="1.2" opacity="0.5"/>
+
+  <!-- OpenAI -->
+  <rect x="230" y="96" width="120" height="44" rx="8" fill="white" stroke="#10a37f" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="290" y="116" text-anchor="middle" fill="#10a37f" font-size="12" font-weight="700">OpenAI</text>
+  <text x="290" y="132" text-anchor="middle" fill="#64748b" font-size="9">gpt-4o</text>
+  <line x1="290" y1="140" x2="420" y2="215" stroke="#10a37f" stroke-width="1.2" opacity="0.5"/>
+
+  <!-- Claude -->
+  <rect x="390" y="96" width="120" height="44" rx="8" fill="white" stroke="#d97706" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="450" y="116" text-anchor="middle" fill="#d97706" font-size="12" font-weight="700">Claude</text>
+  <text x="450" y="132" text-anchor="middle" fill="#64748b" font-size="9">claude-sonnet-4</text>
+  <line x1="450" y1="140" x2="450" y2="205" stroke="#d97706" stroke-width="1.2" opacity="0.5"/>
+
+  <!-- Mistral -->
+  <rect x="550" y="96" width="120" height="44" rx="8" fill="white" stroke="#ff7000" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="610" y="116" text-anchor="middle" fill="#ff7000" font-size="12" font-weight="700">Mistral AI</text>
+  <text x="610" y="132" text-anchor="middle" fill="#64748b" font-size="9">mistral-large</text>
+  <line x1="610" y1="140" x2="480" y2="215" stroke="#ff7000" stroke-width="1.2" opacity="0.5"/>
+
+  <!-- Cohere -->
+  <rect x="700" y="96" width="120" height="44" rx="8" fill="white" stroke="#39594d" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="760" y="116" text-anchor="middle" fill="#39594d" font-size="12" font-weight="700">Cohere</text>
+  <text x="760" y="132" text-anchor="middle" fill="#64748b" font-size="9">command-r-plus</text>
+  <line x1="760" y1="140" x2="500" y2="230" stroke="#39594d" stroke-width="1.2" opacity="0.5"/>
+
+  <!-- OpenAI-Compatible (left side) -->
+  <text x="120" y="192" text-anchor="middle" fill="#6366f1" font-size="11" font-weight="600">OPENAI-COMPATIBLE (zero deps)</text>
+
+  <rect x="30" y="204" width="110" height="36" rx="6" fill="#f0f9ff" stroke="#6366f1" stroke-width="1" filter="url(#sh)"/>
+  <text x="85" y="222" text-anchor="middle" fill="#4338ca" font-size="11" font-weight="600">Groq</text>
+  <text x="85" y="234" text-anchor="middle" fill="#64748b" font-size="8">llama-3.3-70b</text>
+  <line x1="140" y1="222" x2="395" y2="250" stroke="#6366f1" stroke-width="1" opacity="0.4"/>
+
+  <rect x="30" y="248" width="110" height="36" rx="6" fill="#f0f9ff" stroke="#6366f1" stroke-width="1" filter="url(#sh)"/>
+  <text x="85" y="266" text-anchor="middle" fill="#4338ca" font-size="11" font-weight="600">Together AI</text>
+  <text x="85" y="278" text-anchor="middle" fill="#64748b" font-size="8">Llama-3-70b</text>
+  <line x1="140" y1="266" x2="395" y2="260" stroke="#6366f1" stroke-width="1" opacity="0.4"/>
+
+  <rect x="30" y="292" width="110" height="36" rx="6" fill="#f0f9ff" stroke="#6366f1" stroke-width="1" filter="url(#sh)"/>
+  <text x="85" y="310" text-anchor="middle" fill="#4338ca" font-size="11" font-weight="600">Fireworks</text>
+  <text x="85" y="322" text-anchor="middle" fill="#64748b" font-size="8">fast inference</text>
+  <line x1="140" y1="310" x2="395" y2="270" stroke="#6366f1" stroke-width="1" opacity="0.4"/>
+
+  <rect x="30" y="336" width="110" height="36" rx="6" fill="#f0f9ff" stroke="#6366f1" stroke-width="1" filter="url(#sh)"/>
+  <text x="85" y="354" text-anchor="middle" fill="#4338ca" font-size="11" font-weight="600">OpenRouter</text>
+  <text x="85" y="366" text-anchor="middle" fill="#64748b" font-size="8">any model</text>
+  <line x1="140" y1="354" x2="395" y2="275" stroke="#6366f1" stroke-width="1" opacity="0.4"/>
+
+  <!-- Right side providers -->
+  <rect x="760" y="204" width="110" height="36" rx="6" fill="#f0f9ff" stroke="#6366f1" stroke-width="1" filter="url(#sh)"/>
+  <text x="815" y="222" text-anchor="middle" fill="#4338ca" font-size="11" font-weight="600">DeepSeek</text>
+  <text x="815" y="234" text-anchor="middle" fill="#64748b" font-size="8">deepseek-chat</text>
+  <line x1="760" y1="222" x2="505" y2="250" stroke="#6366f1" stroke-width="1" opacity="0.4"/>
+
+  <rect x="760" y="248" width="110" height="36" rx="6" fill="#f0f9ff" stroke="#6366f1" stroke-width="1" filter="url(#sh)"/>
+  <text x="815" y="266" text-anchor="middle" fill="#4338ca" font-size="11" font-weight="600">Cerebras</text>
+  <text x="815" y="278" text-anchor="middle" fill="#64748b" font-size="8">ultra-fast</text>
+  <line x1="760" y1="266" x2="505" y2="260" stroke="#6366f1" stroke-width="1" opacity="0.4"/>
+
+  <rect x="760" y="292" width="110" height="36" rx="6" fill="#f0f9ff" stroke="#6366f1" stroke-width="1" filter="url(#sh)"/>
+  <text x="815" y="310" text-anchor="middle" fill="#4338ca" font-size="11" font-weight="600">SambaNova</text>
+  <text x="815" y="322" text-anchor="middle" fill="#64748b" font-size="8">fast inference</text>
+  <line x1="760" y1="310" x2="505" y2="270" stroke="#6366f1" stroke-width="1" opacity="0.4"/>
+
+  <rect x="760" y="336" width="110" height="36" rx="6" fill="#f0f9ff" stroke="#6366f1" stroke-width="1" filter="url(#sh)"/>
+  <text x="815" y="354" text-anchor="middle" fill="#4338ca" font-size="11" font-weight="600">HuggingFace</text>
+  <text x="815" y="366" text-anchor="middle" fill="#64748b" font-size="8">Inference API</text>
+  <line x1="760" y1="354" x2="505" y2="275" stroke="#6366f1" stroke-width="1" opacity="0.4"/>
+
+  <!-- Bottom: Local + Universal -->
+  <text x="450" y="340" text-anchor="middle" fill="#64748b" font-size="11" font-weight="600">LOCAL + UNIVERSAL</text>
+
+  <rect x="250" y="352" width="110" height="36" rx="6" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="305" y="370" text-anchor="middle" fill="#166534" font-size="11" font-weight="600">Ollama</text>
+  <text x="305" y="382" text-anchor="middle" fill="#64748b" font-size="8">local models</text>
+  <line x1="305" y1="352" x2="430" y2="310" stroke="#22c55e" stroke-width="1" opacity="0.5"/>
+
+  <rect x="390" y="352" width="120" height="36" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="450" y="370" text-anchor="middle" fill="#92400e" font-size="11" font-weight="600">LiteLLM</text>
+  <text x="450" y="382" text-anchor="middle" fill="#64748b" font-size="8">100+ providers</text>
+  <line x1="450" y1="352" x2="450" y2="315" stroke="#f59e0b" stroke-width="1" opacity="0.5"/>
+
+  <rect x="540" y="352" width="110" height="36" rx="6" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5" filter="url(#sh)"/>
+  <text x="595" y="370" text-anchor="middle" fill="#9d174d" font-size="11" font-weight="600">FunctionLLM</text>
+  <text x="595" y="382" text-anchor="middle" fill="#64748b" font-size="8">any callable</text>
+  <line x1="595" y1="352" x2="470" y2="310" stroke="#ec4899" stroke-width="1" opacity="0.5"/>
+
+  <!-- Bottom: Custom URL -->
+  <rect x="200" y="410" width="500" height="40" rx="8" fill="#ede9fe" stroke="#8b5cf6" stroke-width="2" filter="url(#sh)"/>
+  <text x="450" y="430" text-anchor="middle" fill="#4c1d95" font-size="12" font-weight="700">OpenAICompatibleLLM(base_url="https://your-api.com/v1", model="...", api_key="...")</text>
+  <text x="450" y="444" text-anchor="middle" fill="#6d28d9" font-size="10">Works with ANY OpenAI-compatible endpoint — zero SDK dependencies</text>
+
+  <!-- Footer -->
+  <text x="450" y="474" text-anchor="middle" fill="#94a3b8" font-size="11">All backends share one interface: llm.generate(prompt) -> str</text>
+</svg>

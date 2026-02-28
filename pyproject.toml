@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "treedex"
+version = "0.1.0"
+description = "Tree-based, vectorless document RAG framework. Connect any LLM via URL/API key."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Mithun Gowda B", email = "mithungowda.b7411@gmail.com" },
+]
+keywords = ["rag", "retrieval", "llm", "tree", "document", "pdf", "ai", "vectorless"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Text Processing :: Indexing",
+]
+dependencies = [
+    "pymupdf>=1.26.0",
+    "tiktoken>=0.11.0",
+]
+
+[project.optional-dependencies]
+gemini = ["google-generativeai>=0.8.0"]
+openai = ["openai>=1.0.0"]
+claude = ["anthropic>=0.40.0"]
+mistral = ["mistralai>=1.0.0"]
+cohere = ["cohere>=5.0.0"]
+litellm = ["litellm>=1.0.0"]
+docx = ["python-docx>=1.0.0"]
+all = [
+    "google-generativeai>=0.8.0",
+    "openai>=1.0.0",
+    "anthropic>=0.40.0",
+    "mistralai>=1.0.0",
+    "cohere>=5.0.0",
+    "litellm>=1.0.0",
+    "python-docx>=1.0.0",
+]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/mithun50/TreeDex"
+Repository = "https://github.com/mithun50/TreeDex"
+Issues = "https://github.com/mithun50/TreeDex/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["treedex"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
