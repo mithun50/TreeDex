@@ -29,6 +29,11 @@ import urllib.request
 import urllib.error
 from abc import ABC, abstractmethod
 
+try:
+    import requests as _requests
+except ImportError:
+    _requests = None
+
 
 # ---------------------------------------------------------------------------
 # Base
@@ -216,7 +221,8 @@ class OpenAICompatibleLLM(BaseLLM):
     OpenRouter, DeepSeek, Cerebras, SambaNova, Ollama (OpenAI mode),
     and any other compatible service.
 
-    Uses only stdlib (urllib) — zero SDK dependencies.
+    Uses `requests` if available (avoids Cloudflare blocks),
+    falls back to stdlib `urllib`.
     """
 
     def __init__(
@@ -235,6 +241,16 @@ class OpenAICompatibleLLM(BaseLLM):
         self.temperature = temperature
         self.extra_headers = extra_headers or {}
 
+    def _build_headers(self) -> dict:
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": "TreeDex/0.1",
+        }
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        headers.update(self.extra_headers)
+        return headers
+
     def generate(self, prompt: str) -> str:
         url = f"{self.base_url}/chat/completions"
 
@@ -245,26 +261,26 @@ class OpenAICompatibleLLM(BaseLLM):
             "temperature": self.temperature,
         }
 
-        data = json.dumps(payload).encode("utf-8")
+        headers = self._build_headers()
 
-        headers = {
-            "Content-Type": "application/json",
-            "User-Agent": "TreeDex/0.1",
-        }
-        if self.api_key:
-            headers["Authorization"] = f"Bearer {self.api_key}"
-        headers.update(self.extra_headers)
-
-        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-
-        try:
-            with urllib.request.urlopen(req, timeout=120) as resp:
-                body = json.loads(resp.read().decode("utf-8"))
-        except urllib.error.HTTPError as e:
-            error_body = e.read().decode("utf-8", errors="replace")
-            raise RuntimeError(
-                f"API request failed ({e.code}): {error_body}"
-            ) from e
+        if _requests is not None:
+            resp = _requests.post(url, json=payload, headers=headers, timeout=120)
+            if resp.status_code != 200:
+                raise RuntimeError(
+                    f"API request failed ({resp.status_code}): {resp.text}"
+                )
+            body = resp.json()
+        else:
+            data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+            try:
+                with urllib.request.urlopen(req, timeout=120) as resp:
+                    body = json.loads(resp.read().decode("utf-8"))
+            except urllib.error.HTTPError as e:
+                error_body = e.read().decode("utf-8", errors="replace")
+                raise RuntimeError(
+                    f"API request failed ({e.code}): {error_body}"
+                ) from e
 
         return body["choices"][0]["message"]["content"]
 
@@ -428,23 +444,30 @@ class HuggingFaceLLM(BaseLLM):
             "max_tokens": self.max_tokens,
         }
 
-        data = json.dumps(payload).encode("utf-8")
         headers = {
             "Content-Type": "application/json",
             "User-Agent": "TreeDex/0.1",
             "Authorization": f"Bearer {self.api_key}",
         }
 
-        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-
-        try:
-            with urllib.request.urlopen(req, timeout=120) as resp:
-                body = json.loads(resp.read().decode("utf-8"))
-        except urllib.error.HTTPError as e:
-            error_body = e.read().decode("utf-8", errors="replace")
-            raise RuntimeError(
-                f"HuggingFace request failed ({e.code}): {error_body}"
-            ) from e
+        if _requests is not None:
+            resp = _requests.post(url, json=payload, headers=headers, timeout=120)
+            if resp.status_code != 200:
+                raise RuntimeError(
+                    f"HuggingFace request failed ({resp.status_code}): {resp.text}"
+                )
+            body = resp.json()
+        else:
+            data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+            try:
+                with urllib.request.urlopen(req, timeout=120) as resp:
+                    body = json.loads(resp.read().decode("utf-8"))
+            except urllib.error.HTTPError as e:
+                error_body = e.read().decode("utf-8", errors="replace")
+                raise RuntimeError(
+                    f"HuggingFace request failed ({e.code}): {error_body}"
+                ) from e
 
         return body["choices"][0]["message"]["content"]
 
@@ -479,22 +502,29 @@ class OllamaLLM(BaseLLM):
             "stream": False,
         }
 
-        data = json.dumps(payload).encode("utf-8")
         headers = {
             "Content-Type": "application/json",
             "User-Agent": "TreeDex/0.1",
         }
 
-        req = urllib.request.Request(url, data=data, headers=headers, method="POST")
-
-        try:
-            with urllib.request.urlopen(req, timeout=120) as resp:
-                body = json.loads(resp.read().decode("utf-8"))
-        except urllib.error.HTTPError as e:
-            error_body = e.read().decode("utf-8", errors="replace")
-            raise RuntimeError(
-                f"Ollama request failed ({e.code}): {error_body}"
-            ) from e
+        if _requests is not None:
+            resp = _requests.post(url, json=payload, headers=headers, timeout=120)
+            if resp.status_code != 200:
+                raise RuntimeError(
+                    f"Ollama request failed ({resp.status_code}): {resp.text}"
+                )
+            body = resp.json()
+        else:
+            data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(url, data=data, headers=headers, method="POST")
+            try:
+                with urllib.request.urlopen(req, timeout=120) as resp:
+                    body = json.loads(resp.read().decode("utf-8"))
+            except urllib.error.HTTPError as e:
+                error_body = e.read().decode("utf-8", errors="replace")
+                raise RuntimeError(
+                    f"Ollama request failed ({e.code}): {error_body}"
+                ) from e
 
         return body["response"]
 
