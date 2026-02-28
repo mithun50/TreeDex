@@ -1,0 +1,2 @@
+pymupdf>=1.26.0
+tiktoken>=0.11.0
