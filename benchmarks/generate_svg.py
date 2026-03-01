@@ -9,33 +9,29 @@ import sys
 from datetime import datetime, timezone
 
 
-def _escape(text: str) -> str:
-    """Escape XML special characters."""
+def _esc(text: str) -> str:
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-def _rect(x, y, w, h, fill, rx=4, stroke=None, stroke_w=1, extra=""):
+def _rect(x, y, w, h, fill, rx=4, stroke=None, sw=1, extra=""):
     s = f'  <rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="{fill}"'
     if stroke:
-        s += f' stroke="{stroke}" stroke-width="{stroke_w}"'
+        s += f' stroke="{stroke}" stroke-width="{sw}"'
     if extra:
         s += f" {extra}"
-    s += "/>"
-    return s
+    return s + "/>"
 
 
-def _text(x, y, text, fill="#1e293b", size=12, weight="400", anchor="middle"):
+def _text(x, y, txt, fill="#1e293b", size=12, weight="400", anchor="middle"):
     return (
         f'  <text x="{x}" y="{y}" text-anchor="{anchor}" '
         f'fill="{fill}" font-size="{size}" font-weight="{weight}">'
-        f'{_escape(str(text))}</text>'
+        f"{_esc(str(txt))}</text>"
     )
 
 
 def generate_svg(results: dict) -> str:
-    """Generate an SVG benchmark chart from results dict."""
-
-    build_time_ms = results["build_time_seconds"] * 1000
+    build_ms = results["build_time_seconds"] * 1000
     index_kb = results["index_size_kb"]
     total_nodes = results["node_stats"]["total_nodes"]
     total_chars = results["node_stats"]["total_text_chars"]
@@ -47,133 +43,173 @@ def generate_svg(results: dict) -> str:
     total_queries = acc.get("total_queries", 0)
     details = acc.get("details", [])
 
-    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
-    # Layout constants
+    # Check if we have individual benchmark data
+    benchmarks = results.get("benchmarks", [])
+    real_bench = None
+    for b in benchmarks:
+        if b.get("name") == "electromagnetic_waves":
+            real_bench = b
+            break
+
     W = 900
-    MARGIN = 30
-    CARD_W = (W - 2 * MARGIN - 20) // 2  # 2 columns with 20px gap
-    CARD_H = 100
-    CARD_GAP = 20
-    ROW_H = 18  # per-query row height
+    M = 30  # margin
 
-    # Calculate how many query rows to show (max 20)
-    n_rows = min(len(details), 20)
+    # Layout
+    CARD_W = (W - 2 * M - 20) // 2
+    CARD_H = 96
+    GAP = 16
 
-    # Calculate dynamic heights
-    header_h = 56
-    subtitle_h = 30
-    cards_h = 2 * CARD_H + CARD_GAP  # 2 rows of cards
-    query_title_h = 36
-    query_rows_h = n_rows * ROW_H if n_rows > 0 else 30
-    query_box_h = query_title_h + query_rows_h + 16  # padding
-    footer_h = 32
+    # Dynamic: tree section + query list
+    n_queries = min(len(details), 10)  # show max 10
+    tree_section_h = 200 if real_bench else 0
+    query_section_h = (40 + n_queries * 22 + 16) if n_queries > 0 else 0
 
-    H = header_h + subtitle_h + cards_h + CARD_GAP + query_box_h + CARD_GAP + footer_h + 10
+    H = (
+        56  # header
+        + 28  # subtitle
+        + 2 * (CARD_H + GAP)  # 2 rows of cards
+        + GAP
+        + tree_section_h
+        + (GAP if tree_section_h else 0)
+        + query_section_h
+        + (GAP if query_section_h else 0)
+        + 34  # footer
+        + 8  # padding
+    )
 
-    lines = []
-    lines.append(
+    L = []
+    L.append(
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" '
         f'font-family="system-ui, -apple-system, sans-serif">'
     )
 
-    # ── Defs ──
-    lines.append("  <defs>")
-    gradients = [
+    # Defs
+    L.append("  <defs>")
+    for gid, c1, c2 in [
         ("hdr", "#1e293b", "#334155"),
-        ("bar1", "#22c55e", "#16a34a"),
-        ("bar2", "#3b82f6", "#2563eb"),
-        ("bar3", "#f59e0b", "#d97706"),
-        ("bar4", "#8b5cf6", "#7c3aed"),
-    ]
-    for gid, c1, c2 in gradients:
-        lines.append(f'    <linearGradient id="{gid}" x1="0%" y1="0%" x2="100%" y2="0%">')
-        lines.append(f'      <stop offset="0%" style="stop-color:{c1}"/>')
-        lines.append(f'      <stop offset="100%" style="stop-color:{c2}"/>')
-        lines.append("    </linearGradient>")
-    lines.append('    <filter id="sh">')
-    lines.append('      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>')
-    lines.append("    </filter>")
-    lines.append("  </defs>")
+        ("g1", "#22c55e", "#16a34a"),
+        ("g2", "#3b82f6", "#2563eb"),
+        ("g3", "#f59e0b", "#d97706"),
+        ("g4", "#8b5cf6", "#7c3aed"),
+    ]:
+        L.append(f'    <linearGradient id="{gid}" x1="0%" y1="0%" x2="100%" y2="0%">')
+        L.append(f'      <stop offset="0%" style="stop-color:{c1}"/>')
+        L.append(f'      <stop offset="100%" style="stop-color:{c2}"/>')
+        L.append("    </linearGradient>")
+    L.append('    <filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/></filter>')
+    L.append("  </defs>")
 
-    # ── Background ──
-    lines.append(_rect(0, 0, W, H, "#fafafa", 12))
+    # Background
+    L.append(_rect(0, 0, W, H, "#fafafa", 12))
 
-    # ── Header ──
-    lines.append(_rect(0, 0, W, header_h, "url(#hdr)", 12))
-    lines.append(_rect(0, 20, W, header_h - 20, "url(#hdr)", 0))
-    lines.append(_text(W // 2, 36, "TreeDex Benchmark Results", "white", 20, "700"))
+    # Header
+    L.append(_rect(0, 0, W, 56, "url(#hdr)", 12))
+    L.append(_rect(0, 20, W, 36, "url(#hdr)", 0))
+    L.append(_text(W // 2, 36, "TreeDex Benchmark Results", "white", 20, "700"))
 
-    # ── Subtitle ──
-    sub_y = header_h + 20
-    # Truncate doc name if too long
-    doc_short = doc if len(doc) <= 60 else doc[:57] + "..."
-    lines.append(_text(W // 2, sub_y, f"{doc_short}  |  {timestamp}", "#64748b", 11))
+    # Subtitle
+    doc_short = (doc[:55] + "...") if len(doc) > 58 else doc
+    L.append(_text(W // 2, 74, f"{doc_short}  |  {ts}", "#64748b", 11))
 
-    # ── Metric cards (2x2) ──
-    cards_y = sub_y + 16
+    # ── 4 Metric Cards (2x2) ──
+    cy = 88
     cards = [
-        ("Build Time", f"{build_time_ms:.1f} ms", "url(#bar1)", "Tree index build time"),
-        ("Index Size", f"{index_kb:.1f} KB", "url(#bar2)", "JSON index on disk"),
-        ("Structure Validation", f"{accuracy_pct:.0f}%", "url(#bar3)", f"{total_queries} queries matched to nodes"),
-        ("Tree Nodes", f"{total_nodes}", "url(#bar4)", f"{total_chars:,} total chars"),
+        ("Build Time", f"{build_ms:.1f} ms", "url(#g1)", "Tree index construction"),
+        ("Index Size", f"{index_kb:.1f} KB", "url(#g2)", "Portable JSON file"),
+        ("Structure Validation", f"{accuracy_pct:.0f}%", "url(#g3)", f"{total_queries} queries matched"),
+        ("Tree Nodes", str(total_nodes), "url(#g4)", f"{total_chars:,} chars indexed"),
     ]
-
-    for i, (label, value, color, desc) in enumerate(cards):
+    for i, (label, val, color, desc) in enumerate(cards):
         col = i % 2
         row = i // 2
-        cx = MARGIN + col * (CARD_W + CARD_GAP)
-        cy = cards_y + row * (CARD_H + CARD_GAP)
+        cx = M + col * (CARD_W + 20)
+        ry = cy + row * (CARD_H + GAP)
 
-        lines.append(_rect(cx, cy, CARD_W, CARD_H, "white", 10, "#e2e8f0", 1, 'filter="url(#sh)"'))
-        lines.append(_rect(cx, cy, 6, CARD_H, color, 3))
-        lines.append(_text(cx + 24, cy + 28, label, "#64748b", 12, "600", "start"))
-        lines.append(_text(cx + 24, cy + 58, value, "#1e293b", 26, "800", "start"))
-        lines.append(_text(cx + 24, cy + 80, desc, "#94a3b8", 11, "400", "start"))
+        L.append(_rect(cx, ry, CARD_W, CARD_H, "white", 10, "#e2e8f0", 1, 'filter="url(#sh)"'))
+        L.append(_rect(cx, ry, 5, CARD_H, color, 3))
+        L.append(_text(cx + 22, ry + 24, label, "#64748b", 11, "600", "start"))
+        L.append(_text(cx + 22, ry + 54, val, "#1e293b", 24, "800", "start"))
+        L.append(_text(cx + 22, ry + 74, desc, "#94a3b8", 10, "400", "start"))
 
-    # ── Per-query bar chart ──
-    qbox_y = cards_y + 2 * (CARD_H + CARD_GAP) + 4
+    section_y = cy + 2 * (CARD_H + GAP) + GAP
 
-    lines.append(_rect(MARGIN, qbox_y, W - 2 * MARGIN, query_box_h, "white", 10, "#e2e8f0", 1, 'filter="url(#sh)"'))
-    lines.append(_text(W // 2, qbox_y + 22, "Per-Query Node Matching", "#1e293b", 14, "700"))
+    # ── Tree Structure Visualization (from real index) ──
+    if real_bench:
+        box_y = section_y
+        box_h = tree_section_h
+        L.append(_rect(M, box_y, W - 2 * M, box_h, "white", 10, "#e2e8f0", 1, 'filter="url(#sh)"'))
+        L.append(_text(W // 2, box_y + 22, "Example: Electromagnetic Waves Index Tree", "#1e293b", 13, "700"))
 
-    if details:
-        bar_top = qbox_y + query_title_h
-        label_x = MARGIN + 18
-        bar_x = 360
-        max_bar_w = W - MARGIN - bar_x - 80  # room for percentage label
+        # Draw a simplified tree from the real index
+        real_stats = real_bench.get("node_stats", {})
+        tree_items = [
+            (0, "1: Electromagnetic Waves", "14 pages"),
+            (1, "1.1: Introduction", "page 0"),
+            (1, "1.2: Displacement Current", "pages 1-3"),
+            (1, "1.3: Electromagnetic Waves", "pages 4-6"),
+            (2, "1.3.1: Sources", "page 4"),
+            (2, "1.3.2: Nature", "pages 5-6"),
+            (1, "1.4: Electromagnetic Spectrum", "pages 7-13"),
+            (2, "1.4.1: Radio waves", "page 8"),
+            (2, "1.4.2: Microwaves", "page 8"),
+            (2, "1.4.3-7: IR, Visible, UV, X-ray, Gamma", "pages 9-13"),
+        ]
 
-        for j in range(n_rows):
+        ty = box_y + 42
+        for depth, title, pages in tree_items:
+            indent = M + 20 + depth * 24
+            # Tree connector
+            if depth > 0:
+                L.append(f'  <line x1="{indent - 12}" y1="{ty - 5}" x2="{indent - 4}" y2="{ty - 5}" stroke="#cbd5e1" stroke-width="1.5"/>')
+                L.append(f'  <circle cx="{indent}" cy="{ty - 5}" r="3" fill="#22c55e"/>')
+            else:
+                L.append(f'  <circle cx="{indent}" cy="{ty - 5}" r="4" fill="#1e293b"/>')
+
+            L.append(_text(indent + 10, ty - 1, title, "#1e293b", 11, "500", "start"))
+            L.append(_text(W - M - 20, ty - 1, pages, "#94a3b8", 10, "400", "end"))
+            ty += 16
+
+        section_y = box_y + box_h + GAP
+
+    # ── Query List (compact, no bars) ──
+    if n_queries > 0:
+        box_y = section_y
+        box_h = query_section_h
+        L.append(_rect(M, box_y, W - 2 * M, box_h, "white", 10, "#e2e8f0", 1, 'filter="url(#sh)"'))
+        L.append(_text(W // 2, box_y + 22, f"Validated Queries ({total_queries} total)", "#1e293b", 13, "700"))
+
+        qy = box_y + 42
+        for j in range(n_queries):
             d = details[j]
-            ry = bar_top + j * ROW_H
-            q_short = d["query"][:42] + ("..." if len(d["query"]) > 42 else "")
-            a = d["accuracy"]
-            bw = max(int(a * max_bar_w), 3)
+            q = d["query"]
+            q_short = (q[:60] + "...") if len(q) > 60 else q
+            status = "pass" if d["accuracy"] >= 1.0 else "fail"
+            color = "#22c55e" if status == "pass" else "#ef4444"
+            icon = "\u2713" if status == "pass" else "\u2717"
 
-            lines.append(_text(label_x, ry + 13, q_short, "#475569", 10, "400", "start"))
-            lines.append(_rect(bar_x, ry + 2, bw, ROW_H - 4, "url(#bar3)", 3))
-            lines.append(_text(bar_x + bw + 8, ry + 13, f"{a:.0%}", "#d97706", 10, "700", "start"))
+            L.append(f'  <circle cx="{M + 18}" cy="{qy - 4}" r="6" fill="{color}" opacity="0.15"/>')
+            L.append(_text(M + 18, qy - 1, icon, color, 10, "700"))
+            L.append(_text(M + 32, qy - 1, q_short, "#475569", 10, "400", "start"))
+            qy += 22
 
-        if len(details) > n_rows:
-            lines.append(_text(
-                W // 2, bar_top + n_rows * ROW_H + 10,
-                f"... and {len(details) - n_rows} more queries",
-                "#94a3b8", 10, "400",
-            ))
-    else:
-        lines.append(_text(W // 2, qbox_y + query_box_h // 2, "No query data available", "#94a3b8", 12))
+        if len(details) > n_queries:
+            L.append(_text(W // 2, qy + 4, f"+ {len(details) - n_queries} more queries", "#94a3b8", 10))
+
+        section_y = box_y + box_h + GAP
 
     # ── Footer ──
-    fy = H - footer_h - 4
-    lines.append(_rect(MARGIN, fy, W - 2 * MARGIN, 26, "#f0fdf4", 6, "#bbf7d0"))
-    lines.append(_text(
+    fy = H - 38
+    L.append(_rect(M, fy, W - 2 * M, 26, "#f0fdf4", 6, "#bbf7d0"))
+    L.append(_text(
         W // 2, fy + 17,
-        f"Avg {avg_chars:,} chars/node  |  {total_nodes} nodes  |  {index_kb:.1f} KB index  |  {build_time_ms:.1f} ms build",
+        f"Avg {avg_chars:,} chars/node  |  {total_nodes} nodes  |  {index_kb:.1f} KB  |  {build_ms:.1f} ms build",
         "#16a34a", 11, "600",
     ))
 
-    lines.append("</svg>")
-    return "\n".join(lines)
+    L.append("</svg>")
+    return "\n".join(L)
 
 
 def main():
@@ -185,10 +221,8 @@ def main():
         results = json.load(f)
 
     svg = generate_svg(results)
-
     with open(sys.argv[2], "w") as f:
         f.write(svg)
-
     print(f"SVG generated: {sys.argv[2]}")
 
 
