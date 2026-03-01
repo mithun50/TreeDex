@@ -14,8 +14,8 @@
 
 import express from "express";
 import multer from "multer";
-import { readFile, unlink, mkdir } from "node:fs/promises";
-import { join, dirname } from "node:path";
+import { readFile, unlink, mkdir, rename } from "node:fs/promises";
+import { join, dirname, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { TreeDex, OpenAICompatibleLLM, type BaseLLM } from "treedex";
 
@@ -65,8 +65,11 @@ app.post("/api/index", upload.single("file"), async (req, res) => {
       return;
     }
 
-    const filePath = req.file.path;
     const originalName = req.file.originalname;
+    const ext = extname(originalName).toLowerCase();
+    // Multer strips the extension — rename so autoLoader can detect format
+    const filePath = req.file.path + ext;
+    await rename(req.file.path, filePath);
     currentFileName = originalName;
 
     console.log(`Indexing: ${originalName}`);
