@@ -1,6 +1,6 @@
 {
   "name": "treedex",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Tree-based, vectorless document RAG framework. Connect any LLM via URL/API key.",
   "type": "module",
   "main": "dist/index.cjs",

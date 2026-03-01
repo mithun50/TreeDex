@@ -16,598 +16,772 @@
       --text2: #8888a0;
       --accent: #6c5ce7;
       --accent2: #a29bfe;
+      --accent-dim: #6c5ce720;
       --green: #00b894;
       --orange: #fdcb6e;
       --red: #e17055;
       --radius: 12px;
+      --sidebar-w: 280px;
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
     }
 
-    header {
+    /* --- Layout --- */
+    .app {
+      display: flex;
+      height: 100vh;
+      height: 100dvh;
+    }
+
+    /* --- Sidebar --- */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 16px;
       border-bottom: 1px solid var(--border);
-      padding: 16px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
-    header h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.5px; }
-    header h1 span { color: var(--accent2); }
-
-    .badge {
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      background: var(--surface2);
-      color: var(--text2);
-      border: 1px solid var(--border);
+    .sidebar-header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
     }
 
-    .badge.connected { color: var(--green); border-color: #00b89444; }
+    .sidebar-header h1 span { color: var(--accent2); }
 
-    .container { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: var(--surface2);
+      color: var(--green);
+      border: 1px solid #00b89444;
+    }
 
-    /* Upload Section */
-    .upload-area {
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    /* Upload zone (compact) */
+    .upload-zone {
       border: 2px dashed var(--border);
       border-radius: var(--radius);
-      padding: 40px;
+      padding: 16px;
       text-align: center;
       cursor: pointer;
       transition: border-color 0.2s, background 0.2s;
-      margin-bottom: 24px;
+      margin-bottom: 12px;
     }
 
-    .upload-area:hover, .upload-area.dragover {
+    .upload-zone:hover, .upload-zone.dragover {
       border-color: var(--accent);
-      background: #6c5ce710;
+      background: var(--accent-dim);
     }
 
-    .upload-area h2 { font-size: 16px; margin-bottom: 8px; font-weight: 500; }
-    .upload-area p { color: var(--text2); font-size: 13px; }
-    .upload-area input { display: none; }
+    .upload-zone .icon { font-size: 20px; margin-bottom: 4px; }
+    .upload-zone p { font-size: 12px; color: var(--text2); line-height: 1.4; }
+    .upload-zone p strong { color: var(--text); font-size: 13px; }
+    .upload-zone input { display: none; }
 
-    /* Tabs */
-    .tabs { display: flex; gap: 4px; margin-bottom: 16px; }
-
-    .tab {
-      padding: 8px 16px;
+    /* Tab strip */
+    .tab-strip {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 12px;
+      background: var(--bg);
       border-radius: 8px;
-      font-size: 13px;
-      border: 1px solid var(--border);
+      padding: 2px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 6px 0;
+      font-size: 11px;
+      font-weight: 500;
+      border: none;
+      border-radius: 6px;
       background: transparent;
       color: var(--text2);
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.15s;
     }
 
-    .tab.active { background: var(--accent); color: white; border-color: var(--accent); }
-    .tab:hover:not(.active) { background: var(--surface2); }
+    .tab-btn.active { background: var(--accent); color: white; }
+    .tab-btn:hover:not(.active) { color: var(--text); }
 
-    /* Text input */
-    .text-input-area { display: none; margin-bottom: 24px; }
-    .text-input-area.visible { display: block; }
+    /* Tab panels */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
 
-    .text-input-area textarea {
+    /* Text input panel */
+    .text-panel textarea {
       width: 100%;
-      min-height: 150px;
-      background: var(--surface);
+      min-height: 80px;
+      background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
+      border-radius: 8px;
       color: var(--text);
-      padding: 12px;
-      font-size: 14px;
+      padding: 8px;
+      font-size: 12px;
       font-family: inherit;
       resize: vertical;
+      margin-bottom: 6px;
     }
 
-    .text-input-area textarea:focus { outline: none; border-color: var(--accent); }
-    .text-input-area .btn-row { margin-top: 8px; display: flex; gap: 8px; }
+    .text-panel textarea:focus { outline: none; border-color: var(--accent); }
 
-    /* Document Library */
-    .doc-library {
-      display: none;
-      margin-bottom: 24px;
+    .text-panel .text-title {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 6px 8px;
+      font-size: 12px;
+      font-family: inherit;
+      margin-bottom: 6px;
     }
 
-    .doc-library.visible { display: block; }
+    .text-panel .text-title:focus { outline: none; border-color: var(--accent); }
 
-    .doc-library h3 {
-      font-size: 14px;
-      color: var(--text2);
-      margin-bottom: 12px;
+    /* Load index panel */
+    .load-panel .load-zone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .load-panel .load-zone:hover { border-color: var(--accent); }
+    .load-panel .load-zone p { font-size: 12px; color: var(--text2); }
+    .load-panel .load-zone input { display: none; }
+
+    /* Sidebar buttons */
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 500;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      width: 100%;
+    }
+
+    .btn-primary:hover { background: #5b4bd5; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Document list */
+    .doc-section-title {
+      font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      color: var(--text2);
+      padding: 12px 0 6px;
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
     }
 
-    .doc-list { display: flex; flex-direction: column; gap: 8px; }
+    .doc-list { display: flex; flex-direction: column; gap: 4px; }
 
     .doc-item {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
+      padding: 8px;
+      background: var(--bg);
+      border-radius: 8px;
+      gap: 8px;
+      position: relative;
     }
 
-    .doc-info { flex: 1; }
+    .doc-item .doc-info { flex: 1; min-width: 0; }
 
-    .doc-name {
-      font-weight: 500;
-      font-size: 14px;
-    }
-
-    .doc-meta {
+    .doc-item .doc-name {
       font-size: 12px;
-      color: var(--text2);
-      margin-top: 2px;
-    }
-
-    .doc-actions { display: flex; gap: 6px; }
-
-    /* Query Section */
-    .query-section { display: none; }
-    .query-section.visible { display: block; }
-
-    .query-input { display: flex; gap: 8px; margin-bottom: 20px; }
-
-    .query-input input {
-      flex: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      color: var(--text);
-      padding: 12px 16px;
-      font-size: 15px;
-    }
-
-    .query-input input:focus { outline: none; border-color: var(--accent); }
-    .query-input input::placeholder { color: var(--text2); }
-
-    /* Buttons */
-    .btn {
-      padding: 10px 20px;
-      border-radius: var(--radius);
-      font-size: 14px;
       font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .doc-item .doc-meta {
+      font-size: 10px;
+      color: var(--text2);
+      margin-top: 1px;
+    }
+
+    .doc-item .doc-actions {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .doc-item .doc-actions button {
+      background: none;
       border: none;
       cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
+      font-size: 12px;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: background 0.15s;
+      color: var(--text2);
+    }
+
+    .doc-item .doc-actions button:hover { background: var(--surface2); color: var(--text); }
+    .doc-item .doc-actions .remove-btn:hover { color: var(--red); }
+
+    /* Progress states */
+    .doc-item.pending .doc-name::before { content: ""; }
+    .doc-item.indexing .doc-meta { color: var(--orange); }
+    .doc-item.done .doc-meta { color: var(--text2); }
+    .doc-item.error .doc-meta { color: var(--red); }
+
+    .doc-status-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      font-size: 12px;
     }
 
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-primary:hover { background: #5b4bd5; }
-    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .doc-status-icon.spinning {
+      animation: spin 0.8s linear infinite;
+      border: 2px solid var(--border);
+      border-top-color: var(--orange);
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+    }
 
-    .btn-secondary {
-      background: var(--surface2);
-      color: var(--text);
+    /* --- Chat Area --- */
+    .chat-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .chat-header {
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-header .title { font-size: 14px; color: var(--text2); }
+
+    .hamburger {
+      display: none;
+      background: none;
       border: 1px solid var(--border);
-    }
-
-    .btn-secondary:hover { background: var(--border); }
-
-    .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
-
-    .btn-danger {
-      background: transparent;
-      color: var(--red);
-      border: 1px solid var(--red);
-      padding: 4px 10px;
-      font-size: 11px;
+      color: var(--text);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
       border-radius: 6px;
     }
 
-    .btn-danger:hover { background: #e1705520; }
-
-    /* Results */
-    .result-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      margin-bottom: 16px;
-      overflow: hidden;
-    }
-
-    .result-header {
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border);
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Welcome message + main upload */
+    .welcome {
+      flex: 1;
+      display: flex;
       align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--text2);
     }
 
-    .result-header .label { font-size: 12px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
-    .result-header .pages { font-size: 12px; color: var(--green); font-weight: 500; }
+    .welcome .welcome-inner { max-width: 440px; }
+    .welcome .icon { font-size: 48px; margin-bottom: 12px; }
+    .welcome h2 { font-size: 18px; color: var(--text); margin-bottom: 6px; font-weight: 500; }
+    .welcome p { font-size: 13px; line-height: 1.6; margin-bottom: 20px; }
 
-    .result-answer {
-      padding: 16px 18px;
+    .welcome-upload {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin: 0 auto;
+    }
+
+    .welcome-upload:hover, .welcome-upload.dragover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .welcome-upload .upload-label {
       font-size: 15px;
-      line-height: 1.8;
-      white-space: pre-wrap;
-      background: #6c5ce708;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .result-answer .answer-label {
-      font-size: 11px;
+      font-weight: 500;
       color: var(--accent2);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
 
-    .result-reasoning {
-      padding: 12px 18px;
-      font-size: 13px;
-      color: var(--orange);
-      background: #fdcb6e08;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .result-context-toggle {
-      padding: 10px 18px;
+    .welcome-upload .upload-hint {
       font-size: 12px;
       color: var(--text2);
-      cursor: pointer;
-      border-bottom: 1px solid var(--border);
-      user-select: none;
     }
 
-    .result-context-toggle:hover { color: var(--text); }
+    .welcome-upload input { display: none; }
 
-    .result-context {
-      padding: 16px 18px;
-      font-size: 13px;
+    /* Chat bubbles */
+    .msg {
+      max-width: 720px;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .msg.user {
+      align-self: flex-end;
+    }
+
+    .msg.user .bubble {
+      background: var(--accent);
+      color: white;
+      border-radius: 16px 16px 4px 16px;
+      padding: 10px 16px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .msg.ai {
+      align-self: flex-start;
+      width: 100%;
+      max-width: 720px;
+    }
+
+    .msg.ai .bubble {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px 16px 16px 16px;
+      padding: 14px 18px;
+      font-size: 14px;
       line-height: 1.7;
       white-space: pre-wrap;
-      max-height: 400px;
-      overflow-y: auto;
-      display: none;
-      color: var(--text2);
+      word-wrap: break-word;
     }
 
-    .result-context.visible { display: block; }
+    /* Sources toggle */
+    .sources-toggle {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--accent2);
+      cursor: pointer;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
 
-    /* Loading */
-    .loading { display: none; text-align: center; padding: 40px; color: var(--text2); }
-    .loading.visible { display: block; }
+    .sources-toggle:hover { color: var(--text); }
 
-    .spinner {
+    .sources-toggle .arrow {
       display: inline-block;
-      width: 24px;
-      height: 24px;
-      border: 3px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 12px;
+      transition: transform 0.2s;
+      font-size: 10px;
     }
+
+    .sources-toggle.open .arrow { transform: rotate(90deg); }
+
+    .sources-panel {
+      display: none;
+      margin-top: 8px;
+      padding: 10px 14px;
+      background: var(--bg);
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .sources-panel.visible { display: block; }
+
+    .source-file {
+      color: var(--green);
+      font-weight: 500;
+    }
+
+    .source-pages {
+      color: var(--text2);
+      margin-left: 4px;
+    }
+
+    .source-reasoning {
+      color: var(--orange);
+      font-size: 11px;
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    .source-context {
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+      color: var(--text2);
+      font-size: 11px;
+      max-height: 200px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    /* Typing indicator */
+    .typing {
+      align-self: flex-start;
+      display: none;
+    }
+
+    .typing.visible { display: flex; }
+
+    .typing .dots {
+      display: flex;
+      gap: 4px;
+      padding: 12px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px 16px 16px 16px;
+    }
+
+    .typing .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text2);
+      animation: bounce 1.4s infinite ease-in-out;
+    }
+
+    .typing .dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Chat input bar */
+    .chat-input-bar {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    .chat-input-wrap {
+      display: flex;
+      gap: 8px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .chat-input-wrap input {
+      flex: 1;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      color: var(--text);
+      padding: 10px 18px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .chat-input-wrap input:focus { outline: none; border-color: var(--accent); }
+    .chat-input-wrap input::placeholder { color: var(--text2); }
+    .chat-input-wrap input:disabled { opacity: 0.5; }
+
+    .send-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover { background: #5b4bd5; }
+    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Error toast */
+    .error-toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #e1705520;
+      border: 1px solid #e1705544;
+      color: var(--red);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 100;
+      display: none;
+    }
+
+    .error-toast.visible { display: block; }
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Error */
-    .error-msg {
+    /* Sidebar overlay for mobile */
+    .sidebar-overlay {
       display: none;
-      padding: 12px 18px;
-      background: #e1705520;
-      border: 1px solid #e1705544;
-      border-radius: var(--radius);
-      color: var(--red);
-      font-size: 13px;
-      margin-bottom: 16px;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 49;
     }
 
-    .error-msg.visible { display: block; }
-
     /* Footer */
-    footer { text-align: center; padding: 24px; color: var(--text2); font-size: 12px; }
-    footer a { color: var(--accent2); text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+    .sidebar-footer {
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 10px;
+      color: var(--text2);
+    }
+
+    .sidebar-footer a { color: var(--accent2); text-decoration: none; }
+    .sidebar-footer a:hover { text-decoration: underline; }
+
+    /* --- Mobile --- */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 50;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-overlay.open { display: block; }
+
+      .hamburger { display: block; }
+
+      .chat-messages { padding: 12px; }
+      .chat-input-bar { padding: 10px 12px; }
+    }
   </style>
 </head>
 <body>
 
-<header>
-  <h1><span>TreeDex</span> Agentic RAG</h1>
-  <span class="badge connected">Groq LLM</span>
-</header>
+<div class="app">
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-<div class="container">
-
-  <!-- Tabs -->
-  <div class="tabs">
-    <button class="tab active" data-tab="file" onclick="switchTab('file')">Upload Files</button>
-    <button class="tab" data-tab="text" onclick="switchTab('text')">Paste Text</button>
-    <button class="tab" data-tab="load" onclick="switchTab('load')">Load Index</button>
-  </div>
-
-  <!-- File Upload (multiple) -->
-  <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-    <h2>Drop documents here or click to browse</h2>
-    <p>Supports PDF, TXT, Markdown, HTML, DOCX — upload multiple files at once</p>
-    <input type="file" id="fileInput" accept=".pdf,.txt,.md,.html,.htm,.docx" multiple>
-  </div>
-
-  <!-- Text Input -->
-  <div class="text-input-area" id="textArea">
-    <textarea id="textInput" placeholder="Paste your document text here..."></textarea>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="indexText()">Index Text</button>
-    </div>
-  </div>
-
-  <!-- Load Index -->
-  <div class="upload-area" id="loadArea" style="display:none" onclick="document.getElementById('indexInput').click()">
-    <h2>Load a saved TreeDex index (.json)</h2>
-    <p>Load a previously saved index to skip re-processing</p>
-    <input type="file" id="indexInput" accept=".json">
-  </div>
-
-  <!-- Error -->
-  <div class="error-msg" id="error"></div>
-
-  <!-- Loading -->
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <p id="loadingText">Indexing documents...</p>
-  </div>
-
-  <!-- Document Library -->
-  <div class="doc-library" id="docLibrary">
-    <h3>Indexed Documents</h3>
-    <div class="doc-list" id="docList"></div>
-  </div>
-
-  <!-- Query -->
-  <div class="query-section" id="querySection">
-    <div class="query-input">
-      <input
-        type="text"
-        id="questionInput"
-        placeholder="Ask a question across all documents..."
-        onkeydown="if(event.key==='Enter') askQuestion()"
-      >
-      <button class="btn btn-primary" id="askBtn" onclick="askQuestion()">Ask</button>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h1><span>TreeDex</span> RAG</h1>
+      <span class="badge">Groq LLM</span>
     </div>
 
-    <div class="loading" id="queryLoading">
-      <div class="spinner"></div>
-      <p>Searching and generating answer...</p>
+    <div class="sidebar-content">
+      <!-- Tab strip -->
+      <div class="tab-strip">
+        <button class="tab-btn active" data-tab="file" onclick="switchTab('file')">File</button>
+        <button class="tab-btn" data-tab="text" onclick="switchTab('text')">Text</button>
+        <button class="tab-btn" data-tab="load" onclick="switchTab('load')">Load</button>
+      </div>
+
+      <!-- File upload (compact — main upload is in the chat area) -->
+      <div class="tab-panel active" id="panel-file">
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+          <p><strong>+ Add more files</strong><br>PDF, TXT, MD, HTML, DOCX</p>
+          <input type="file" id="fileInput" accept=".pdf,.txt,.md,.html,.htm,.docx" multiple>
+        </div>
+      </div>
+
+      <!-- Text input -->
+      <div class="tab-panel" id="panel-text">
+        <input class="text-title" id="textTitle" placeholder="Title (optional)">
+        <textarea id="textInput" placeholder="Paste your text here..."></textarea>
+        <button class="btn-sm btn-primary" onclick="indexText()" id="indexTextBtn">Index Text</button>
+      </div>
+
+      <!-- Load index -->
+      <div class="tab-panel" id="panel-load">
+        <div class="load-zone" onclick="document.getElementById('indexInput').click()">
+          <p><strong>Load saved index</strong><br>(.treedex.json)</p>
+          <input type="file" id="indexInput" accept=".json">
+        </div>
+      </div>
+
+      <!-- Document list -->
+      <div id="docSection" style="display:none">
+        <div class="doc-section-title">Documents</div>
+        <div class="doc-list" id="docList"></div>
+      </div>
     </div>
 
-    <div id="results"></div>
-  </div>
+    <div class="sidebar-footer">
+      Powered by <a href="https://github.com/mithun50/TreeDex" target="_blank">TreeDex</a>
+    </div>
+  </aside>
 
+  <!-- Chat area -->
+  <main class="chat-area">
+    <div class="chat-header">
+      <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+      <span class="title" id="chatTitle">TreeDex Agentic RAG</span>
+      <span></span>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <!-- Welcome + main upload -->
+      <div class="welcome" id="welcome">
+        <div class="welcome-inner">
+          <div class="icon">&#128218;</div>
+          <h2>Upload a document to get started</h2>
+          <p>Drop your PDF, TXT, Markdown, HTML, or DOCX files below, then ask questions about them.</p>
+          <div class="welcome-upload" id="welcomeUpload" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-label">+ Drop files here or click to browse</div>
+            <div class="upload-hint">Supports multiple files at once</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Typing indicator (inside scrollable area) -->
+      <div class="typing" id="typing">
+        <div class="dots">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input bar -->
+    <div class="chat-input-bar">
+      <div class="chat-input-wrap">
+        <input
+          type="text"
+          id="questionInput"
+          placeholder="Ask a question about your documents..."
+          onkeydown="if(event.key==='Enter' && !event.shiftKey) askQuestion()"
+          disabled
+        >
+        <button class="send-btn" id="sendBtn" onclick="askQuestion()" disabled>&#9654;</button>
+      </div>
+    </div>
+  </main>
 </div>
 
-<footer>
-  Powered by <a href="https://github.com/mithun50/TreeDex">TreeDex</a> &mdash; tree-based, vectorless agentic RAG
-</footer>
+<!-- Error toast -->
+<div class="error-toast" id="errorToast"></div>
 
 <script>
-  // --- Tab switching ---
-  function switchTab(tab) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-    document.getElementById('uploadArea').style.display = tab === 'file' ? '' : 'none';
-    document.getElementById('textArea').className = tab === 'text' ? 'text-input-area visible' : 'text-input-area';
-    document.getElementById('loadArea').style.display = tab === 'load' ? '' : 'none';
+  // --- Vercel vs Express detection ---
+  const IS_VERCEL = !window.__EXPRESS_MODE__;
+
+  // --- IndexedDB for Vercel mode ---
+  const IDB_NAME = 'treedex-demo';
+  const IDB_STORE = 'indexes';
+
+  function openIDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(IDB_NAME, 1);
+      req.onupgradeneeded = () => req.result.createObjectStore(IDB_STORE, { keyPath: 'id' });
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
   }
+
+  async function idbPut(doc) {
+    const db = await openIDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).put(doc);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async function idbGetAll() {
+    const db = await openIDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).getAll();
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async function idbDelete(id) {
+    const db = await openIDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).delete(id);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async function idbGet(id) {
+    const db = await openIDB();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).get(id);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  // --- State ---
+  let localDocs = []; // { id, fileName, stats, indexData? }
 
   // --- Helpers ---
-  function showError(msg) {
-    const el = document.getElementById('error');
-    el.textContent = msg;
-    el.className = 'error-msg visible';
-    setTimeout(() => el.className = 'error-msg', 8000);
-  }
-
-  function showLoading(text) {
-    document.getElementById('loadingText').textContent = text;
-    document.getElementById('loading').className = 'loading visible';
-  }
-
-  function hideLoading() {
-    document.getElementById('loading').className = 'loading';
-  }
-
-  function renderDocLibrary(docs) {
-    const list = document.getElementById('docList');
-    list.innerHTML = '';
-
-    for (const doc of docs) {
-      const el = document.createElement('div');
-      el.className = 'doc-item';
-      el.id = 'doc-' + doc.id;
-      el.innerHTML = `
-        <div class="doc-info">
-          <div class="doc-name">${escHtml(doc.fileName)}</div>
-          <div class="doc-meta">${doc.stats.total_pages} pages, ${doc.stats.total_nodes} nodes, ${doc.stats.total_tokens.toLocaleString()} tokens</div>
-        </div>
-        <div class="doc-actions">
-          <button class="btn btn-secondary btn-sm" onclick="saveDoc('${doc.id}')">Save</button>
-          <button class="btn btn-danger" onclick="removeDoc('${doc.id}')">Remove</button>
-        </div>
-      `;
-      list.appendChild(el);
-    }
-
-    const hasDocuments = docs.length > 0;
-    document.getElementById('docLibrary').className = hasDocuments ? 'doc-library visible' : 'doc-library';
-    document.getElementById('querySection').className = hasDocuments ? 'query-section visible' : 'query-section';
-
-    if (hasDocuments) {
-      document.getElementById('questionInput').focus();
-    }
-  }
-
-  function addDocuments(newDocs) {
-    // Get current docs from DOM, add new ones, re-render
-    refreshStatus();
-  }
-
-  async function refreshStatus() {
-    const res = await fetch('/api/status');
-    const data = await res.json();
-    renderDocLibrary(data.documents || []);
-  }
-
-  // --- File upload (multiple) ---
-  const fileInput = document.getElementById('fileInput');
-  fileInput.addEventListener('change', async () => {
-    if (!fileInput.files || fileInput.files.length === 0) return;
-
-    const form = new FormData();
-    for (const file of fileInput.files) {
-      form.append('files', file);
-    }
-
-    const names = Array.from(fileInput.files).map(f => f.name).join(', ');
-    showLoading(`Indexing ${fileInput.files.length} file(s): ${names}`);
-    document.getElementById('error').className = 'error-msg';
-
-    try {
-      const res = await fetch('/api/index', { method: 'POST', body: form });
-      const data = await res.json();
-      hideLoading();
-      if (!res.ok) { showError(data.error); return; }
-      await refreshStatus();
-    } catch (e) {
-      hideLoading();
-      showError('Network error: ' + e.message);
-    }
-
-    fileInput.value = '';
-  });
-
-  // Drag and drop
-  const uploadArea = document.getElementById('uploadArea');
-  uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
-  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
-  uploadArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadArea.classList.remove('dragover');
-    if (e.dataTransfer.files.length > 0) {
-      fileInput.files = e.dataTransfer.files;
-      fileInput.dispatchEvent(new Event('change'));
-    }
-  });
-
-  // --- Text indexing ---
-  async function indexText() {
-    const text = document.getElementById('textInput').value.trim();
-    if (!text) { showError('Paste some text first'); return; }
-
-    showLoading('Indexing pasted text...');
-
-    try {
-      const res = await fetch('/api/index-text', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, title: 'Pasted Text' }),
-      });
-      const data = await res.json();
-      hideLoading();
-      if (!res.ok) { showError(data.error); return; }
-      await refreshStatus();
-    } catch (e) {
-      hideLoading();
-      showError('Network error: ' + e.message);
-    }
-  }
-
-  // --- Load index ---
-  const indexInput = document.getElementById('indexInput');
-  indexInput.addEventListener('change', async () => {
-    if (!indexInput.files[0]) return;
-    const form = new FormData();
-    form.append('file', indexInput.files[0]);
-
-    showLoading('Loading saved index...');
-
-    try {
-      const res = await fetch('/api/load', { method: 'POST', body: form });
-      const data = await res.json();
-      hideLoading();
-      if (!res.ok) { showError(data.error); return; }
-      await refreshStatus();
-    } catch (e) {
-      hideLoading();
-      showError('Network error: ' + e.message);
-    }
-  });
-
-  // --- Save / Remove document ---
-  function saveDoc(id) {
-    window.location.href = '/api/save/' + id;
-  }
-
-  async function removeDoc(id) {
-    await fetch('/api/documents/' + id, { method: 'DELETE' });
-    await refreshStatus();
-  }
-
-  // --- Query ---
-  async function askQuestion() {
-    const input = document.getElementById('questionInput');
-    const question = input.value.trim();
-    if (!question) return;
-
-    document.getElementById('askBtn').disabled = true;
-    document.getElementById('queryLoading').className = 'loading visible';
-
-    try {
-      const res = await fetch('/api/query', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question }),
-      });
-      const data = await res.json();
-
-      document.getElementById('queryLoading').className = 'loading';
-      document.getElementById('askBtn').disabled = false;
-
-      if (!res.ok) { showError(data.error); return; }
-
-      const ctxId = 'ctx-' + Date.now();
-      const sourceInfo = data.source ? `From: ${escHtml(data.source)}` : (data.results && data.results.length > 1 ? `${data.results.length} documents` : '');
-      const html = `
-        <div class="result-card">
-          <div class="result-header">
-            <span class="label">${sourceInfo || 'Nodes ' + data.nodeIds.join(', ')}</span>
-            <span class="pages">${escHtml(data.pagesStr)}</span>
-          </div>
-          <div class="result-answer">
-            <div class="answer-label">Answer</div>
-            ${escHtml(data.answer || 'No answer generated.')}
-          </div>
-          <div class="result-reasoning">${escHtml(data.reasoning)}</div>
-          <div class="result-context-toggle" onclick="document.getElementById('${ctxId}').classList.toggle('visible')">Show source context</div>
-          <div class="result-context" id="${ctxId}">${escHtml(data.context)}</div>
-        </div>
-      `;
-      document.getElementById('results').insertAdjacentHTML('afterbegin', html);
-      input.value = '';
-      input.focus();
-    } catch (e) {
-      document.getElementById('queryLoading').className = 'loading';
-      document.getElementById('askBtn').disabled = false;
-      showError('Network error: ' + e.message);
-    }
-  }
-
   function escHtml(s) {
     if (!s) return '';
     const d = document.createElement('div');
@@ -615,8 +789,444 @@
     return d.innerHTML;
   }
 
-  // --- Check if already indexed (page refresh) ---
-  refreshStatus();
+  function showError(msg) {
+    const el = document.getElementById('errorToast');
+    el.textContent = msg;
+    el.className = 'error-toast visible';
+    setTimeout(() => el.className = 'error-toast', 6000);
+  }
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('open');
+  }
+
+  // --- Tab switching ---
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+    document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+  }
+
+  // --- Document list rendering ---
+  function renderDocs() {
+    const list = document.getElementById('docList');
+    const section = document.getElementById('docSection');
+    list.innerHTML = '';
+
+    if (localDocs.length === 0) {
+      section.style.display = 'none';
+      updateInputState();
+      return;
+    }
+
+    section.style.display = 'block';
+
+    for (const doc of localDocs) {
+      const el = document.createElement('div');
+      el.className = 'doc-item ' + (doc.status || 'done');
+      el.id = 'doc-' + doc.id;
+
+      let statusIcon = '';
+      if (doc.status === 'indexing') {
+        statusIcon = '<div class="doc-status-icon spinning"></div>';
+      } else if (doc.status === 'error') {
+        statusIcon = '<div class="doc-status-icon" style="color:var(--red)">!</div>';
+      } else if (doc.status === 'pending') {
+        statusIcon = '<div class="doc-status-icon" style="color:var(--text2)">&#8987;</div>';
+      } else {
+        statusIcon = '<div class="doc-status-icon" style="color:var(--green)">&#10003;</div>';
+      }
+
+      let metaText = '';
+      if (doc.status === 'indexing') {
+        metaText = 'Indexing...';
+      } else if (doc.status === 'pending') {
+        metaText = 'Waiting...';
+      } else if (doc.status === 'error') {
+        metaText = doc.errorMsg || 'Error';
+      } else if (doc.stats) {
+        metaText = `${doc.stats.total_pages}pg, ${doc.stats.total_nodes} nodes`;
+      }
+
+      el.innerHTML = `
+        ${statusIcon}
+        <div class="doc-info">
+          <div class="doc-name" title="${escHtml(doc.fileName)}">${escHtml(doc.fileName)}</div>
+          <div class="doc-meta">${escHtml(metaText)}</div>
+        </div>
+        <div class="doc-actions">
+          ${doc.status === 'done' || !doc.status ? `<button onclick="saveDoc('${doc.id}')" title="Save index">&#128190;</button>` : ''}
+          <button class="remove-btn" onclick="removeDoc('${doc.id}')" title="Remove">&#10005;</button>
+        </div>
+      `;
+      list.appendChild(el);
+    }
+
+    updateInputState();
+  }
+
+  function updateInputState() {
+    const hasDocs = localDocs.some(d => !d.status || d.status === 'done');
+    document.getElementById('questionInput').disabled = !hasDocs;
+    document.getElementById('sendBtn').disabled = !hasDocs;
+    if (hasDocs) {
+      document.getElementById('welcome').style.display = 'none';
+    }
+  }
+
+  // --- File upload (one at a time for progress) ---
+  const fileInput = document.getElementById('fileInput');
+  fileInput.addEventListener('change', async () => {
+    if (!fileInput.files || fileInput.files.length === 0) return;
+
+    const files = Array.from(fileInput.files);
+    fileInput.value = '';
+
+    // Add all as pending
+    const pendingDocs = files.map((file, i) => ({
+      id: 'tmp-' + Date.now() + '-' + i,
+      fileName: file.name,
+      status: 'pending',
+      file: file,
+    }));
+    localDocs.push(...pendingDocs);
+    renderDocs();
+
+    // Close sidebar on mobile after starting upload
+    if (window.innerWidth <= 768) {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('open');
+    }
+
+    // Index one at a time
+    for (const pending of pendingDocs) {
+      pending.status = 'indexing';
+      renderDocs();
+
+      try {
+        const form = new FormData();
+        form.append('files', pending.file);
+
+        const res = await fetch('/api/index', { method: 'POST', body: form });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+
+        const doc = data.documents[0];
+        pending.id = doc.id;
+        pending.stats = doc.stats;
+        pending.status = 'done';
+        delete pending.file;
+
+        // Store indexData if Vercel mode
+        if (IS_VERCEL && doc.indexData) {
+          await idbPut({ id: doc.id, fileName: doc.fileName, stats: doc.stats, indexData: doc.indexData });
+        }
+      } catch (e) {
+        pending.status = 'error';
+        pending.errorMsg = e.message;
+        delete pending.file;
+      }
+
+      renderDocs();
+    }
+  });
+
+  // Drag and drop — both sidebar zone and main welcome zone
+  function setupDropZone(el) {
+    if (!el) return;
+    el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('dragover'); });
+    el.addEventListener('dragleave', () => el.classList.remove('dragover'));
+    el.addEventListener('drop', (e) => {
+      e.preventDefault();
+      el.classList.remove('dragover');
+      if (e.dataTransfer.files.length > 0) {
+        fileInput.files = e.dataTransfer.files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    });
+  }
+  setupDropZone(document.getElementById('uploadZone'));
+  setupDropZone(document.getElementById('welcomeUpload'));
+
+  // --- Text indexing ---
+  async function indexText() {
+    const text = document.getElementById('textInput').value.trim();
+    if (!text) { showError('Paste some text first'); return; }
+
+    const title = document.getElementById('textTitle').value.trim() || 'Pasted Text';
+    const pending = { id: 'tmp-text-' + Date.now(), fileName: title, status: 'indexing' };
+    localDocs.push(pending);
+    renderDocs();
+
+    document.getElementById('indexTextBtn').disabled = true;
+
+    try {
+      const res = await fetch('/api/index-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, title }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      const doc = data.documents[0];
+      pending.id = doc.id;
+      pending.stats = doc.stats;
+      pending.status = 'done';
+
+      if (IS_VERCEL && doc.indexData) {
+        await idbPut({ id: doc.id, fileName: doc.fileName, stats: doc.stats, indexData: doc.indexData });
+      }
+
+      document.getElementById('textInput').value = '';
+      document.getElementById('textTitle').value = '';
+    } catch (e) {
+      pending.status = 'error';
+      pending.errorMsg = e.message;
+    }
+
+    document.getElementById('indexTextBtn').disabled = false;
+    renderDocs();
+  }
+
+  // --- Load index ---
+  const indexInput = document.getElementById('indexInput');
+  indexInput.addEventListener('change', async () => {
+    if (!indexInput.files[0]) return;
+
+    const fileName = indexInput.files[0].name;
+    const pending = { id: 'tmp-load-' + Date.now(), fileName: fileName.replace('.treedex.json', ''), status: 'indexing' };
+    localDocs.push(pending);
+    renderDocs();
+
+    try {
+      const form = new FormData();
+      form.append('file', indexInput.files[0]);
+
+      const res = await fetch('/api/load', { method: 'POST', body: form });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      const doc = data.documents[0];
+      pending.id = doc.id;
+      pending.fileName = doc.fileName;
+      pending.stats = doc.stats;
+      pending.status = 'done';
+
+      if (IS_VERCEL && doc.indexData) {
+        await idbPut({ id: doc.id, fileName: doc.fileName, stats: doc.stats, indexData: doc.indexData });
+      }
+    } catch (e) {
+      pending.status = 'error';
+      pending.errorMsg = e.message;
+    }
+
+    indexInput.value = '';
+    renderDocs();
+  });
+
+  // --- Save document ---
+  function saveDoc(id) {
+    if (IS_VERCEL) {
+      // In Vercel mode, download from IndexedDB
+      idbGet(id).then(doc => {
+        if (!doc || !doc.indexData) { showError('No index data stored locally'); return; }
+        const blob = new Blob([JSON.stringify(doc.indexData)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = (doc.fileName || 'index') + '.treedex.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    } else {
+      window.location.href = '/api/save/' + id;
+    }
+  }
+
+  // --- Remove document ---
+  async function removeDoc(id) {
+    localDocs = localDocs.filter(d => d.id !== id);
+    renderDocs();
+
+    if (IS_VERCEL) {
+      await idbDelete(id).catch(() => {});
+    } else {
+      await fetch('/api/documents/' + id, { method: 'DELETE' }).catch(() => {});
+    }
+
+    // Show welcome if no docs left
+    if (localDocs.length === 0) {
+      document.getElementById('welcome').style.display = '';
+    }
+  }
+
+  // --- Chat ---
+  function addUserMessage(text) {
+    const el = document.createElement('div');
+    el.className = 'msg user';
+    el.innerHTML = `<div class="bubble">${escHtml(text)}</div>`;
+    document.getElementById('chatMessages').appendChild(el);
+    scrollToBottom();
+  }
+
+  function addAIMessage(data) {
+    const el = document.createElement('div');
+    el.className = 'msg ai';
+
+    // Build sources info
+    let sourcesHtml = '';
+    if (data.results && data.results.length > 0) {
+      const srcId = 'src-' + Date.now();
+      const fileCount = data.results.length;
+      sourcesHtml = `
+        <div class="sources-toggle" onclick="toggleSources(this, '${srcId}')">
+          <span class="arrow">&#9654;</span> Sources (${fileCount} doc${fileCount > 1 ? 's' : ''})
+        </div>
+        <div class="sources-panel" id="${srcId}">
+          ${data.results.map(r => `
+            <div style="margin-bottom:6px">
+              <span class="source-file">${escHtml(r.fileName)}</span>
+              <span class="source-pages">${escHtml(r.pagesStr)}</span>
+              ${r.reasoning ? `<div class="source-reasoning">${escHtml(r.reasoning)}</div>` : ''}
+            </div>
+          `).join('')}
+          ${data.context ? `<div class="source-context">${escHtml(data.context)}</div>` : ''}
+        </div>
+      `;
+    } else if (data.source || data.pagesStr) {
+      const srcId = 'src-' + Date.now();
+      sourcesHtml = `
+        <div class="sources-toggle" onclick="toggleSources(this, '${srcId}')">
+          <span class="arrow">&#9654;</span> Sources${data.source ? ': ' + escHtml(data.source) : ''}
+        </div>
+        <div class="sources-panel" id="${srcId}">
+          ${data.source ? `<span class="source-file">${escHtml(data.source)}</span>` : ''}
+          ${data.pagesStr ? `<span class="source-pages">${escHtml(data.pagesStr)}</span>` : ''}
+          ${data.reasoning ? `<div class="source-reasoning">${escHtml(data.reasoning)}</div>` : ''}
+          ${data.context ? `<div class="source-context">${escHtml(data.context)}</div>` : ''}
+        </div>
+      `;
+    }
+
+    el.innerHTML = `
+      <div class="bubble">${escHtml(data.answer || 'No answer generated.')}</div>
+      ${sourcesHtml}
+    `;
+
+    document.getElementById('chatMessages').appendChild(el);
+    scrollToBottom();
+  }
+
+  function toggleSources(toggleEl, panelId) {
+    toggleEl.classList.toggle('open');
+    document.getElementById(panelId).classList.toggle('visible');
+  }
+
+  function scrollToBottom() {
+    const el = document.getElementById('chatMessages');
+    el.scrollTop = el.scrollHeight;
+  }
+
+  async function askQuestion() {
+    const input = document.getElementById('questionInput');
+    const question = input.value.trim();
+    if (!question) return;
+
+    input.value = '';
+    addUserMessage(question);
+
+    // Show typing indicator
+    document.getElementById('typing').className = 'typing visible';
+    document.getElementById('sendBtn').disabled = true;
+    input.disabled = true;
+    scrollToBottom();
+
+    try {
+      let body;
+      if (IS_VERCEL) {
+        // Send indexes from IndexedDB
+        const allDocs = await idbGetAll();
+        const indexes = allDocs.map(d => ({ id: d.id, fileName: d.fileName, data: d.indexData }));
+        body = JSON.stringify({ question, indexes });
+      } else {
+        body = JSON.stringify({ question });
+      }
+
+      const res = await fetch('/api/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+      });
+
+      const data = await res.json();
+
+      document.getElementById('typing').className = 'typing';
+      input.disabled = false;
+      document.getElementById('sendBtn').disabled = false;
+
+      if (!res.ok) {
+        showError(data.error);
+        return;
+      }
+
+      addAIMessage(data);
+      input.focus();
+    } catch (e) {
+      document.getElementById('typing').className = 'typing';
+      input.disabled = false;
+      document.getElementById('sendBtn').disabled = false;
+      showError('Network error: ' + e.message);
+    }
+  }
+
+  // --- Init: load existing docs ---
+  async function init() {
+    if (IS_VERCEL) {
+      // Load from IndexedDB
+      try {
+        const docs = await idbGetAll();
+        localDocs = docs.map(d => ({
+          id: d.id,
+          fileName: d.fileName,
+          stats: d.stats,
+          status: 'done',
+        }));
+      } catch (e) {
+        // IndexedDB not available
+      }
+    } else {
+      // Load from server
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        localDocs = (data.documents || []).map(d => ({
+          id: d.id,
+          fileName: d.fileName,
+          stats: d.stats,
+          status: 'done',
+        }));
+      } catch (e) {
+        // Server might not be ready yet
+      }
+    }
+
+    renderDocs();
+  }
+
+  init();
+
+  // --- Mobile keyboard fix: resize layout when virtual keyboard opens ---
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      document.documentElement.style.height = window.visualViewport.height + 'px';
+    });
+    window.visualViewport.addEventListener('scroll', () => {
+      document.documentElement.style.height = window.visualViewport.height + 'px';
+    });
+  }
 </script>
 
 </body>

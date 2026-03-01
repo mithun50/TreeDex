@@ -4,41 +4,145 @@
  * A web app that indexes multiple documents and answers questions
  * using TreeDex + Groq (fast LLM inference) with agentic RAG.
  *
+ * Features:
+ *   - Disk cache (.cache/) — re-uploading the same file is instant
+ *   - Auto-retry on rate limits (429) with backoff
+ *   - Conversational fallback when no docs match
+ *
  * Usage:
  *   cd examples/node/web-demo
+ *   cp .env.example .env   # fill in your GROQ_API_KEY
  *   npm install
- *   GROQ_API_KEY="gsk_..." npm start
+ *   npm start
  *
  * Then open http://localhost:3000
  */
 
+import "dotenv/config";
 import express from "express";
 import multer from "multer";
-import { readFile, unlink, mkdir, rename } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import {
+  readFile,
+  writeFile,
+  unlink,
+  mkdir,
+  rename,
+  readdir,
+} from "node:fs/promises";
 import { join, dirname, extname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { TreeDex, OpenAICompatibleLLM, type BaseLLM } from "treedex";
+import { TreeDex, OpenAICompatibleLLM, BaseLLM } from "treedex";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // --- Config ---
 const PORT = Number(process.env.PORT) || 3000;
 const GROQ_API_KEY = process.env.GROQ_API_KEY ?? "";
+const LLM_MODEL = process.env.LLM_MODEL ?? "llama-3.3-70b-versatile";
+const LLM_BASE_URL =
+  process.env.LLM_BASE_URL ?? "https://api.groq.com/openai/v1";
 
 if (!GROQ_API_KEY) {
-  console.error("Set GROQ_API_KEY environment variable");
-  console.error('  GROQ_API_KEY="gsk_..." npm start');
+  console.error("Set GROQ_API_KEY in your .env file (see .env.example)");
   process.exit(1);
 }
 
-// --- Groq LLM (fast inference via OpenAI-compatible endpoint) ---
-const llm: BaseLLM = new OpenAICompatibleLLM({
-  baseUrl: "https://api.groq.com/openai/v1",
-  model: "llama-3.3-70b-versatile",
+// --- Rate-limit-aware LLM wrapper (auto-retries on 429) ---
+class RetryLLM extends BaseLLM {
+  private inner: BaseLLM;
+  private maxRetries: number;
+
+  constructor(inner: BaseLLM, maxRetries = 8) {
+    super();
+    this.inner = inner;
+    this.maxRetries = maxRetries;
+  }
+
+  async generate(prompt: string): Promise<string> {
+    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
+      try {
+        return await this.inner.generate(prompt);
+      } catch (err: any) {
+        const msg = err?.message ?? String(err);
+        if (
+          msg.includes("429") ||
+          msg.includes("rate_limit") ||
+          msg.includes("Rate limit")
+        ) {
+          const match = msg.match(/try again in ([\d.]+)s/i);
+          const waitSec = match
+            ? parseFloat(match[1]) + 1.5
+            : 15 * (attempt + 1);
+          console.log(
+            `  Rate limited — waiting ${waitSec.toFixed(1)}s (attempt ${attempt + 1}/${this.maxRetries})`
+          );
+          await new Promise((r) => setTimeout(r, waitSec * 1000));
+          continue;
+        }
+        throw err;
+      }
+    }
+    throw new Error("Rate limit: max retries exceeded");
+  }
+}
+
+const innerLlm = new OpenAICompatibleLLM({
+  baseUrl: LLM_BASE_URL,
+  model: LLM_MODEL,
   apiKey: GROQ_API_KEY,
   maxTokens: 4096,
   temperature: 0.0,
 });
+const llm: BaseLLM = new RetryLLM(innerLlm);
+
+// --- Disk cache for indexed documents ---
+const cacheDir = join(__dirname, ".cache");
+await mkdir(cacheDir, { recursive: true });
+
+/** Hash file contents to create a cache key */
+async function fileHash(filePath: string): Promise<string> {
+  const buf = await readFile(filePath);
+  return createHash("sha256").update(buf).digest("hex").slice(0, 16);
+}
+
+/** Save an index to the disk cache */
+async function cacheWrite(
+  hash: string,
+  fileName: string,
+  index: TreeDex,
+  stats: ReturnType<TreeDex["stats"]>
+): Promise<void> {
+  const data = {
+    fileName,
+    stats,
+    indexData: {
+      version: "1.0",
+      framework: "TreeDex",
+      tree: index.tree,
+      pages: index.pages,
+    },
+  };
+  await writeFile(join(cacheDir, `${hash}.json`), JSON.stringify(data));
+}
+
+/** Try to load an index from the disk cache */
+async function cacheRead(
+  hash: string
+): Promise<{
+  fileName: string;
+  index: TreeDex;
+  stats: ReturnType<TreeDex["stats"]>;
+} | null> {
+  try {
+    const raw = await readFile(join(cacheDir, `${hash}.json`), "utf-8");
+    const data = JSON.parse(raw);
+    const index = TreeDex.fromTree(data.indexData.tree, data.indexData.pages, llm);
+    return { fileName: data.fileName, index, stats: data.stats };
+  } catch {
+    return null;
+  }
+}
 
 // --- State: multi-document library ---
 interface DocEntry {
@@ -56,9 +160,59 @@ function nextId(): string {
   return String(++docCounter);
 }
 
+// --- Restore cached docs on startup ---
+async function restoreCache() {
+  try {
+    const files = await readdir(cacheDir);
+    const jsonFiles = files.filter((f) => f.endsWith(".json"));
+    for (const file of jsonFiles) {
+      try {
+        const raw = await readFile(join(cacheDir, file), "utf-8");
+        const data = JSON.parse(raw);
+        const index = TreeDex.fromTree(
+          data.indexData.tree,
+          data.indexData.pages,
+          llm
+        );
+        const id = nextId();
+        documents.set(id, {
+          id,
+          fileName: data.fileName,
+          index,
+          stats: data.stats,
+          addedAt: Date.now(),
+        });
+        console.log(`  Restored from cache: ${data.fileName} [${id}]`);
+      } catch {
+        // Skip corrupt cache files
+      }
+    }
+    if (documents.size > 0) {
+      console.log(`  ${documents.size} document(s) restored from cache`);
+    }
+  } catch {
+    // No cache dir yet
+  }
+}
+await restoreCache();
+
 // --- Express app ---
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: "50mb" }));
+
+// Inject __EXPRESS_MODE__ flag so the frontend knows it's running on Express
+app.get("/", async (_req, res) => {
+  const html = await readFile(
+    join(__dirname, "public", "index.html"),
+    "utf-8"
+  );
+  const injected = html.replace(
+    "</head>",
+    `<script>window.__EXPRESS_MODE__ = true;</script>\n</head>`
+  );
+  res.type("html").send(injected);
+});
+
 app.use(express.static(join(__dirname, "public")));
 
 // File upload
@@ -69,7 +223,7 @@ const upload = multer({ dest: uploadsDir });
 
 // --- Routes ---
 
-// Upload and index a document (supports multiple files)
+// Upload and index files (with disk cache)
 app.post("/api/index", upload.array("files", 20), async (req, res) => {
   try {
     const files = req.files as Express.Multer.File[];
@@ -78,7 +232,11 @@ app.post("/api/index", upload.array("files", 20), async (req, res) => {
       return;
     }
 
-    const results: Array<{ id: string; fileName: string; stats: ReturnType<TreeDex["stats"]> }> = [];
+    const results: Array<{
+      id: string;
+      fileName: string;
+      stats: ReturnType<TreeDex["stats"]>;
+    }> = [];
 
     for (const file of files) {
       const originalName = file.originalname;
@@ -86,11 +244,30 @@ app.post("/api/index", upload.array("files", 20), async (req, res) => {
       const filePath = file.path + ext;
       await rename(file.path, filePath);
 
-      console.log(`Indexing: ${originalName}`);
-      const index = await TreeDex.fromFile(filePath, llm);
-      await unlink(filePath).catch(() => {});
+      // Check disk cache first
+      const hash = await fileHash(filePath);
+      const cached = await cacheRead(hash);
 
-      const stats = index.stats();
+      let index: TreeDex;
+      let stats: ReturnType<TreeDex["stats"]>;
+
+      if (cached) {
+        console.log(`Cache hit: ${originalName}`);
+        index = cached.index;
+        stats = cached.stats;
+        await unlink(filePath).catch(() => {});
+      } else {
+        console.log(`Indexing: ${originalName}`);
+        index = await TreeDex.fromFile(filePath, llm);
+        stats = index.stats();
+        // Save to cache
+        await cacheWrite(hash, originalName, index, stats);
+        await unlink(filePath).catch(() => {});
+        console.log(
+          `  Indexed & cached: ${stats.total_nodes} nodes, ${stats.total_pages} pages`
+        );
+      }
+
       const id = nextId();
       documents.set(id, {
         id,
@@ -99,8 +276,6 @@ app.post("/api/index", upload.array("files", 20), async (req, res) => {
         stats,
         addedAt: Date.now(),
       });
-
-      console.log(`Indexed [${id}]: ${stats.total_nodes} nodes, ${stats.total_pages} pages`);
       results.push({ id, fileName: originalName, stats });
     }
 
@@ -124,15 +299,33 @@ app.post("/api/index-text", async (req, res) => {
     const fileName = title || "Pasted Text";
     console.log(`Indexing text: ${fileName}`);
 
-    const { textToPages } = await import("treedex");
-    const pages = textToPages(text, 3000);
-    const index = await TreeDex.fromPages(pages, llm, { verbose: true });
+    // Cache by text hash
+    const hash = createHash("sha256")
+      .update(text)
+      .digest("hex")
+      .slice(0, 16);
+    const cached = await cacheRead(hash);
 
-    const stats = index.stats();
+    let index: TreeDex;
+    let stats: ReturnType<TreeDex["stats"]>;
+
+    if (cached) {
+      console.log(`Cache hit: ${fileName}`);
+      index = cached.index;
+      stats = cached.stats;
+    } else {
+      const { textToPages } = await import("treedex");
+      const pages = textToPages(text, 3000);
+      index = await TreeDex.fromPages(pages, llm, { verbose: true });
+      stats = index.stats();
+      await cacheWrite(hash, fileName, index, stats);
+      console.log(
+        `  Indexed & cached: ${stats.total_nodes} nodes, ${stats.total_pages} pages`
+      );
+    }
+
     const id = nextId();
     documents.set(id, { id, fileName, index, stats, addedAt: Date.now() });
-
-    console.log(`Indexed [${id}]: ${stats.total_nodes} nodes, ${stats.total_pages} pages`);
 
     res.json({
       success: true,
@@ -149,19 +342,25 @@ app.post("/api/index-text", async (req, res) => {
 app.post("/api/query", async (req, res) => {
   try {
     if (documents.size === 0) {
-      res.status(400).json({ error: "No documents indexed yet. Upload a file first." });
+      res
+        .status(400)
+        .json({ error: "No documents indexed yet. Upload a file first." });
       return;
     }
 
-    const { question, docId } = req.body as { question?: string; docId?: string };
+    const { question, docId } = req.body as {
+      question?: string;
+      docId?: string;
+    };
     if (!question || question.trim().length === 0) {
       res.status(400).json({ error: "No question provided" });
       return;
     }
 
-    console.log(`Query: ${question}${docId ? ` [doc ${docId}]` : " [all docs]"}`);
+    console.log(
+      `Query: ${question}${docId ? ` [doc ${docId}]` : " [all docs]"}`
+    );
 
-    // If docId specified, query that doc; otherwise query all and merge
     if (docId) {
       const doc = documents.get(docId);
       if (!doc) {
@@ -180,7 +379,6 @@ app.post("/api/query", async (req, res) => {
         source: doc.fileName,
       });
     } else {
-      // Query all documents, collect results
       const allResults: Array<{
         docId: string;
         fileName: string;
@@ -206,9 +404,27 @@ app.post("/api/query", async (req, res) => {
         }
       }
 
-      // Combine answers if multiple docs returned results
       if (allResults.length === 0) {
-        res.json({ answer: "No relevant information found in any document.", context: "", nodeIds: [], pagesStr: "no pages", reasoning: "", results: [] });
+        // No document match — conversational fallback
+        const docNames = Array.from(documents.values())
+          .map((d) => d.fileName)
+          .join(", ");
+        const fallbackPrompt = `You are a helpful document assistant. The user has uploaded these documents: ${docNames}.
+The user said: "${question}"
+
+If this is a greeting or casual message, respond warmly and briefly, mentioning you're ready to answer questions about their documents.
+If this is a real question but no relevant info was found in the documents, say so politely and suggest they rephrase or check if the right documents are uploaded.
+Keep your response concise (1-3 sentences).`;
+        const fallbackAnswer = await llm.generate(fallbackPrompt);
+        res.json({
+          answer: fallbackAnswer,
+          context: "",
+          nodeIds: [],
+          pagesStr: "",
+          reasoning:
+            "No matching document sections found — responded conversationally.",
+          results: [],
+        });
       } else if (allResults.length === 1) {
         const r = allResults[0];
         res.json({
@@ -221,22 +437,27 @@ app.post("/api/query", async (req, res) => {
           results: allResults,
         });
       } else {
-        // Multiple docs — combine context and ask LLM for a unified answer
         const combinedContext = allResults
-          .map(r => `[From: ${r.fileName}]\n${r.context}`)
+          .map((r) => `[From: ${r.fileName}]\n${r.context}`)
           .join("\n\n---\n\n");
 
         const { answerPrompt } = await import("treedex");
-        const unifiedAnswer = await llm.generate(answerPrompt(combinedContext, question));
+        const unifiedAnswer = await llm.generate(
+          answerPrompt(combinedContext, question)
+        );
 
-        const sources = allResults.map(r => `${r.fileName} (${r.pagesStr})`).join(", ");
+        const sources = allResults
+          .map((r) => `${r.fileName} (${r.pagesStr})`)
+          .join(", ");
 
         res.json({
           answer: unifiedAnswer,
           context: combinedContext,
-          nodeIds: allResults.flatMap(r => r.nodeIds),
+          nodeIds: allResults.flatMap((r) => r.nodeIds),
           pagesStr: sources,
-          reasoning: allResults.map(r => `[${r.fileName}] ${r.reasoning}`).join(" | "),
+          reasoning: allResults
+            .map((r) => `[${r.fileName}] ${r.reasoning}`)
+            .join(" | "),
           results: allResults,
         });
       }
@@ -250,7 +471,7 @@ app.post("/api/query", async (req, res) => {
 
 // Get all indexed documents
 app.get("/api/status", (_req, res) => {
-  const docs = Array.from(documents.values()).map(d => ({
+  const docs = Array.from(documents.values()).map((d) => ({
     id: d.id,
     fileName: d.fileName,
     stats: d.stats,
@@ -282,7 +503,10 @@ app.get("/api/save/:id", async (req, res) => {
   await unlink(savePath).catch(() => {});
 
   res.setHeader("Content-Type", "application/json");
-  res.setHeader("Content-Disposition", `attachment; filename="${doc.fileName}.treedex.json"`);
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="${doc.fileName}.treedex.json"`
+  );
   res.send(data);
 });
 
@@ -315,7 +539,8 @@ app.post("/api/load", upload.single("file"), async (req, res) => {
 // --- Start ---
 app.listen(PORT, () => {
   console.log(`\n  TreeDex Web Demo`);
-  console.log(`  LLM: Groq (llama-3.3-70b-versatile)`);
+  console.log(`  LLM: Groq (${LLM_MODEL})`);
+  console.log(`  Cache: ${cacheDir}`);
   console.log(`  Multi-document support enabled`);
   console.log(`  URL: http://localhost:${PORT}\n`);
 });
