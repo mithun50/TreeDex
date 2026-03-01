@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "treedex"
-version = "0.1.1"
+version = "0.1.2"
 description = "Tree-based, vectorless document RAG framework. Connect any LLM via URL/API key."
 readme = "README.md"
 license = "MIT"

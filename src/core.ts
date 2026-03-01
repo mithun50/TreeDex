@@ -22,6 +22,7 @@ import {
   structureExtractionPrompt,
   structureContinuePrompt,
   retrievalPrompt,
+  answerPrompt,
 } from "./prompts.js";
 import type { Page, TreeNode, IndexData, Stats } from "./types.js";
 import type { BaseLLM } from "./llm-backends.js";
@@ -32,17 +33,20 @@ export class QueryResult {
   readonly nodeIds: string[];
   readonly pageRanges: [number, number][];
   readonly reasoning: string;
+  readonly answer: string;
 
   constructor(
     context: string,
     nodeIds: string[],
     pageRanges: [number, number][],
     reasoning: string,
+    answer: string = "",
   ) {
     this.context = context;
     this.nodeIds = nodeIds;
     this.pageRanges = pageRanges;
     this.reasoning = reasoning;
+    this.answer = answer;
   }
 
   /** Human-readable page ranges like 'pages 5-8, 12-15'. */
@@ -216,10 +220,26 @@ export class TreeDex {
    * Query the index and return relevant context.
    *
    * @param question - The user's question
-   * @param llm - Optional LLM override. Uses this.llm if not provided.
+   * @param options - Optional LLM override or agentic mode
    */
-  async query(question: string, llm?: BaseLLM): Promise<QueryResult> {
-    const activeLlm = llm ?? this.llm;
+  async query(
+    question: string,
+    options?: BaseLLM | { llm?: BaseLLM; agentic?: boolean },
+  ): Promise<QueryResult> {
+    // Support both query(q, llm) and query(q, { llm, agentic })
+    let activeLlm: BaseLLM | null;
+    let agentic = false;
+
+    if (options && typeof (options as BaseLLM).generate === "function") {
+      activeLlm = options as BaseLLM;
+    } else if (options && typeof options === "object") {
+      const opts = options as { llm?: BaseLLM; agentic?: boolean };
+      activeLlm = opts.llm ?? this.llm;
+      agentic = opts.agentic ?? false;
+    } else {
+      activeLlm = this.llm;
+    }
+
     if (!activeLlm) {
       throw new Error(
         "No LLM provided. Pass llm to query() or TreeDex constructor.",
@@ -253,7 +273,14 @@ export class TreeDex {
       }
     }
 
-    return new QueryResult(context, nodeIds, pageRanges, reasoning);
+    // Agentic mode: generate an answer from the retrieved context
+    let answer = "";
+    if (agentic && context.length > 0) {
+      const aPrompt = answerPrompt(context, question);
+      answer = await activeLlm.generate(aPrompt);
+    }
+
+    return new QueryResult(context, nodeIds, pageRanges, reasoning, answer);
   }
 
   /** Save the index to a JSON file. */

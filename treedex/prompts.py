@@ -40,6 +40,20 @@ Document text:
 JSON output:
 """
 
+ANSWER_PROMPT = """\
+You are a knowledgeable assistant. Answer the user's question based ONLY on the \
+provided context. Be accurate, concise, and helpful.
+
+If the context does not contain enough information to answer the question, say so clearly.
+
+Context:
+{context}
+
+Question: {query}
+
+Answer:
+"""
+
 RETRIEVAL_PROMPT = """\
 You are a document retrieval system. Given a document's tree structure and a \
 user query, select the most relevant sections that would contain the answer.

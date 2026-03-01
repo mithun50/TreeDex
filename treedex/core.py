@@ -25,6 +25,7 @@ from treedex.prompts import (
     STRUCTURE_EXTRACTION_PROMPT,
     STRUCTURE_CONTINUE_PROMPT,
     RETRIEVAL_PROMPT,
+    ANSWER_PROMPT,
 )
 
 
@@ -32,11 +33,12 @@ class QueryResult:
     """Result of a TreeDex query."""
 
     def __init__(self, context: str, node_ids: list[str],
-                 page_ranges: list, reasoning: str):
+                 page_ranges: list, reasoning: str, answer: str = ""):
         self.context = context
         self.node_ids = node_ids
         self.page_ranges = page_ranges
         self.reasoning = reasoning
+        self.answer = answer
 
     @property
     def pages_str(self) -> str:
@@ -148,12 +150,13 @@ class TreeDex:
         """Create a TreeDex from an existing tree and pages."""
         return cls(tree, pages, llm)
 
-    def query(self, question: str, llm=None) -> QueryResult:
+    def query(self, question: str, llm=None, agentic: bool = False) -> QueryResult:
         """Query the index and return relevant context.
 
         Args:
             question: The user's question
             llm: Optional LLM override. Uses self.llm if None.
+            agentic: If True, generate an answer from retrieved context.
         """
         active_llm = llm or self.llm
         if active_llm is None:
@@ -184,11 +187,18 @@ class TreeDex:
                 end = node.get("end_index", 0)
                 page_ranges.append((start, end))
 
+        # Agentic mode: generate an answer from the retrieved context
+        answer = ""
+        if agentic and context:
+            answer_prompt = ANSWER_PROMPT.format(context=context, query=question)
+            answer = active_llm.generate(answer_prompt)
+
         return QueryResult(
             context=context,
             node_ids=node_ids,
             page_ranges=page_ranges,
             reasoning=reasoning,
+            answer=answer,
         )
 
     def save(self, path: str) -> str:

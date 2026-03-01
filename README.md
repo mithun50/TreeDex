@@ -273,6 +273,41 @@ class MyLLM extends BaseLLM {
 </td></tr>
 </table>
 
+### Agentic RAG — get direct answers
+
+Standard mode returns raw context. **Agentic mode** goes one step further — it retrieves the relevant sections, then generates a direct answer.
+
+<table>
+<tr><th>Python</th><th>Node.js / TypeScript</th></tr>
+<tr><td>
+
+```python
+# Standard: returns context + page ranges
+result = index.query("What is X?")
+print(result.context)
+
+# Agentic: returns a direct answer
+result = index.query("What is X?", agentic=True)
+print(result.answer)     # LLM-generated answer
+print(result.pages_str)  # source pages
+```
+
+</td><td>
+
+```typescript
+// Standard: returns context + page ranges
+const result = await index.query("What is X?");
+console.log(result.context);
+
+// Agentic: returns a direct answer
+const result = await index.query("What is X?", { agentic: true });
+console.log(result.answer);    // LLM-generated answer
+console.log(result.pagesStr);  // source pages
+```
+
+</td></tr>
+</table>
+
 ### Swap LLM at query time
 
 ```python
@@ -337,6 +372,7 @@ Use `auto_loader(path)` / `autoLoader(path)` for automatic format detection.
 | Build from pages | `TreeDex.from_pages(pages, llm)` | `await TreeDex.fromPages(pages, llm)` |
 | Create from tree | `TreeDex.from_tree(tree, pages)` | `TreeDex.fromTree(tree, pages)` |
 | Query | `index.query(question)` | `await index.query(question)` |
+| Agentic query | `index.query(q, agentic=True)` | `await index.query(q, { agentic: true })` |
 | Save | `index.save(path)` | `await index.save(path)` |
 | Load | `TreeDex.load(path, llm)` | `await TreeDex.load(path, llm)` |
 | Show tree | `index.show_tree()` | `index.showTree()` |
@@ -352,6 +388,7 @@ Use `auto_loader(path)` / `autoLoader(path)` for automatic format detection.
 | Page ranges | `.page_ranges` | `.pageRanges` | `[(start, end), ...]` page ranges |
 | Pages string | `.pages_str` | `.pagesStr` | Human-readable: `"pages 5-8, 12-15"` |
 | Reasoning | `.reasoning` | `.reasoning` | LLM's explanation for selection |
+| Answer | `.answer` | `.answer` | LLM-generated answer (agentic mode only) |
 
 ### Cross-language Index Compatibility
 

@@ -45,6 +45,24 @@ JSON output:
 `;
 }
 
+export function answerPrompt(
+  context: string,
+  query: string,
+): string {
+  return `You are a knowledgeable assistant. Answer the user's question based ONLY on the \
+provided context. Be accurate, concise, and helpful.
+
+If the context does not contain enough information to answer the question, say so clearly.
+
+Context:
+${context}
+
+Question: ${query}
+
+Answer:
+`;
+}
+
 export function retrievalPrompt(
   treeStructure: string,
   query: string,
