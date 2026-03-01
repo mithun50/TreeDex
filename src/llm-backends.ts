@@ -258,6 +258,7 @@ export class OpenAICompatibleLLM extends BaseLLM {
   readonly maxTokens: number;
   readonly temperature: number;
   readonly extraHeaders: Record<string, string>;
+  readonly timeout: number;
 
   constructor(options: {
     baseUrl: string;
@@ -266,6 +267,7 @@ export class OpenAICompatibleLLM extends BaseLLM {
     maxTokens?: number;
     temperature?: number;
     extraHeaders?: Record<string, string>;
+    timeout?: number;
   }) {
     super();
     this.baseUrl = options.baseUrl.replace(/\/+$/, "");
@@ -274,6 +276,7 @@ export class OpenAICompatibleLLM extends BaseLLM {
     this.maxTokens = options.maxTokens ?? 4096;
     this.temperature = options.temperature ?? 0.0;
     this.extraHeaders = options.extraHeaders ?? {};
+    this.timeout = options.timeout ?? 300_000;
   }
 
   private buildHeaders(): Record<string, string> {
@@ -302,7 +305,7 @@ export class OpenAICompatibleLLM extends BaseLLM {
       method: "POST",
       headers: this.buildHeaders(),
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(120_000),
+      signal: AbortSignal.timeout(this.timeout),
     });
 
     if (!resp.ok) {
@@ -524,7 +527,7 @@ export class HuggingFaceLLM extends BaseLLM {
         Authorization: `Bearer ${this.apiKey}`,
       },
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(120_000),
+      signal: AbortSignal.timeout(300_000),
     });
 
     if (!resp.ok) {
@@ -579,7 +582,7 @@ export class OllamaLLM extends BaseLLM {
         "User-Agent": "TreeDex/0.1",
       },
       body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(120_000),
+      signal: AbortSignal.timeout(300_000),
     });
 
     if (!resp.ok) {
