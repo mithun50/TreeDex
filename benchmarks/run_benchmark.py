@@ -13,13 +13,11 @@ import argparse
 import json
 import os
 import sys
-import tempfile
 import time
 
 # Allow running from repo root
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from treedex.pdf_parser import extract_pages, pages_to_tagged_text, group_pages
 from treedex.tree_builder import (
     list_to_tree,
     assign_page_ranges,
@@ -30,11 +28,6 @@ from treedex.tree_utils import (
     count_nodes,
     create_node_mapping,
     collect_node_texts,
-    extract_json,
-)
-from treedex.prompts import (
-    STRUCTURE_EXTRACTION_PROMPT,
-    RETRIEVAL_PROMPT,
 )
 
 # ---------------------------------------------------------------------------
@@ -42,20 +35,20 @@ from treedex.prompts import (
 # ---------------------------------------------------------------------------
 
 SYNTHETIC_STRUCTURE = [
-    {"title": "Introduction", "level": 1, "pages": "1-3"},
-    {"title": "Background", "level": 2, "pages": "1-2"},
-    {"title": "Motivation", "level": 2, "pages": "2-3"},
-    {"title": "Methods", "level": 1, "pages": "4-8"},
-    {"title": "Data Collection", "level": 2, "pages": "4-5"},
-    {"title": "Preprocessing", "level": 2, "pages": "5-6"},
-    {"title": "Model Architecture", "level": 2, "pages": "6-8"},
-    {"title": "Attention Mechanism", "level": 3, "pages": "7-8"},
-    {"title": "Results", "level": 1, "pages": "9-12"},
-    {"title": "Quantitative Results", "level": 2, "pages": "9-10"},
-    {"title": "Qualitative Analysis", "level": 2, "pages": "10-12"},
-    {"title": "Discussion", "level": 1, "pages": "13-15"},
-    {"title": "Limitations", "level": 2, "pages": "13-14"},
-    {"title": "Future Work", "level": 2, "pages": "14-15"},
+    {"structure": "1", "title": "Introduction", "pages": "1-3", "physical_index": 1},
+    {"structure": "1.1", "title": "Background", "pages": "1-2", "physical_index": 1},
+    {"structure": "1.2", "title": "Motivation", "pages": "2-3", "physical_index": 2},
+    {"structure": "2", "title": "Methods", "pages": "4-8", "physical_index": 4},
+    {"structure": "2.1", "title": "Data Collection", "pages": "4-5", "physical_index": 4},
+    {"structure": "2.2", "title": "Preprocessing", "pages": "5-6", "physical_index": 5},
+    {"structure": "2.3", "title": "Model Architecture", "pages": "6-8", "physical_index": 6},
+    {"structure": "2.3.1", "title": "Attention Mechanism", "pages": "7-8", "physical_index": 7},
+    {"structure": "3", "title": "Results", "pages": "9-12", "physical_index": 9},
+    {"structure": "3.1", "title": "Quantitative Results", "pages": "9-10", "physical_index": 9},
+    {"structure": "3.2", "title": "Qualitative Analysis", "pages": "10-12", "physical_index": 10},
+    {"structure": "4", "title": "Discussion", "pages": "13-15", "physical_index": 13},
+    {"structure": "4.1", "title": "Limitations", "pages": "13-14", "physical_index": 13},
+    {"structure": "4.2", "title": "Future Work", "pages": "14-15", "physical_index": 14},
 ]
 
 SYNTHETIC_QUERIES = [
@@ -117,19 +110,16 @@ def build_synthetic_pages(n_pages: int = 15) -> list[dict]:
     pages = []
     for i in range(1, n_pages + 1):
         text = f"[Page {i}] " + f"Content of page {i}. " * 50
-        pages.append({"page": i, "text": text})
+        pages.append({"page_num": i, "text": text})
     return pages
 
 
-def build_synthetic_tree(pages: list[dict]) -> dict:
+def build_synthetic_tree(pages: list[dict]) -> list[dict]:
     """Build a tree from the synthetic structure (no LLM needed)."""
     tree = list_to_tree(SYNTHETIC_STRUCTURE)
-    assign_page_ranges(tree)
+    assign_page_ranges(tree, total_pages=len(pages))
     assign_node_ids(tree)
-
-    page_texts = {p["page"]: p["text"] for p in pages}
-    embed_text_in_tree(tree, page_texts)
-
+    embed_text_in_tree(tree, pages)
     return tree
 
 
@@ -150,12 +140,11 @@ def measure_index_size(tree: dict) -> int:
     return len(json.dumps(tree).encode("utf-8"))
 
 
-def evaluate_retrieval_accuracy(tree: dict, queries: list[dict]) -> dict:
+def evaluate_retrieval_accuracy(tree: list[dict], queries: list[dict]) -> dict:
     """Evaluate how well node selection matches expected results.
 
     Uses the synthetic structure to simulate retrieval without an LLM.
     """
-    node_map = create_node_mapping(tree)
     correct = 0
     total = len(queries)
 
@@ -181,12 +170,13 @@ def evaluate_retrieval_accuracy(tree: dict, queries: list[dict]) -> dict:
     }
 
 
-def measure_node_stats(tree: dict) -> dict:
+def measure_node_stats(tree: list[dict]) -> dict:
     """Gather tree statistics."""
     node_map = create_node_mapping(tree)
     total = count_nodes(tree)
-    texts = collect_node_texts(tree)
-    total_chars = sum(len(t) for t in texts.values())
+    all_ids = list(node_map.keys())
+    combined_text = collect_node_texts(all_ids, node_map)
+    total_chars = len(combined_text)
 
     return {
         "total_nodes": total,
@@ -207,6 +197,8 @@ def run_benchmark(pdf_path: str | None = None) -> dict:
 
     # Build pages
     if pdf_path:
+        from treedex.pdf_parser import extract_pages
+
         print(f"\nLoading PDF: {pdf_path}")
         pages = extract_pages(pdf_path)
         print(f"  Extracted {len(pages)} pages")
