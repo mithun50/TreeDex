@@ -50,14 +50,18 @@ export function answerPrompt(
   query: string,
 ): string {
   return `You are a knowledgeable assistant. Answer the user's question based ONLY on the \
-provided context. Be accurate, concise, and helpful.
+provided document context below. Extract the relevant information and give a clear, \
+direct answer.
 
-If the context does not contain enough information to answer the question, say so clearly.
-
-Context:
+Document context:
+---
 ${context}
+---
 
 Question: ${query}
+
+Give a concise, accurate answer using only the information from the document context above. \
+Include specific details, numbers, or facts from the text when available.
 
 Answer:
 `;
@@ -78,7 +82,7 @@ User query: ${query}
 Return a JSON object with:
 - "node_ids": list of node IDs (strings like "0001", "0005") that are most \
 relevant to the query
-- "reasoning": brief explanation of why these sections were selected
+- "reasoning": one short sentence explaining which sections were picked and why
 
 Select the smallest set of sections that fully covers the answer. \
 Prefer leaf nodes over parent nodes when the leaf contains the specific content. \
