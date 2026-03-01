@@ -25,21 +25,41 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -e ".[dev]"
+          pip install chromadb
 
-      - name: Run benchmarks
+      - name: Run TreeDex benchmarks
         run: python benchmarks/run_benchmark.py --json benchmark_results.json
 
-      - name: Generate SVG chart
+      - name: Run comparison benchmark (TreeDex vs ChromaDB vs Naive)
+        run: python benchmarks/compare_vectordb.py --json comparison_results.json
+
+      - name: Generate benchmark SVG
         run: python benchmarks/generate_svg.py benchmark_results.json assets/benchmarks.svg
 
-      - name: Display results
-        run: cat benchmark_results.json | python -m json.tool
+      - name: Generate comparison SVG
+        run: python benchmarks/generate_svg.py --comparison comparison_results.json assets/comparison.svg
 
-      - name: Commit updated SVG
+      - name: Display results
+        run: |
+          echo "=== TreeDex Benchmark ==="
+          python -m json.tool benchmark_results.json
+          echo ""
+          echo "=== Comparison ==="
+          python -m json.tool comparison_results.json
+
+      - name: Commit updated SVGs
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add assets/benchmarks.svg
-          git diff --cached --quiet || git commit -m "Update benchmark SVG [auto-generated]"
+          git add assets/benchmarks.svg assets/comparison.svg
+          git diff --cached --quiet || git commit -m "Update benchmark SVGs [auto-generated]"
           git push
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            benchmark_results.json
+            comparison_results.json
