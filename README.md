@@ -311,18 +311,18 @@ index = TreeDex.from_file("notes.txt", llm=llm, loader=TextLoader())
   <img src="assets/benchmarks.svg" alt="Benchmarks" width="800"/>
 </p>
 
-Tested on a 50-page structured technical PDF with 20 factual queries:
+Auto-generated on every push by CI — real numbers from `benchmarks/run_benchmark.py`.
 
-| Metric | TreeDex | Vector RAG (Chroma) | Naive Chunking |
-|--------|---------|---------------------|----------------|
-| **Retrieval Accuracy** | **92%** | 78% | 54% |
-| **Context Relevance** (1-10) | **8.7** | 7.1 | 5.3 |
-| **Index Size** | **45 KB** | 420 KB | 180 KB |
-| **Dependencies** | **2** | 8 | 5 |
-| **Page Attribution** | Exact | Approximate | None |
-| **Structure Preserved** | Full tree | None | None |
+| Feature | TreeDex | Vector RAG | Naive Chunking |
+|---------|---------|------------|----------------|
+| **Page Attribution** | Exact source pages | Approximate | None |
+| **Structure Preserved** | Full tree hierarchy | None | None |
+| **Index Format** | Human-readable JSON | Opaque vectors | Text chunks |
+| **Embedding Model** | Not needed | Required | Not needed |
+| **Infrastructure** | None (JSON file) | Vector DB required | None |
+| **Core Dependencies** | 2 (pymupdf, tiktoken) | 5-8+ | 2-5 |
 
-> Run your own benchmarks: `python benchmarks/run_benchmark.py --help`
+> Run your own: `python benchmarks/run_benchmark.py --help`
 
 ---
 
