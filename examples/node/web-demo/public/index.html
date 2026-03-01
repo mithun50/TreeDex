@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TreeDex — Document RAG Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface2: #1a1a26;
+      --border: #2a2a3a;
+      --text: #e4e4ef;
+      --text2: #8888a0;
+      --accent: #6c5ce7;
+      --accent2: #a29bfe;
+      --green: #00b894;
+      --orange: #fdcb6e;
+      --red: #e17055;
+      --radius: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    header h1 span { color: var(--accent2); }
+
+    .badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--surface2);
+      color: var(--text2);
+      border: 1px solid var(--border);
+    }
+
+    .badge.connected { color: var(--green); border-color: #00b89444; }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    /* Upload Section */
+    .upload-area {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 24px;
+    }
+
+    .upload-area:hover, .upload-area.dragover {
+      border-color: var(--accent);
+      background: #6c5ce710;
+    }
+
+    .upload-area h2 {
+      font-size: 16px;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .upload-area p {
+      color: var(--text2);
+      font-size: 13px;
+    }
+
+    .upload-area input { display: none; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 16px;
+    }
+
+    .tab {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .tab:hover:not(.active) { background: var(--surface2); }
+
+    /* Text input */
+    .text-input-area {
+      display: none;
+      margin-bottom: 24px;
+    }
+
+    .text-input-area.visible { display: block; }
+
+    .text-input-area textarea {
+      width: 100%;
+      min-height: 150px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    .text-input-area textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .text-input-area .btn-row {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+
+    .stats-bar.visible { display: block; }
+
+    .stats-bar .doc-name {
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+
+    .stats-grid {
+      display: flex;
+      gap: 24px;
+    }
+
+    .stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent2);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stats-actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Query Section */
+    .query-section {
+      display: none;
+    }
+
+    .query-section.visible { display: block; }
+
+    .query-input {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .query-input input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      padding: 12px 16px;
+      font-size: 15px;
+    }
+
+    .query-input input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .query-input input::placeholder { color: var(--text2); }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover { background: #5b4bd5; }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover { background: var(--border); }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 8px;
+    }
+
+    /* Results */
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .result-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .result-header .label {
+      font-size: 12px;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .result-header .pages {
+      font-size: 12px;
+      color: var(--green);
+      font-weight: 500;
+    }
+
+    .result-reasoning {
+      padding: 12px 18px;
+      font-size: 13px;
+      color: var(--orange);
+      background: #fdcb6e08;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .result-context {
+      padding: 16px 18px;
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    /* Loading */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+      color: var(--text2);
+    }
+
+    .loading.visible { display: block; }
+
+    .spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 12px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Error */
+    .error-msg {
+      display: none;
+      padding: 12px 18px;
+      background: #e1705520;
+      border: 1px solid #e1705544;
+      border-radius: var(--radius);
+      color: var(--red);
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .error-msg.visible { display: block; }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--text2);
+      font-size: 12px;
+    }
+
+    footer a { color: var(--accent2); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1><span>TreeDex</span> Document RAG</h1>
+  <span class="badge connected">NVIDIA Kimi K2.5</span>
+</header>
+
+<div class="container">
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="file" onclick="switchTab('file')">Upload File</button>
+    <button class="tab" data-tab="text" onclick="switchTab('text')">Paste Text</button>
+    <button class="tab" data-tab="load" onclick="switchTab('load')">Load Index</button>
+  </div>
+
+  <!-- File Upload -->
+  <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+    <h2>Drop a document here or click to browse</h2>
+    <p>Supports PDF, TXT, Markdown, HTML, DOCX</p>
+    <input type="file" id="fileInput" accept=".pdf,.txt,.md,.html,.htm,.docx">
+  </div>
+
+  <!-- Text Input -->
+  <div class="text-input-area" id="textArea">
+    <textarea id="textInput" placeholder="Paste your document text here..."></textarea>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="indexText()">Index Text</button>
+    </div>
+  </div>
+
+  <!-- Load Index -->
+  <div class="upload-area" id="loadArea" style="display:none" onclick="document.getElementById('indexInput').click()">
+    <h2>Load a saved TreeDex index (.json)</h2>
+    <p>Load a previously saved index to skip re-processing</p>
+    <input type="file" id="indexInput" accept=".json">
+  </div>
+
+  <!-- Error -->
+  <div class="error-msg" id="error"></div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <p id="loadingText">Indexing document with LLM...</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar" id="statsBar">
+    <div class="doc-name" id="docName"></div>
+    <div class="stats-grid">
+      <div class="stat">
+        <span class="stat-value" id="statPages">-</span>
+        <span class="stat-label">Pages</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="statNodes">-</span>
+        <span class="stat-label">Nodes</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="statTokens">-</span>
+        <span class="stat-label">Tokens</span>
+      </div>
+      <div class="stat">
+        <span class="stat-value" id="statLeaves">-</span>
+        <span class="stat-label">Leaf Nodes</span>
+      </div>
+    </div>
+    <div class="stats-actions">
+      <button class="btn btn-secondary btn-sm" onclick="saveIndex()">Save Index</button>
+    </div>
+  </div>
+
+  <!-- Query -->
+  <div class="query-section" id="querySection">
+    <div class="query-input">
+      <input
+        type="text"
+        id="questionInput"
+        placeholder="Ask a question about the document..."
+        onkeydown="if(event.key==='Enter') askQuestion()"
+      >
+      <button class="btn btn-primary" id="askBtn" onclick="askQuestion()">Ask</button>
+    </div>
+
+    <div class="loading" id="queryLoading">
+      <div class="spinner"></div>
+      <p>Searching document tree...</p>
+    </div>
+
+    <div id="results"></div>
+  </div>
+
+</div>
+
+<footer>
+  Powered by <a href="https://github.com/mithun50/TreeDex">TreeDex</a> &mdash; tree-based, vectorless document RAG
+</footer>
+
+<script>
+  // --- Tab switching ---
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+
+    document.getElementById('uploadArea').style.display = tab === 'file' ? '' : 'none';
+    document.getElementById('textArea').className = tab === 'text' ? 'text-input-area visible' : 'text-input-area';
+    document.getElementById('loadArea').style.display = tab === 'load' ? '' : 'none';
+  }
+
+  // --- Helpers ---
+  function showError(msg) {
+    const el = document.getElementById('error');
+    el.textContent = msg;
+    el.className = 'error-msg visible';
+    setTimeout(() => el.className = 'error-msg', 8000);
+  }
+
+  function showLoading(text) {
+    document.getElementById('loadingText').textContent = text;
+    document.getElementById('loading').className = 'loading visible';
+  }
+
+  function hideLoading() {
+    document.getElementById('loading').className = 'loading';
+  }
+
+  function showStats(fileName, stats) {
+    document.getElementById('docName').textContent = fileName;
+    document.getElementById('statPages').textContent = stats.total_pages;
+    document.getElementById('statNodes').textContent = stats.total_nodes;
+    document.getElementById('statTokens').textContent = stats.total_tokens.toLocaleString();
+    document.getElementById('statLeaves').textContent = stats.leaf_nodes;
+    document.getElementById('statsBar').className = 'stats-bar visible';
+    document.getElementById('querySection').className = 'query-section visible';
+    document.getElementById('questionInput').focus();
+  }
+
+  // --- File upload ---
+  const fileInput = document.getElementById('fileInput');
+  fileInput.addEventListener('change', async () => {
+    if (!fileInput.files[0]) return;
+    const file = fileInput.files[0];
+    const form = new FormData();
+    form.append('file', file);
+
+    showLoading(`Indexing "${file.name}" with LLM...`);
+    document.getElementById('error').className = 'error-msg';
+
+    try {
+      const res = await fetch('/api/index', { method: 'POST', body: form });
+      const data = await res.json();
+      hideLoading();
+      if (!res.ok) { showError(data.error); return; }
+      showStats(data.fileName, data.stats);
+    } catch (e) {
+      hideLoading();
+      showError('Network error: ' + e.message);
+    }
+  });
+
+  // Drag and drop
+  const uploadArea = document.getElementById('uploadArea');
+  uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) {
+      fileInput.files = e.dataTransfer.files;
+      fileInput.dispatchEvent(new Event('change'));
+    }
+  });
+
+  // --- Text indexing ---
+  async function indexText() {
+    const text = document.getElementById('textInput').value.trim();
+    if (!text) { showError('Paste some text first'); return; }
+
+    showLoading('Indexing pasted text with LLM...');
+
+    try {
+      const res = await fetch('/api/index-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, title: 'Pasted Text' }),
+      });
+      const data = await res.json();
+      hideLoading();
+      if (!res.ok) { showError(data.error); return; }
+      showStats(data.fileName, data.stats);
+    } catch (e) {
+      hideLoading();
+      showError('Network error: ' + e.message);
+    }
+  }
+
+  // --- Load index ---
+  const indexInput = document.getElementById('indexInput');
+  indexInput.addEventListener('change', async () => {
+    if (!indexInput.files[0]) return;
+    const form = new FormData();
+    form.append('file', indexInput.files[0]);
+
+    showLoading('Loading saved index...');
+
+    try {
+      const res = await fetch('/api/load', { method: 'POST', body: form });
+      const data = await res.json();
+      hideLoading();
+      if (!res.ok) { showError(data.error); return; }
+      showStats(data.fileName, data.stats);
+    } catch (e) {
+      hideLoading();
+      showError('Network error: ' + e.message);
+    }
+  });
+
+  // --- Save index ---
+  async function saveIndex() {
+    window.location.href = '/api/save';
+  }
+
+  // --- Query ---
+  async function askQuestion() {
+    const input = document.getElementById('questionInput');
+    const question = input.value.trim();
+    if (!question) return;
+
+    document.getElementById('askBtn').disabled = true;
+    document.getElementById('queryLoading').className = 'loading visible';
+
+    try {
+      const res = await fetch('/api/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question }),
+      });
+      const data = await res.json();
+
+      document.getElementById('queryLoading').className = 'loading';
+      document.getElementById('askBtn').disabled = false;
+
+      if (!res.ok) { showError(data.error); return; }
+
+      const html = `
+        <div class="result-card">
+          <div class="result-header">
+            <span class="label">Answer — nodes ${data.nodeIds.join(', ')}</span>
+            <span class="pages">${data.pagesStr}</span>
+          </div>
+          <div class="result-reasoning">${escHtml(data.reasoning)}</div>
+          <div class="result-context">${escHtml(data.context)}</div>
+        </div>
+      `;
+      document.getElementById('results').insertAdjacentHTML('afterbegin', html);
+      input.value = '';
+      input.focus();
+    } catch (e) {
+      document.getElementById('queryLoading').className = 'loading';
+      document.getElementById('askBtn').disabled = false;
+      showError('Network error: ' + e.message);
+    }
+  }
+
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  // --- Check if already indexed (page refresh) ---
+  fetch('/api/status').then(r => r.json()).then(data => {
+    if (data.indexed) showStats(data.fileName, data.stats);
+  });
+</script>
+
+</body>
+</html>
