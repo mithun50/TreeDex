@@ -28,7 +28,7 @@
   <rect x="0" y="0" width="900" height="56" rx="12" fill="url(#hdr)"/>
   <rect x="0" y="20" width="900" height="36" fill="url(#hdr)"/>
   <text x="450" y="36" text-anchor="middle" fill="white" font-size="20" font-weight="700">TreeDex Benchmark Results</text>
-  <text x="450" y="78" text-anchor="middle" fill="#64748b" font-size="11" font-weight="400">Document: synthetic (15 pages)  |  Generated: 2026-03-01 02:17 UTC</text>
+  <text x="450" y="78" text-anchor="middle" fill="#64748b" font-size="11" font-weight="400">Document: synthetic + Electromagnetic Waves — NCERT Physics (14 pages)  |  Generated: 2026-03-01 02:18 UTC</text>
   <rect x="30" y="98" width="395" height="100" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
   <rect x="30" y="98" width="6" height="100" rx="3" fill="url(#bar1)"/>
   <text x="54" y="126" text-anchor="start" fill="#64748b" font-size="12" font-weight="600">Build Time</text>
@@ -37,18 +37,18 @@
   <rect x="445" y="98" width="395" height="100" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
   <rect x="445" y="98" width="6" height="100" rx="3" fill="url(#bar2)"/>
   <text x="469" y="126" text-anchor="start" fill="#64748b" font-size="12" font-weight="600">Index Size</text>
-  <text x="469" y="158" text-anchor="start" fill="#1e293b" font-size="28" font-weight="800">30.9 KB</text>
+  <text x="469" y="158" text-anchor="start" fill="#1e293b" font-size="28" font-weight="800">38.9 KB</text>
   <text x="469" y="180" text-anchor="start" fill="#94a3b8" font-size="11" font-weight="400">JSON index size on disk</text>
   <rect x="30" y="218" width="395" height="100" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
   <rect x="30" y="218" width="6" height="100" rx="3" fill="url(#bar3)"/>
   <text x="54" y="246" text-anchor="start" fill="#64748b" font-size="12" font-weight="600">Retrieval Accuracy</text>
   <text x="54" y="278" text-anchor="start" fill="#1e293b" font-size="28" font-weight="800">100%</text>
-  <text x="54" y="300" text-anchor="start" fill="#94a3b8" font-size="11" font-weight="400">10 synthetic queries evaluated</text>
+  <text x="54" y="300" text-anchor="start" fill="#94a3b8" font-size="11" font-weight="400">20 synthetic queries evaluated</text>
   <rect x="445" y="218" width="395" height="100" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
   <rect x="445" y="218" width="6" height="100" rx="3" fill="url(#bar4)"/>
   <text x="469" y="246" text-anchor="start" fill="#64748b" font-size="12" font-weight="600">Tree Nodes</text>
-  <text x="469" y="278" text-anchor="start" fill="#1e293b" font-size="28" font-weight="800">14</text>
-  <text x="469" y="300" text-anchor="start" fill="#94a3b8" font-size="11" font-weight="400">29,611 chars across all nodes</text>
+  <text x="469" y="278" text-anchor="start" fill="#1e293b" font-size="28" font-weight="800">28</text>
+  <text x="469" y="300" text-anchor="start" fill="#94a3b8" font-size="11" font-weight="400">30,019 chars across all nodes</text>
   <rect x="30" y="358" width="840" height="220" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
   <text x="450" y="382" text-anchor="middle" fill="#1e293b" font-size="14" font-weight="700">Per-Query Retrieval Accuracy</text>
   <text x="48" y="410" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What is the motivation for this research...</text>
@@ -82,5 +82,5 @@
   <rect x="350" y="569" width="380" height="16" rx="3" fill="url(#bar3)"/>
   <text x="738" y="581" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
   <rect x="30" y="544" width="840" height="26" rx="6" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
-  <text x="450" y="561" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="600">Avg 2,115 chars/node  |  14 nodes  |  30.9 KB index  |  0.1 ms build</text>
+  <text x="450" y="561" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="600">Avg 1,072 chars/node  |  28 nodes  |  38.9 KB index  |  0.1 ms build</text>
 </svg>
