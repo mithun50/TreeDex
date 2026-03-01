@@ -22,7 +22,7 @@
   <rect x="0" y="0" width="900" height="56" rx="12" fill="url(#hdr)"/>
   <rect x="0" y="20" width="900" height="36" rx="0" fill="url(#hdr)"/>
   <text x="450" y="36" text-anchor="middle" fill="white" font-size="18" font-weight="700">TreeDex vs Vector DB vs Naive — Real Benchmark</text>
-  <text x="450" y="76" text-anchor="middle" fill="#64748b" font-size="11" font-weight="400">Electromagnetic Waves (14 pages)  |  10 queries  |  2026-03-01 02:40 UTC</text>
+  <text x="450" y="76" text-anchor="middle" fill="#64748b" font-size="11" font-weight="400">Electromagnetic Waves (14 pages)  |  10 queries  |  2026-03-01 08:48 UTC</text>
   <rect x="260" y="94" width="12" height="12" rx="3" fill="url(#td)"/>
   <text x="278" y="104" text-anchor="start" fill="#1e293b" font-size="11" font-weight="600">TreeDex</text>
   <rect x="360" y="94" width="12" height="12" rx="3" fill="url(#ch)"/>
@@ -92,9 +92,9 @@
   <text x="555" y="450" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="600">55 KB</text>
   <text x="765" y="450" text-anchor="middle" fill="#64748b" font-size="11" font-weight="500">34.3 KB</text>
   <text x="135" y="478" text-anchor="middle" fill="#475569" font-size="11" font-weight="500">Query Time</text>
-  <text x="345" y="478" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="700">1.5 ms</text>
-  <text x="555" y="478" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="600">1446.6 ms</text>
-  <text x="765" y="478" text-anchor="middle" fill="#64748b" font-size="11" font-weight="500">16.2 ms</text>
+  <text x="345" y="478" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="700">0.7 ms</text>
+  <text x="555" y="478" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="600">1464.9 ms</text>
+  <text x="765" y="478" text-anchor="middle" fill="#64748b" font-size="11" font-weight="500">16.3 ms</text>
   <rect x="34" y="486" width="832" height="28" rx="4" fill="#f8fafc"/>
   <text x="135" y="506" text-anchor="middle" fill="#475569" font-size="11" font-weight="500">Page Attribution</text>
   <text x="345" y="506" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="700">Exact</text>
