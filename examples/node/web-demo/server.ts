@@ -38,6 +38,7 @@ const llm: BaseLLM = new OpenAICompatibleLLM({
   apiKey: NVIDIA_API_KEY,
   maxTokens: 16384,
   temperature: 1.0,
+  timeout: 600_000, // 10 minutes — structure extraction on large PDFs is slow
 });
 
 // --- State ---
