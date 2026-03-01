@@ -1,0 +1,38 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "test/**"
+      - "package.json"
+      - "tsconfig.json"
+      - "tsup.config.ts"
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "test/**"
+      - "package.json"
+      - "tsconfig.json"
+      - "tsup.config.ts"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run typecheck
+      - run: npm test

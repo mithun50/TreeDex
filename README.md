@@ -4,10 +4,14 @@
 
 Index any document into a navigable tree structure, then retrieve relevant sections using **any LLM**. No vector databases, no embeddings — just structured tree retrieval.
 
+Available for both **Python** and **Node.js** — same API, same index format, fully cross-compatible.
+
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mithun50/TreeDex/blob/main/treedex_demo.ipynb)
 [![PyPI](https://img.shields.io/pypi/v/treedex)](https://pypi.org/project/treedex/)
+[![npm](https://img.shields.io/npm/v/treedex)](https://www.npmjs.com/package/treedex)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://python.org)
+[![Node 18+](https://img.shields.io/badge/node-18+-green.svg)](https://nodejs.org)
 
 ---
 
@@ -41,30 +45,30 @@ TreeDex works with **every major AI provider** out of the box. Pick what works f
 
 ### One-liner backends (zero config)
 
-| Backend | Provider | Default Model | Dependencies |
-|---------|----------|---------------|-------------|
-| `GeminiLLM` | Google | gemini-2.0-flash | `google-generativeai` |
-| `OpenAILLM` | OpenAI | gpt-4o | `openai` |
-| `ClaudeLLM` | Anthropic | claude-sonnet-4-20250514 | `anthropic` |
-| `MistralLLM` | Mistral AI | mistral-large-latest | `mistralai` |
-| `CohereLLM` | Cohere | command-r-plus | `cohere` |
-| `GroqLLM` | Groq | llama-3.3-70b-versatile | **None (stdlib)** |
-| `TogetherLLM` | Together AI | Llama-3-70b-chat-hf | **None (stdlib)** |
-| `FireworksLLM` | Fireworks | llama-v3p1-70b-instruct | **None (stdlib)** |
-| `OpenRouterLLM` | OpenRouter | claude-sonnet-4 | **None (stdlib)** |
-| `DeepSeekLLM` | DeepSeek | deepseek-chat | **None (stdlib)** |
-| `CerebrasLLM` | Cerebras | llama-3.3-70b | **None (stdlib)** |
-| `SambanovaLLM` | SambaNova | Llama-3.1-70B-Instruct | **None (stdlib)** |
-| `HuggingFaceLLM` | HuggingFace | Mistral-7B-Instruct | **None (stdlib)** |
-| `OllamaLLM` | Ollama (local) | llama3 | **None (stdlib)** |
+| Backend | Provider | Default Model | Python Deps | Node.js Deps |
+|---------|----------|---------------|-------------|-------------|
+| `GeminiLLM` | Google | gemini-2.0-flash | `google-generativeai` | `@google/generative-ai` |
+| `OpenAILLM` | OpenAI | gpt-4o | `openai` | `openai` |
+| `ClaudeLLM` | Anthropic | claude-sonnet-4-20250514 | `anthropic` | `@anthropic-ai/sdk` |
+| `MistralLLM` | Mistral AI | mistral-large-latest | `mistralai` | `@mistralai/mistralai` |
+| `CohereLLM` | Cohere | command-r-plus | `cohere` | `cohere-ai` |
+| `GroqLLM` | Groq | llama-3.3-70b-versatile | `groq` | `groq-sdk` |
+| `TogetherLLM` | Together AI | Llama-3-70b-chat-hf | **None** | **None (fetch)** |
+| `FireworksLLM` | Fireworks | llama-v3p1-70b-instruct | **None** | **None (fetch)** |
+| `OpenRouterLLM` | OpenRouter | claude-sonnet-4 | **None** | **None (fetch)** |
+| `DeepSeekLLM` | DeepSeek | deepseek-chat | **None** | **None (fetch)** |
+| `CerebrasLLM` | Cerebras | llama-3.3-70b | **None** | **None (fetch)** |
+| `SambanovaLLM` | SambaNova | Llama-3.1-70B-Instruct | **None** | **None (fetch)** |
+| `HuggingFaceLLM` | HuggingFace | Mistral-7B-Instruct | **None** | **None (fetch)** |
+| `OllamaLLM` | Ollama (local) | llama3 | **None** | **None (fetch)** |
 
 ### Universal backends
 
 | Backend | Use case | Dependencies |
 |---------|----------|-------------|
-| `OpenAICompatibleLLM` | **Any** OpenAI-compatible endpoint (URL + key) | **None (stdlib)** |
-| `LiteLLM` | 100+ providers via litellm library | `litellm` |
-| `FunctionLLM` | Wrap any `callable(str) -> str` | **None** |
+| `OpenAICompatibleLLM` | **Any** OpenAI-compatible endpoint (URL + key) | **None** |
+| `LiteLLM` | 100+ providers via litellm library (Python only) | `litellm` |
+| `FunctionLLM` | Wrap any function | **None** |
 | `BaseLLM` | Subclass to build your own | **None** |
 
 ---
@@ -73,155 +77,201 @@ TreeDex works with **every major AI provider** out of the box. Pick what works f
 
 ### Install
 
+<table>
+<tr><th>Python</th><th>Node.js</th></tr>
+<tr><td>
+
 ```bash
-# pip
 pip install treedex
 
-# uv (faster)
-uv pip install treedex
+# With optional LLM SDK
+pip install treedex[gemini]
+pip install treedex[openai]
+pip install treedex[claude]
+pip install treedex[all]
+```
+
+</td><td>
+
+```bash
+npm install treedex
 
 # With optional LLM SDK
-pip install treedex[gemini]      # Google Gemini
-pip install treedex[openai]      # OpenAI
-pip install treedex[claude]      # Anthropic Claude
-pip install treedex[mistral]     # Mistral AI
-pip install treedex[cohere]      # Cohere
-pip install treedex[litellm]     # LiteLLM (100+ providers)
-pip install treedex[all]         # Everything
-
-# From source
-pip install git+https://github.com/mithun50/TreeDex.git
-
-# Development
-git clone https://github.com/mithun50/TreeDex.git
-cd TreeDex
-pip install -e ".[dev]"
+npm install treedex openai
+npm install treedex @google/generative-ai
+npm install treedex @anthropic-ai/sdk
 ```
+
+</td></tr>
+</table>
 
 ### Pick your LLM and go
 
-```python
-from treedex import TreeDex
+<table>
+<tr><th>Python</th><th>Node.js / TypeScript</th></tr>
+<tr><td>
 
-# --- Google Gemini ---
-from treedex import GeminiLLM
+```python
+from treedex import TreeDex, GeminiLLM
+
 llm = GeminiLLM(api_key="YOUR_KEY")
 
-# --- OpenAI ---
-from treedex import OpenAILLM
-llm = OpenAILLM(api_key="sk-...")
-
-# --- Claude ---
-from treedex import ClaudeLLM
-llm = ClaudeLLM(api_key="sk-ant-...")
-
-# --- Groq (free, fast) ---
-from treedex import GroqLLM
-llm = GroqLLM(api_key="gsk_...")
-
-# --- Together AI ---
-from treedex import TogetherLLM
-llm = TogetherLLM(api_key="...")
-
-# --- DeepSeek ---
-from treedex import DeepSeekLLM
-llm = DeepSeekLLM(api_key="...")
-
-# --- Fireworks ---
-from treedex import FireworksLLM
-llm = FireworksLLM(api_key="...")
-
-# --- OpenRouter (access any model) ---
-from treedex import OpenRouterLLM
-llm = OpenRouterLLM(api_key="...", model="anthropic/claude-sonnet-4")
-
-# --- Cerebras ---
-from treedex import CerebrasLLM
-llm = CerebrasLLM(api_key="...")
-
-# --- SambaNova ---
-from treedex import SambanovaLLM
-llm = SambanovaLLM(api_key="...")
-
-# --- Mistral AI ---
-from treedex import MistralLLM
-llm = MistralLLM(api_key="...")  # pip install mistralai
-
-# --- Cohere ---
-from treedex import CohereLLM
-llm = CohereLLM(api_key="...")  # pip install cohere
-
-# --- HuggingFace ---
-from treedex import HuggingFaceLLM
-llm = HuggingFaceLLM(api_key="hf_...", model="mistralai/Mistral-7B-Instruct-v0.3")
-
-# --- Local Ollama ---
-from treedex import OllamaLLM
-llm = OllamaLLM(model="llama3")
-
-# Index and query (same for ALL providers)
-index = TreeDex.from_file("document.pdf", llm=llm)
+index = TreeDex.from_file("doc.pdf", llm=llm)
 result = index.query("What is the main argument?")
+
 print(result.context)
 print(result.pages_str)  # "pages 5-8, 12-15"
 ```
 
-### Any OpenAI-compatible endpoint
+</td><td>
+
+```typescript
+import { TreeDex, GeminiLLM } from "treedex";
+
+const llm = new GeminiLLM("YOUR_KEY");
+
+const index = await TreeDex.fromFile("doc.pdf", llm);
+const result = await index.query("What is the main argument?");
+
+console.log(result.context);
+console.log(result.pagesStr);  // "pages 5-8, 12-15"
+```
+
+</td></tr>
+</table>
+
+### All providers work the same way
+
+<table>
+<tr><th>Python</th><th>Node.js / TypeScript</th></tr>
+<tr><td>
 
 ```python
-from treedex import OpenAICompatibleLLM
+from treedex import *
 
-# Works with ANY service that speaks OpenAI format
+# Google Gemini
+llm = GeminiLLM(api_key="YOUR_KEY")
+
+# OpenAI
+llm = OpenAILLM(api_key="sk-...")
+
+# Claude
+llm = ClaudeLLM(api_key="sk-ant-...")
+
+# Groq (fast inference)
+llm = GroqLLM(api_key="gsk_...")
+
+# Together AI
+llm = TogetherLLM(api_key="...")
+
+# DeepSeek
+llm = DeepSeekLLM(api_key="...")
+
+# OpenRouter (access any model)
+llm = OpenRouterLLM(api_key="...")
+
+# Local Ollama
+llm = OllamaLLM(model="llama3")
+
+# Any OpenAI-compatible endpoint
 llm = OpenAICompatibleLLM(
-    base_url="https://your-provider.com/v1",
+    base_url="https://your-api.com/v1",
     api_key="...",
-    model="model-name"
+    model="model-name",
 )
 ```
 
-### 100+ providers via LiteLLM
+</td><td>
 
-```python
-from treedex import LiteLLM
+```typescript
+import { /* any backend */ } from "treedex";
 
-# pip install litellm
-llm = LiteLLM("gpt-4o")                                    # OpenAI
-llm = LiteLLM("anthropic/claude-sonnet-4-20250514")         # Claude
-llm = LiteLLM("groq/llama-3.3-70b-versatile")              # Groq
-llm = LiteLLM("together_ai/meta-llama/Llama-3-70b-chat-hf")# Together
-llm = LiteLLM("bedrock/anthropic.claude-3-sonnet")          # AWS Bedrock
-llm = LiteLLM("vertex_ai/gemini-pro")                       # Google Vertex
-llm = LiteLLM("azure/gpt-4o")                               # Azure OpenAI
+// Google Gemini
+const llm = new GeminiLLM("YOUR_KEY");
+
+// OpenAI
+const llm = new OpenAILLM("sk-...");
+
+// Claude
+const llm = new ClaudeLLM("sk-ant-...");
+
+// Groq (fast inference)
+const llm = new GroqLLM("gsk_...");
+
+// Together AI
+const llm = new TogetherLLM("...");
+
+// DeepSeek
+const llm = new DeepSeekLLM("...");
+
+// OpenRouter (access any model)
+const llm = new OpenRouterLLM("...");
+
+// Local Ollama
+const llm = new OllamaLLM("llama3");
+
+// Any OpenAI-compatible endpoint
+const llm = new OpenAICompatibleLLM({
+  baseUrl: "https://your-api.com/v1",
+  apiKey: "...",
+  model: "model-name",
+});
 ```
 
+</td></tr>
+</table>
+
 ### Wrap any function
+
+<table>
+<tr><th>Python</th><th>Node.js / TypeScript</th></tr>
+<tr><td>
 
 ```python
 from treedex import FunctionLLM
 
-# Wrap any callable(str) -> str
-llm = FunctionLLM(lambda prompt: my_custom_api(prompt))
-
-# Or a named function
-def call_my_model(prompt: str) -> str:
-    return requests.post(url, json={"prompt": prompt}).json()["text"]
-
-llm = FunctionLLM(call_my_model)
+llm = FunctionLLM(lambda p: my_api(p))
 ```
 
+</td><td>
+
+```typescript
+import { FunctionLLM } from "treedex";
+
+const llm = new FunctionLLM((p) => myApi(p));
+```
+
+</td></tr>
+</table>
+
 ### Build your own backend
+
+<table>
+<tr><th>Python</th><th>Node.js / TypeScript</th></tr>
+<tr><td>
 
 ```python
 from treedex import BaseLLM
 
 class MyLLM(BaseLLM):
     def generate(self, prompt: str) -> str:
-        # Your logic here — call any API, local model, etc.
         return my_api_call(prompt)
-
-llm = MyLLM()
-index = TreeDex.from_file("doc.pdf", llm=llm)
 ```
+
+</td><td>
+
+```typescript
+import { BaseLLM } from "treedex";
+
+class MyLLM extends BaseLLM {
+  async generate(prompt: string): Promise<string> {
+    return await myApiCall(prompt);
+  }
+}
+```
+
+</td></tr>
+</table>
 
 ### Swap LLM at query time
 
@@ -233,24 +283,47 @@ index = TreeDex.from_file("doc.pdf", llm=gemini_llm)
 result = index.query("...", llm=groq_llm)
 ```
 
+### Save and load indexes
+
+Indexes are saved as JSON. An index created in Python loads in Node.js and vice versa.
+
+<table>
+<tr><th>Python</th><th>Node.js / TypeScript</th></tr>
+<tr><td>
+
+```python
+# Save
+index.save("my_index.json")
+
+# Load
+index = TreeDex.load("my_index.json", llm=llm)
+```
+
+</td><td>
+
+```typescript
+// Save
+await index.save("my_index.json");
+
+// Load
+const index = await TreeDex.load("my_index.json", llm);
+```
+
+</td></tr>
+</table>
+
 ---
 
 ## Supported Document Formats
 
-| Format | Loader | Extra Dependencies |
-|--------|--------|--------------------|
-| PDF | `PDFLoader` | `pymupdf` |
-| TXT / MD | `TextLoader` | None |
-| HTML | `HTMLLoader` | None (stdlib) |
-| DOCX | `DOCXLoader` | `python-docx` |
+| Format | Loader | Python Deps | Node.js Deps |
+|--------|--------|-------------|-------------|
+| PDF | `PDFLoader` | `pymupdf` | `pdfjs-dist` (included) |
+| TXT / MD | `TextLoader` | None | None |
+| HTML | `HTMLLoader` | None (stdlib) | `htmlparser2` (optional, has fallback) |
+| DOCX | `DOCXLoader` | `python-docx` | `mammoth` (optional) |
 
-Use `auto_loader(path)` for automatic format detection, or pass a specific loader:
-
-```python
-from treedex import TreeDex, TextLoader
-
-index = TreeDex.from_file("notes.txt", llm=llm, loader=TextLoader())
-```
+Use `auto_loader(path)` / `autoLoader(path)` for automatic format detection.
 
 ---
 
@@ -258,50 +331,42 @@ index = TreeDex.from_file("notes.txt", llm=llm, loader=TextLoader())
 
 ### `TreeDex`
 
-| Method | Description |
-|--------|------------|
-| `TreeDex.from_file(path, llm, ...)` | Build index from a file |
-| `TreeDex.from_pages(pages, llm, ...)` | Build from pre-extracted pages |
-| `TreeDex.from_tree(tree, pages, llm?)` | Create from existing tree |
-| `index.query(question, llm?)` | Retrieve relevant sections |
-| `index.save(path)` | Save index to JSON |
-| `TreeDex.load(path, llm?)` | Load index from JSON |
-| `index.show_tree()` | Print tree structure |
-| `index.stats()` | Get index statistics |
-| `index.find_large_sections(...)` | Find oversized nodes |
+| Method | Python | Node.js |
+|--------|--------|---------|
+| Build from file | `TreeDex.from_file(path, llm)` | `await TreeDex.fromFile(path, llm)` |
+| Build from pages | `TreeDex.from_pages(pages, llm)` | `await TreeDex.fromPages(pages, llm)` |
+| Create from tree | `TreeDex.from_tree(tree, pages)` | `TreeDex.fromTree(tree, pages)` |
+| Query | `index.query(question)` | `await index.query(question)` |
+| Save | `index.save(path)` | `await index.save(path)` |
+| Load | `TreeDex.load(path, llm)` | `await TreeDex.load(path, llm)` |
+| Show tree | `index.show_tree()` | `index.showTree()` |
+| Stats | `index.stats()` | `index.stats()` |
+| Find large | `index.find_large_sections()` | `index.findLargeSections()` |
 
 ### `QueryResult`
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `.context` | `str` | Concatenated text from relevant sections |
-| `.node_ids` | `list[str]` | IDs of selected tree nodes |
-| `.page_ranges` | `list[tuple]` | `[(start, end), ...]` page ranges |
-| `.pages_str` | `str` | Human-readable: `"pages 5-8, 12-15"` |
-| `.reasoning` | `str` | LLM's explanation for selection |
+| Property | Python | Node.js | Description |
+|----------|--------|---------|-------------|
+| Context | `.context` | `.context` | Concatenated text from relevant sections |
+| Node IDs | `.node_ids` | `.nodeIds` | IDs of selected tree nodes |
+| Page ranges | `.page_ranges` | `.pageRanges` | `[(start, end), ...]` page ranges |
+| Pages string | `.pages_str` | `.pagesStr` | Human-readable: `"pages 5-8, 12-15"` |
+| Reasoning | `.reasoning` | `.reasoning` | LLM's explanation for selection |
 
-### LLM Backends
+### Cross-language Index Compatibility
 
-| Backend | Needs SDK? | One-liner |
-|---------|-----------|-----------|
-| `GeminiLLM(api_key)` | Yes | `GeminiLLM("key")` |
-| `OpenAILLM(api_key)` | Yes | `OpenAILLM("sk-...")` |
-| `ClaudeLLM(api_key)` | Yes | `ClaudeLLM("sk-ant-...")` |
-| `MistralLLM(api_key)` | Yes | `MistralLLM("key")` |
-| `CohereLLM(api_key)` | Yes | `CohereLLM("key")` |
-| `GroqLLM(api_key)` | No | `GroqLLM("gsk_...")` |
-| `TogetherLLM(api_key)` | No | `TogetherLLM("key")` |
-| `FireworksLLM(api_key)` | No | `FireworksLLM("key")` |
-| `OpenRouterLLM(api_key)` | No | `OpenRouterLLM("key")` |
-| `DeepSeekLLM(api_key)` | No | `DeepSeekLLM("key")` |
-| `CerebrasLLM(api_key)` | No | `CerebrasLLM("key")` |
-| `SambanovaLLM(api_key)` | No | `SambanovaLLM("key")` |
-| `HuggingFaceLLM(api_key)` | No | `HuggingFaceLLM("hf_...")` |
-| `OllamaLLM(model)` | No | `OllamaLLM("llama3")` |
-| `LiteLLM(model)` | Yes | `LiteLLM("gpt-4o")` |
-| `FunctionLLM(fn)` | No | `FunctionLLM(my_fn)` |
-| `OpenAICompatibleLLM(url, model)` | No | Any endpoint |
-| `BaseLLM` (subclass) | No | Your own logic |
+TreeDex uses the **same JSON index format** in both Python and Node.js. All field names use `snake_case` in the JSON:
+
+```json
+{
+  "version": "1.0",
+  "framework": "TreeDex",
+  "tree": [{ "structure": "1", "title": "...", "node_id": "0001", ... }],
+  "pages": [{ "page_num": 0, "text": "...", "token_count": 123 }]
+}
+```
+
+Build an index with Python, query it from Node.js (or vice versa).
 
 ---
 
@@ -328,9 +393,17 @@ Real benchmark on the same document (NCERT Electromagnetic Waves, 14 pages, 10 q
 | **Index Format** | Human-readable JSON | Opaque vectors | Text chunks |
 | **Embedding Model** | Not needed | Required | Not needed |
 | **Infrastructure** | None (JSON file) | Vector DB required | None |
-| **Core Dependencies** | 2 (pymupdf, tiktoken) | 5-8+ | 2-5 |
+| **Core Dependencies** | 2 | 5-8+ | 2-5 |
 
-> Run your own: `python benchmarks/run_benchmark.py --help` or `python benchmarks/compare_vectordb.py --help`
+Run your own benchmarks:
+
+```bash
+# Python
+python benchmarks/run_benchmark.py
+
+# Node.js
+npx tsx benchmarks/node/run-benchmark.ts
+```
 
 ---
 
@@ -340,20 +413,107 @@ Real benchmark on the same document (NCERT Electromagnetic Waves, 14 pages, 10 q
   <img src="assets/architecture.svg" alt="Architecture" width="800"/>
 </p>
 
+---
+
+## Project Structure
+
+```
+treedex/
+├── treedex/                # Python package
+│   ├── core.py
+│   ├── llm_backends.py
+│   ├── loaders.py
+│   ├── pdf_parser.py
+│   ├── tree_builder.py
+│   ├── tree_utils.py
+│   └── prompts.py
+├── src/                    # TypeScript source
+│   ├── index.ts
+│   ├── core.ts
+│   ├── llm-backends.ts
+│   ├── loaders.ts
+│   ├── pdf-parser.ts
+│   ├── tree-builder.ts
+│   ├── tree-utils.ts
+│   ├── prompts.ts
+│   └── types.ts
+├── tests/                  # Python tests (pytest)
+├── test/                   # Node.js tests (vitest)
+├── examples/               # Python examples
+├── examples/node/          # Node.js examples
+├── benchmarks/             # Python benchmarks
+├── benchmarks/node/        # Node.js benchmarks
+├── pyproject.toml          # Python package config
+├── package.json            # npm package config
+├── tsconfig.json           # TypeScript config
+└── tsup.config.ts          # Build config (ESM + CJS)
+```
+
+---
+
 ## Running Tests
 
-```bash
-# Install dev dependencies
-pip install -e ".[dev]"
+<table>
+<tr><th>Python</th><th>Node.js</th></tr>
+<tr><td>
 
-# Run all tests
+```bash
+pip install -e ".[dev]"
+pytest
+pytest --cov=treedex
+pytest tests/test_core.py -v
+```
+
+</td><td>
+
+```bash
+npm install
+npm test
+npm run test:watch
+npm run typecheck
+```
+
+</td></tr>
+</table>
+
+---
+
+## Examples
+
+### Python
+
+```bash
+python examples/quickstart.py path/to/document.pdf
+python examples/multi_provider.py
+python examples/custom_llm.py
+python examples/save_load.py path/to/document.pdf
+```
+
+### Node.js
+
+```bash
+npx tsx examples/node/quickstart.ts path/to/document.pdf
+npx tsx examples/node/multi-provider.ts
+npx tsx examples/node/custom-llm.ts
+npx tsx examples/node/save-load.ts path/to/document.pdf
+```
+
+---
+
+## Contributing
+
+```bash
+git clone https://github.com/mithun50/TreeDex.git
+cd TreeDex
+
+# Python development
+pip install -e ".[dev]"
 pytest
 
-# With coverage
-pytest --cov=treedex
-
-# Run specific test file
-pytest tests/test_core.py -v
+# Node.js development
+npm install
+npm run build
+npm test
 ```
 
 ---

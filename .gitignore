@@ -35,5 +35,10 @@ results/
 # Jupyter
 .ipynb_checkpoints/
 
+# Node.js
+node_modules/
+dist/
+*.tgz
+
 # Claude
 .claude/

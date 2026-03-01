@@ -1,0 +1,26 @@
+# Python package
+treedex/
+tests/
+benchmarks/
+examples/
+assets/
+*.py
+*.pyc
+__pycache__/
+*.egg-info/
+pyproject.toml
+requirements.txt
+treedex_demo.ipynb
+
+# TypeScript source
+src/
+test/
+tsconfig.json
+tsup.config.ts
+
+# Dev files
+.git/
+.github/
+.gitignore
+.claude/
+node_modules/
