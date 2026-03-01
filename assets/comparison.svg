@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 680" font-family="system-ui, -apple-system, sans-serif">
+  <defs>
+    <linearGradient id="hdr" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1e293b"/>
+      <stop offset="100%" style="stop-color:#334155"/>
+    </linearGradient>
+    <linearGradient id="td" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#16a34a"/>
+    </linearGradient>
+    <linearGradient id="ch" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#2563eb"/>
+    </linearGradient>
+    <linearGradient id="nv" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#94a3b8"/>
+      <stop offset="100%" style="stop-color:#64748b"/>
+    </linearGradient>
+    <filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/></filter>
+  </defs>
+  <rect x="0" y="0" width="900" height="680" rx="12" fill="#fafafa"/>
+  <rect x="0" y="0" width="900" height="56" rx="12" fill="url(#hdr)"/>
+  <rect x="0" y="20" width="900" height="36" rx="0" fill="url(#hdr)"/>
+  <text x="450" y="36" text-anchor="middle" fill="white" font-size="18" font-weight="700">TreeDex vs Vector DB vs Naive — Real Benchmark</text>
+  <text x="450" y="76" text-anchor="middle" fill="#64748b" font-size="11" font-weight="400">Electromagnetic Waves (14 pages)  |  10 queries  |  2026-03-01 02:40 UTC</text>
+  <rect x="260" y="94" width="12" height="12" rx="3" fill="url(#td)"/>
+  <text x="278" y="104" text-anchor="start" fill="#1e293b" font-size="11" font-weight="600">TreeDex</text>
+  <rect x="360" y="94" width="12" height="12" rx="3" fill="url(#ch)"/>
+  <text x="378" y="104" text-anchor="start" fill="#1e293b" font-size="11" font-weight="600">ChromaDB</text>
+  <rect x="470" y="94" width="12" height="12" rx="3" fill="url(#nv)"/>
+  <text x="488" y="104" text-anchor="start" fill="#1e293b" font-size="11" font-weight="600">Naive Chunking</text>
+  <rect x="30" y="120" width="405" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
+  <text x="232" y="142" text-anchor="middle" fill="#1e293b" font-size="13" font-weight="700">Page Recall (%)</text>
+  <text x="232" y="156" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="400">% of expected pages found in top-3 results</text>
+  <line x1="70" y1="267.5" x2="420" y2="267.5" stroke="#f1f5f9" stroke-width="1"/>
+  <text x="65" y="271.5" text-anchor="end" fill="#94a3b8" font-size="9" font-weight="400">25</text>
+  <line x1="70" y1="235.0" x2="420" y2="235.0" stroke="#f1f5f9" stroke-width="1"/>
+  <text x="65" y="239.0" text-anchor="end" fill="#94a3b8" font-size="9" font-weight="400">50</text>
+  <line x1="70" y1="202.5" x2="420" y2="202.5" stroke="#f1f5f9" stroke-width="1"/>
+  <text x="65" y="206.5" text-anchor="end" fill="#94a3b8" font-size="9" font-weight="400">75</text>
+  <line x1="70" y1="170.0" x2="420" y2="170.0" stroke="#f1f5f9" stroke-width="1"/>
+  <text x="65" y="174.0" text-anchor="end" fill="#94a3b8" font-size="9" font-weight="400">100</text>
+  <line x1="70" y1="300" x2="420" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+  <rect x="137" y="194.375" width="50" height="105.625" rx="4" fill="url(#td)"/>
+  <text x="162" y="188.375" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="700">81%</text>
+  <text x="162" y="314" text-anchor="middle" fill="#64748b" font-size="9" font-weight="500">TreeDex</text>
+  <rect x="207" y="218.75" width="50" height="81.25" rx="4" fill="url(#ch)"/>
+  <text x="232" y="212.75" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="700">62%</text>
+  <text x="232" y="314" text-anchor="middle" fill="#64748b" font-size="9" font-weight="500">ChromaDB</text>
+  <rect x="277" y="210.625" width="50" height="89.375" rx="4" fill="url(#nv)"/>
+  <text x="302" y="204.625" text-anchor="middle" fill="#64748b" font-size="11" font-weight="700">69%</text>
+  <text x="302" y="314" text-anchor="middle" fill="#64748b" font-size="9" font-weight="500">Naive</text>
+  <rect x="465" y="120" width="405" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
+  <text x="667" y="142" text-anchor="middle" fill="#1e293b" font-size="13" font-weight="700">Index Size (KB)</text>
+  <text x="667" y="156" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="400">Storage required for the index</text>
+  <line x1="515" y1="267.5" x2="855" y2="267.5" stroke="#f1f5f9" stroke-width="1"/>
+  <text x="510" y="271.5" text-anchor="end" fill="#94a3b8" font-size="9" font-weight="400">14</text>
+  <line x1="515" y1="235.0" x2="855" y2="235.0" stroke="#f1f5f9" stroke-width="1"/>
+  <text x="510" y="239.0" text-anchor="end" fill="#94a3b8" font-size="9" font-weight="400">28</text>
+  <line x1="515" y1="202.5" x2="855" y2="202.5" stroke="#f1f5f9" stroke-width="1"/>
+  <text x="510" y="206.5" text-anchor="end" fill="#94a3b8" font-size="9" font-weight="400">41</text>
+  <line x1="515" y1="170.0" x2="855" y2="170.0" stroke="#f1f5f9" stroke-width="1"/>
+  <text x="510" y="174.0" text-anchor="end" fill="#94a3b8" font-size="9" font-weight="400">55</text>
+  <line x1="515" y1="300" x2="855" y2="300" stroke="#e2e8f0" stroke-width="1"/>
+  <rect x="572" y="295.53345388788426" width="50" height="4.466546112115733" rx="4" fill="url(#td)"/>
+  <text x="597" y="289.53345388788426" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="700">2</text>
+  <text x="597" y="314" text-anchor="middle" fill="#64748b" font-size="9" font-weight="500">TreeDex</text>
+  <rect x="642" y="170.0" width="50" height="130.0" rx="4" fill="url(#ch)"/>
+  <text x="667" y="164.0" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="700">55</text>
+  <text x="667" y="314" text-anchor="middle" fill="#64748b" font-size="9" font-weight="500">ChromaDB</text>
+  <rect x="712" y="219.36708860759495" width="50" height="80.63291139240506" rx="4" fill="url(#nv)"/>
+  <text x="737" y="213.36708860759495" text-anchor="middle" fill="#64748b" font-size="11" font-weight="700">34</text>
+  <text x="737" y="314" text-anchor="middle" fill="#64748b" font-size="9" font-weight="500">Naive</text>
+  <rect x="30" y="340" width="840" height="180" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
+  <text x="135" y="362" text-anchor="middle" fill="#64748b" font-size="11" font-weight="700">Metric</text>
+  <text x="345" y="362" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="700">TreeDex</text>
+  <text x="555" y="362" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="700">ChromaDB</text>
+  <text x="765" y="362" text-anchor="middle" fill="#64748b" font-size="11" font-weight="700">Naive</text>
+  <line x1="40" y1="370" x2="860" y2="370" stroke="#e2e8f0" stroke-width="1"/>
+  <rect x="34" y="374" width="832" height="28" rx="4" fill="#f8fafc"/>
+  <text x="135" y="394" text-anchor="middle" fill="#475569" font-size="11" font-weight="500">Page Recall</text>
+  <text x="345" y="394" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="700">81%</text>
+  <text x="555" y="394" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="600">62%</text>
+  <text x="765" y="394" text-anchor="middle" fill="#64748b" font-size="11" font-weight="500">69%</text>
+  <text x="135" y="422" text-anchor="middle" fill="#475569" font-size="11" font-weight="500">Hit Rate (top-3)</text>
+  <text x="345" y="422" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="700">100%</text>
+  <text x="555" y="422" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="600">80%</text>
+  <text x="765" y="422" text-anchor="middle" fill="#64748b" font-size="11" font-weight="500">100%</text>
+  <rect x="34" y="430" width="832" height="28" rx="4" fill="#f8fafc"/>
+  <text x="135" y="450" text-anchor="middle" fill="#475569" font-size="11" font-weight="500">Index Size</text>
+  <text x="345" y="450" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="700">1.9 KB</text>
+  <text x="555" y="450" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="600">55 KB</text>
+  <text x="765" y="450" text-anchor="middle" fill="#64748b" font-size="11" font-weight="500">34.3 KB</text>
+  <text x="135" y="478" text-anchor="middle" fill="#475569" font-size="11" font-weight="500">Query Time</text>
+  <text x="345" y="478" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="700">1.5 ms</text>
+  <text x="555" y="478" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="600">1446.6 ms</text>
+  <text x="765" y="478" text-anchor="middle" fill="#64748b" font-size="11" font-weight="500">16.2 ms</text>
+  <rect x="34" y="486" width="832" height="28" rx="4" fill="#f8fafc"/>
+  <text x="135" y="506" text-anchor="middle" fill="#475569" font-size="11" font-weight="500">Page Attribution</text>
+  <text x="345" y="506" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="700">Exact</text>
+  <text x="555" y="506" text-anchor="middle" fill="#2563eb" font-size="11" font-weight="600">Approximate</text>
+  <text x="765" y="506" text-anchor="middle" fill="#64748b" font-size="11" font-weight="500">None</text>
+  <rect x="30" y="536" width="840" height="240" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
+  <text x="450" y="558" text-anchor="middle" fill="#1e293b" font-size="13" font-weight="700">Per-Query Results</text>
+  <text x="46" y="574" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What is displacement current?</text>
+  <circle cx="560" cy="571" r="5" fill="#22c55e"/>
+  <text x="560" y="574" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="610" cy="571" r="5" fill="#3b82f6"/>
+  <text x="610" y="574" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="660" cy="571" r="5" fill="#94a3b8"/>
+  <text x="660" y="574" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <text x="560" y="560" text-anchor="middle" fill="#64748b" font-size="8" font-weight="600">TD</text>
+  <text x="610" y="560" text-anchor="middle" fill="#64748b" font-size="8" font-weight="600">Vec</text>
+  <text x="660" y="560" text-anchor="middle" fill="#64748b" font-size="8" font-weight="600">Nv</text>
+  <text x="46" y="594" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What are the sources of electromagn...</text>
+  <circle cx="560" cy="591" r="5" fill="#22c55e"/>
+  <text x="560" y="594" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="610" cy="591" r="5" fill="#3b82f6"/>
+  <text x="610" y="594" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="660" cy="591" r="5" fill="#94a3b8"/>
+  <text x="660" y="594" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <text x="46" y="614" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What is the nature of electromagnet...</text>
+  <circle cx="560" cy="611" r="5" fill="#22c55e"/>
+  <text x="560" y="614" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="610" cy="611" r="5" fill="#ef4444"/>
+  <text x="610" y="614" text-anchor="middle" fill="white" font-size="7" font-weight="700">✗</text>
+  <circle cx="660" cy="611" r="5" fill="#94a3b8"/>
+  <text x="660" y="614" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <text x="46" y="634" text-anchor="start" fill="#475569" font-size="10" font-weight="400">Describe the electromagnetic spectr...</text>
+  <circle cx="560" cy="631" r="5" fill="#22c55e"/>
+  <text x="560" y="634" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="610" cy="631" r="5" fill="#3b82f6"/>
+  <text x="610" y="634" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="660" cy="631" r="5" fill="#94a3b8"/>
+  <text x="660" y="634" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <text x="46" y="654" text-anchor="start" fill="#475569" font-size="10" font-weight="400">How do radio waves work and what ar...</text>
+  <circle cx="560" cy="651" r="5" fill="#22c55e"/>
+  <text x="560" y="654" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="610" cy="651" r="5" fill="#3b82f6"/>
+  <text x="610" y="654" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="660" cy="651" r="5" fill="#94a3b8"/>
+  <text x="660" y="654" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <text x="46" y="674" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What are microwaves used for?</text>
+  <circle cx="560" cy="671" r="5" fill="#22c55e"/>
+  <text x="560" y="674" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="610" cy="671" r="5" fill="#3b82f6"/>
+  <text x="610" y="674" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="660" cy="671" r="5" fill="#94a3b8"/>
+  <text x="660" y="674" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <text x="46" y="694" text-anchor="start" fill="#475569" font-size="10" font-weight="400">Explain infrared waves and heat rad...</text>
+  <circle cx="560" cy="691" r="5" fill="#22c55e"/>
+  <text x="560" y="694" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="610" cy="691" r="5" fill="#3b82f6"/>
+  <text x="610" y="694" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="660" cy="691" r="5" fill="#94a3b8"/>
+  <text x="660" y="694" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <text x="46" y="714" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What are X-rays and their medical a...</text>
+  <circle cx="560" cy="711" r="5" fill="#22c55e"/>
+  <text x="560" y="714" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="610" cy="711" r="5" fill="#3b82f6"/>
+  <text x="610" y="714" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="660" cy="711" r="5" fill="#94a3b8"/>
+  <text x="660" y="714" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <text x="46" y="734" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What are gamma rays and nuclear rad...</text>
+  <circle cx="560" cy="731" r="5" fill="#22c55e"/>
+  <text x="560" y="734" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="610" cy="731" r="5" fill="#3b82f6"/>
+  <text x="610" y="734" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="660" cy="731" r="5" fill="#94a3b8"/>
+  <text x="660" y="734" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <text x="46" y="754" text-anchor="start" fill="#475569" font-size="10" font-weight="400">Maxwell equations and electromagnet...</text>
+  <circle cx="560" cy="751" r="5" fill="#22c55e"/>
+  <text x="560" y="754" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <circle cx="610" cy="751" r="5" fill="#ef4444"/>
+  <text x="610" y="754" text-anchor="middle" fill="white" font-size="7" font-weight="700">✗</text>
+  <circle cx="660" cy="751" r="5" fill="#94a3b8"/>
+  <text x="660" y="754" text-anchor="middle" fill="white" font-size="7" font-weight="700">✓</text>
+  <rect x="30" y="644" width="840" height="26" rx="6" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+  <text x="450" y="661" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="600">Best page recall: TreeDex  |  10 queries  |  Real benchmark on Electromagnetic Waves (14 pages)</text>
+</svg>
