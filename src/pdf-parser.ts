@@ -17,7 +17,8 @@ export async function extractPages(pdfPath: string): Promise<Page[]> {
   const fs = await import("node:fs/promises");
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
 
-  const data = await fs.readFile(pdfPath);
+  const buf = await fs.readFile(pdfPath);
+  const data = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
   const doc = await pdfjs.getDocument({ data }).promise;
 
   const pages: Page[] = [];
