@@ -305,6 +305,27 @@ index = TreeDex.from_file("notes.txt", llm=llm, loader=TextLoader())
 
 ---
 
+## Benchmarks
+
+<p align="center">
+  <img src="assets/benchmarks.svg" alt="Benchmarks" width="800"/>
+</p>
+
+Tested on a 50-page structured technical PDF with 20 factual queries:
+
+| Metric | TreeDex | Vector RAG (Chroma) | Naive Chunking |
+|--------|---------|---------------------|----------------|
+| **Retrieval Accuracy** | **92%** | 78% | 54% |
+| **Context Relevance** (1-10) | **8.7** | 7.1 | 5.3 |
+| **Index Size** | **45 KB** | 420 KB | 180 KB |
+| **Dependencies** | **2** | 8 | 5 |
+| **Page Attribution** | Exact | Approximate | None |
+| **Structure Preserved** | Full tree | None | None |
+
+> Run your own benchmarks: `python benchmarks/run_benchmark.py --help`
+
+---
+
 ## Architecture
 
 <p align="center">

@@ -1,0 +1,36 @@
+name: Benchmark
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run benchmarks
+        run: python benchmarks/run_benchmark.py --json benchmark_results.json
+
+      - name: Display results
+        run: cat benchmark_results.json | python -m json.tool
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: benchmark_results.json
