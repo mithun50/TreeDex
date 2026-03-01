@@ -53,6 +53,11 @@ function assignRanges(nodes: TreeNode[], boundaryEnd: number): void {
       node.end_index = boundaryEnd;
     }
 
+    // Clamp: end must be >= start (sections on the same page)
+    if (node.end_index < node.start_index) {
+      node.end_index = node.start_index;
+    }
+
     if (node.nodes.length > 0) {
       assignRanges(node.nodes, node.end_index);
     }

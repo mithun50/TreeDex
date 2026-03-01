@@ -37,6 +37,10 @@ def _assign_ranges(nodes: list[dict], boundary_end: int):
         else:
             node["end_index"] = boundary_end
 
+        # Clamp: end must be >= start (sections on the same page)
+        if node["end_index"] < node["start_index"]:
+            node["end_index"] = node["start_index"]
+
         if node.get("nodes"):
             _assign_ranges(node["nodes"], node["end_index"])
 
