@@ -1,116 +1,126 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 800" font-family="system-ui, -apple-system, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 874" font-family="system-ui, -apple-system, sans-serif">
   <defs>
     <linearGradient id="hdr" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" style="stop-color:#1e293b"/>
       <stop offset="100%" style="stop-color:#334155"/>
     </linearGradient>
-    <linearGradient id="bar1" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" style="stop-color:#22c55e"/>
       <stop offset="100%" style="stop-color:#16a34a"/>
     </linearGradient>
-    <linearGradient id="bar2" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" style="stop-color:#3b82f6"/>
       <stop offset="100%" style="stop-color:#2563eb"/>
     </linearGradient>
-    <linearGradient id="bar3" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="g3" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" style="stop-color:#f59e0b"/>
       <stop offset="100%" style="stop-color:#d97706"/>
     </linearGradient>
-    <linearGradient id="bar4" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="g4" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" style="stop-color:#8b5cf6"/>
       <stop offset="100%" style="stop-color:#7c3aed"/>
     </linearGradient>
-    <filter id="sh">
-      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
-    </filter>
+    <filter id="sh"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/></filter>
   </defs>
-  <rect x="0" y="0" width="900" height="800" rx="12" fill="#fafafa"/>
+  <rect x="0" y="0" width="900" height="874" rx="12" fill="#fafafa"/>
   <rect x="0" y="0" width="900" height="56" rx="12" fill="url(#hdr)"/>
   <rect x="0" y="20" width="900" height="36" rx="0" fill="url(#hdr)"/>
   <text x="450" y="36" text-anchor="middle" fill="white" font-size="20" font-weight="700">TreeDex Benchmark Results</text>
-  <text x="450" y="76" text-anchor="middle" fill="#64748b" font-size="11" font-weight="400">synthetic + Electromagnetic Waves — NCERT Physics (14 pages)  |  2026-03-01 02:26 UTC</text>
-  <rect x="30" y="92" width="410" height="100" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
-  <rect x="30" y="92" width="6" height="100" rx="3" fill="url(#bar1)"/>
-  <text x="54" y="120" text-anchor="start" fill="#64748b" font-size="12" font-weight="600">Build Time</text>
-  <text x="54" y="150" text-anchor="start" fill="#1e293b" font-size="26" font-weight="800">0.1 ms</text>
-  <text x="54" y="172" text-anchor="start" fill="#94a3b8" font-size="11" font-weight="400">Tree index build time</text>
-  <rect x="460" y="92" width="410" height="100" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
-  <rect x="460" y="92" width="6" height="100" rx="3" fill="url(#bar2)"/>
-  <text x="484" y="120" text-anchor="start" fill="#64748b" font-size="12" font-weight="600">Index Size</text>
-  <text x="484" y="150" text-anchor="start" fill="#1e293b" font-size="26" font-weight="800">38.9 KB</text>
-  <text x="484" y="172" text-anchor="start" fill="#94a3b8" font-size="11" font-weight="400">JSON index on disk</text>
-  <rect x="30" y="212" width="410" height="100" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
-  <rect x="30" y="212" width="6" height="100" rx="3" fill="url(#bar3)"/>
-  <text x="54" y="240" text-anchor="start" fill="#64748b" font-size="12" font-weight="600">Structure Validation</text>
-  <text x="54" y="270" text-anchor="start" fill="#1e293b" font-size="26" font-weight="800">100%</text>
-  <text x="54" y="292" text-anchor="start" fill="#94a3b8" font-size="11" font-weight="400">20 queries matched to nodes</text>
-  <rect x="460" y="212" width="410" height="100" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
-  <rect x="460" y="212" width="6" height="100" rx="3" fill="url(#bar4)"/>
-  <text x="484" y="240" text-anchor="start" fill="#64748b" font-size="12" font-weight="600">Tree Nodes</text>
-  <text x="484" y="270" text-anchor="start" fill="#1e293b" font-size="26" font-weight="800">28</text>
-  <text x="484" y="292" text-anchor="start" fill="#94a3b8" font-size="11" font-weight="400">30,019 total chars</text>
-  <rect x="30" y="336" width="840" height="412" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
-  <text x="450" y="358" text-anchor="middle" fill="#1e293b" font-size="14" font-weight="700">Per-Query Node Matching</text>
-  <text x="48" y="385" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What is the motivation for this research?</text>
-  <rect x="360" y="374" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="385" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="403" text-anchor="start" fill="#475569" font-size="10" font-weight="400">How was the data collected?</text>
-  <rect x="360" y="392" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="403" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="421" text-anchor="start" fill="#475569" font-size="10" font-weight="400">Describe the model architecture.</text>
-  <rect x="360" y="410" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="421" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="439" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What attention mechanism was used?</text>
-  <rect x="360" y="428" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="439" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="457" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What are the quantitative results?</text>
-  <rect x="360" y="446" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="457" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="475" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What are the limitations of this work?</text>
-  <rect x="360" y="464" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="475" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="493" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What future work is planned?</text>
-  <rect x="360" y="482" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="493" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="511" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What preprocessing steps were applied?</text>
-  <rect x="360" y="500" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="511" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="529" text-anchor="start" fill="#475569" font-size="10" font-weight="400">Provide a qualitative analysis of the resu...</text>
-  <rect x="360" y="518" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="529" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="547" text-anchor="start" fill="#475569" font-size="10" font-weight="400">Give an overview of the background.</text>
-  <rect x="360" y="536" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="547" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="565" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What is displacement current?</text>
-  <rect x="360" y="554" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="565" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="583" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What are the sources of electromagnetic wa...</text>
-  <rect x="360" y="572" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="583" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="601" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What is the nature of electromagnetic wave...</text>
-  <rect x="360" y="590" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="601" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="619" text-anchor="start" fill="#475569" font-size="10" font-weight="400">Describe the electromagnetic spectrum.</text>
-  <rect x="360" y="608" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="619" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="637" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What are radio waves?</text>
-  <rect x="360" y="626" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="637" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="655" text-anchor="start" fill="#475569" font-size="10" font-weight="400">How do microwaves work?</text>
-  <rect x="360" y="644" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="655" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="673" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What are infrared waves?</text>
-  <rect x="360" y="662" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="673" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="691" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What are X-rays used for?</text>
-  <rect x="360" y="680" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="691" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="709" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What are gamma rays?</text>
-  <rect x="360" y="698" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="709" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <text x="48" y="727" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What is the introduction about?</text>
-  <rect x="360" y="716" width="430" height="14" rx="3" fill="url(#bar3)"/>
-  <text x="798" y="727" text-anchor="start" fill="#d97706" font-size="10" font-weight="700">100%</text>
-  <rect x="30" y="764" width="840" height="26" rx="6" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
-  <text x="450" y="781" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="600">Avg 1,072 chars/node  |  28 nodes  |  38.9 KB index  |  0.1 ms build</text>
+  <text x="450" y="74" text-anchor="middle" fill="#64748b" font-size="11" font-weight="400">synthetic + Electromagnetic Waves — NCERT Physics (14 p...  |  2026-03-01 02:32 UTC</text>
+  <rect x="30" y="88" width="410" height="96" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
+  <rect x="30" y="88" width="5" height="96" rx="3" fill="url(#g1)"/>
+  <text x="52" y="112" text-anchor="start" fill="#64748b" font-size="11" font-weight="600">Build Time</text>
+  <text x="52" y="142" text-anchor="start" fill="#1e293b" font-size="24" font-weight="800">0.1 ms</text>
+  <text x="52" y="162" text-anchor="start" fill="#94a3b8" font-size="10" font-weight="400">Tree index construction</text>
+  <rect x="460" y="88" width="410" height="96" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
+  <rect x="460" y="88" width="5" height="96" rx="3" fill="url(#g2)"/>
+  <text x="482" y="112" text-anchor="start" fill="#64748b" font-size="11" font-weight="600">Index Size</text>
+  <text x="482" y="142" text-anchor="start" fill="#1e293b" font-size="24" font-weight="800">38.9 KB</text>
+  <text x="482" y="162" text-anchor="start" fill="#94a3b8" font-size="10" font-weight="400">Portable JSON file</text>
+  <rect x="30" y="200" width="410" height="96" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
+  <rect x="30" y="200" width="5" height="96" rx="3" fill="url(#g3)"/>
+  <text x="52" y="224" text-anchor="start" fill="#64748b" font-size="11" font-weight="600">Structure Validation</text>
+  <text x="52" y="254" text-anchor="start" fill="#1e293b" font-size="24" font-weight="800">100%</text>
+  <text x="52" y="274" text-anchor="start" fill="#94a3b8" font-size="10" font-weight="400">20 queries matched</text>
+  <rect x="460" y="200" width="410" height="96" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
+  <rect x="460" y="200" width="5" height="96" rx="3" fill="url(#g4)"/>
+  <text x="482" y="224" text-anchor="start" fill="#64748b" font-size="11" font-weight="600">Tree Nodes</text>
+  <text x="482" y="254" text-anchor="start" fill="#1e293b" font-size="24" font-weight="800">28</text>
+  <text x="482" y="274" text-anchor="start" fill="#94a3b8" font-size="10" font-weight="400">30,019 chars indexed</text>
+  <rect x="30" y="328" width="840" height="200" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
+  <text x="450" y="350" text-anchor="middle" fill="#1e293b" font-size="13" font-weight="700">Example: Electromagnetic Waves Index Tree</text>
+  <circle cx="50" cy="365" r="4" fill="#1e293b"/>
+  <text x="60" y="369" text-anchor="start" fill="#1e293b" font-size="11" font-weight="500">1: Electromagnetic Waves</text>
+  <text x="850" y="369" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="400">14 pages</text>
+  <line x1="62" y1="381" x2="70" y2="381" stroke="#cbd5e1" stroke-width="1.5"/>
+  <circle cx="74" cy="381" r="3" fill="#22c55e"/>
+  <text x="84" y="385" text-anchor="start" fill="#1e293b" font-size="11" font-weight="500">1.1: Introduction</text>
+  <text x="850" y="385" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="400">page 0</text>
+  <line x1="62" y1="397" x2="70" y2="397" stroke="#cbd5e1" stroke-width="1.5"/>
+  <circle cx="74" cy="397" r="3" fill="#22c55e"/>
+  <text x="84" y="401" text-anchor="start" fill="#1e293b" font-size="11" font-weight="500">1.2: Displacement Current</text>
+  <text x="850" y="401" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="400">pages 1-3</text>
+  <line x1="62" y1="413" x2="70" y2="413" stroke="#cbd5e1" stroke-width="1.5"/>
+  <circle cx="74" cy="413" r="3" fill="#22c55e"/>
+  <text x="84" y="417" text-anchor="start" fill="#1e293b" font-size="11" font-weight="500">1.3: Electromagnetic Waves</text>
+  <text x="850" y="417" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="400">pages 4-6</text>
+  <line x1="86" y1="429" x2="94" y2="429" stroke="#cbd5e1" stroke-width="1.5"/>
+  <circle cx="98" cy="429" r="3" fill="#22c55e"/>
+  <text x="108" y="433" text-anchor="start" fill="#1e293b" font-size="11" font-weight="500">1.3.1: Sources</text>
+  <text x="850" y="433" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="400">page 4</text>
+  <line x1="86" y1="445" x2="94" y2="445" stroke="#cbd5e1" stroke-width="1.5"/>
+  <circle cx="98" cy="445" r="3" fill="#22c55e"/>
+  <text x="108" y="449" text-anchor="start" fill="#1e293b" font-size="11" font-weight="500">1.3.2: Nature</text>
+  <text x="850" y="449" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="400">pages 5-6</text>
+  <line x1="62" y1="461" x2="70" y2="461" stroke="#cbd5e1" stroke-width="1.5"/>
+  <circle cx="74" cy="461" r="3" fill="#22c55e"/>
+  <text x="84" y="465" text-anchor="start" fill="#1e293b" font-size="11" font-weight="500">1.4: Electromagnetic Spectrum</text>
+  <text x="850" y="465" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="400">pages 7-13</text>
+  <line x1="86" y1="477" x2="94" y2="477" stroke="#cbd5e1" stroke-width="1.5"/>
+  <circle cx="98" cy="477" r="3" fill="#22c55e"/>
+  <text x="108" y="481" text-anchor="start" fill="#1e293b" font-size="11" font-weight="500">1.4.1: Radio waves</text>
+  <text x="850" y="481" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="400">page 8</text>
+  <line x1="86" y1="493" x2="94" y2="493" stroke="#cbd5e1" stroke-width="1.5"/>
+  <circle cx="98" cy="493" r="3" fill="#22c55e"/>
+  <text x="108" y="497" text-anchor="start" fill="#1e293b" font-size="11" font-weight="500">1.4.2: Microwaves</text>
+  <text x="850" y="497" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="400">page 8</text>
+  <line x1="86" y1="509" x2="94" y2="509" stroke="#cbd5e1" stroke-width="1.5"/>
+  <circle cx="98" cy="509" r="3" fill="#22c55e"/>
+  <text x="108" y="513" text-anchor="start" fill="#1e293b" font-size="11" font-weight="500">1.4.3-7: IR, Visible, UV, X-ray, Gamma</text>
+  <text x="850" y="513" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="400">pages 9-13</text>
+  <rect x="30" y="544" width="840" height="276" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1" filter="url(#sh)"/>
+  <text x="450" y="566" text-anchor="middle" fill="#1e293b" font-size="13" font-weight="700">Validated Queries (20 total)</text>
+  <circle cx="48" cy="582" r="6" fill="#22c55e" opacity="0.15"/>
+  <text x="48" y="585" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="700">✓</text>
+  <text x="62" y="585" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What is the motivation for this research?</text>
+  <circle cx="48" cy="604" r="6" fill="#22c55e" opacity="0.15"/>
+  <text x="48" y="607" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="700">✓</text>
+  <text x="62" y="607" text-anchor="start" fill="#475569" font-size="10" font-weight="400">How was the data collected?</text>
+  <circle cx="48" cy="626" r="6" fill="#22c55e" opacity="0.15"/>
+  <text x="48" y="629" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="700">✓</text>
+  <text x="62" y="629" text-anchor="start" fill="#475569" font-size="10" font-weight="400">Describe the model architecture.</text>
+  <circle cx="48" cy="648" r="6" fill="#22c55e" opacity="0.15"/>
+  <text x="48" y="651" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="700">✓</text>
+  <text x="62" y="651" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What attention mechanism was used?</text>
+  <circle cx="48" cy="670" r="6" fill="#22c55e" opacity="0.15"/>
+  <text x="48" y="673" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="700">✓</text>
+  <text x="62" y="673" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What are the quantitative results?</text>
+  <circle cx="48" cy="692" r="6" fill="#22c55e" opacity="0.15"/>
+  <text x="48" y="695" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="700">✓</text>
+  <text x="62" y="695" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What are the limitations of this work?</text>
+  <circle cx="48" cy="714" r="6" fill="#22c55e" opacity="0.15"/>
+  <text x="48" y="717" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="700">✓</text>
+  <text x="62" y="717" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What future work is planned?</text>
+  <circle cx="48" cy="736" r="6" fill="#22c55e" opacity="0.15"/>
+  <text x="48" y="739" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="700">✓</text>
+  <text x="62" y="739" text-anchor="start" fill="#475569" font-size="10" font-weight="400">What preprocessing steps were applied?</text>
+  <circle cx="48" cy="758" r="6" fill="#22c55e" opacity="0.15"/>
+  <text x="48" y="761" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="700">✓</text>
+  <text x="62" y="761" text-anchor="start" fill="#475569" font-size="10" font-weight="400">Provide a qualitative analysis of the results.</text>
+  <circle cx="48" cy="780" r="6" fill="#22c55e" opacity="0.15"/>
+  <text x="48" y="783" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="700">✓</text>
+  <text x="62" y="783" text-anchor="start" fill="#475569" font-size="10" font-weight="400">Give an overview of the background.</text>
+  <text x="450" y="810" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="400">+ 10 more queries</text>
+  <rect x="30" y="836" width="840" height="26" rx="6" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+  <text x="450" y="853" text-anchor="middle" fill="#16a34a" font-size="11" font-weight="600">Avg 1,072 chars/node  |  28 nodes  |  38.9 KB  |  0.1 ms build</text>
 </svg>
