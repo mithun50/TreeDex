@@ -56,5 +56,6 @@ export {
   structureContinuePrompt,
   retrievalPrompt,
   answerPrompt,
+  imageDescriptionPrompt,
 } from "./prompts.js";
-export type { Page, TreeNode, IndexData, Stats } from "./types.js";
+export type { Page, PageImage, TreeNode, IndexData, Stats } from "./types.js";

@@ -27,9 +27,15 @@ export function textToPages(
 
 /** Load PDF files using pdfjs-dist. */
 export class PDFLoader {
+  readonly extractImages: boolean;
+
+  constructor(options?: { extractImages?: boolean }) {
+    this.extractImages = options?.extractImages ?? false;
+  }
+
   async load(path: string): Promise<Page[]> {
     const { extractPages } = await import("./pdf-parser.js");
-    return extractPages(path);
+    return extractPages(path, { extractImages: this.extractImages });
   }
 }
 
@@ -73,8 +79,16 @@ export class HTMLLoader {
         let skip = false;
 
         const parser = new Parser({
-          onopentag(name: string) {
+          onopentag(name: string, attribs: Record<string, string>) {
             if (name === "script" || name === "style") skip = true;
+            if (name === "img") {
+              const alt = (attribs.alt || "").trim();
+              if (alt) {
+                parts.push(`\n[Image: ${alt}]\n`);
+              } else {
+                parts.push("\n[Image]\n");
+              }
+            }
           },
           onclosetag(name: string) {
             if (name === "script" || name === "style") skip = false;
@@ -98,9 +112,16 @@ export class HTMLLoader {
       });
     } catch {
       // Fallback: simple regex-based tag stripping
-      return html
+      // Extract img alt text before stripping all tags
+      let processed = html
         .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
-        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
+      processed = processed.replace(/<img\b[^>]*>/gi, (tag) => {
+        const altMatch = tag.match(/alt=["']([^"']*)["']/i);
+        const alt = altMatch ? altMatch[1].trim() : "";
+        return alt ? ` [Image: ${alt}] ` : " [Image] ";
+      });
+      return processed
         .replace(/<[^>]+>/g, " ")
         .replace(/\s+/g, " ")
         .trim();
@@ -121,8 +142,16 @@ export class DOCXLoader {
     // @ts-expect-error -- optional peer dependency
     const mammoth = await import("mammoth");
     const buffer = await fs.readFile(path);
-    const result = await mammoth.extractRawText({ buffer });
-    return textToPages(result.value, this.charsPerPage);
+    const result = await mammoth.convertToHtml({ buffer });
+    // Replace <img> tags with [Image: alt] markers, then strip remaining HTML
+    let html: string = result.value;
+    html = html.replace(/<img\b[^>]*>/gi, (tag: string) => {
+      const altMatch = tag.match(/alt=["']([^"']*)["']/i);
+      const alt = altMatch ? altMatch[1].trim() : "";
+      return alt ? `[Image: ${alt}]` : "[Image]";
+    });
+    const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    return textToPages(text, this.charsPerPage);
   }
 }
 
@@ -140,7 +169,10 @@ const EXTENSION_MAP: Record<string, { new (): Loader }> = {
 };
 
 /** Auto-detect file format and load pages. */
-export async function autoLoader(filePath: string): Promise<Page[]> {
+export async function autoLoader(
+  filePath: string,
+  options?: { extractImages?: boolean },
+): Promise<Page[]> {
   const { extname } = await import("node:path");
   const ext = extname(filePath).toLowerCase();
   const LoaderClass = EXTENSION_MAP[ext];
@@ -149,6 +181,9 @@ export async function autoLoader(filePath: string): Promise<Page[]> {
     throw new Error(
       `Unsupported file extension '${ext}'. Supported: ${supported}`,
     );
+  }
+  if (ext === ".pdf" && options?.extractImages) {
+    return new PDFLoader({ extractImages: true }).load(filePath);
   }
   const loader = new LoaderClass();
   return loader.load(filePath);

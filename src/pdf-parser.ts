@@ -11,15 +11,22 @@ export function countTokens(text: string): number {
 /**
  * Extract text from each page of a PDF.
  *
- * Returns a list of objects with page_num, text, and token_count.
+ * Returns a list of objects with page_num, text, token_count, and optionally images.
  */
-export async function extractPages(pdfPath: string): Promise<Page[]> {
+export async function extractPages(
+  pdfPath: string,
+  options?: { extractImages?: boolean },
+): Promise<Page[]> {
   const fs = await import("node:fs/promises");
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
 
   const buf = await fs.readFile(pdfPath);
   const data = new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
   const doc = await pdfjs.getDocument({ data }).promise;
+
+  // pdfjs OPS constants for image painting
+  const OPS_PAINT_IMAGE = 85;  // paintImageXObject
+  const OPS_PAINT_JPEG = 82;   // paintJpegXObject
 
   const pages: Page[] = [];
   for (let i = 0; i < doc.numPages; i++) {
@@ -31,11 +38,45 @@ export async function extractPages(pdfPath: string): Promise<Page[]> {
         return typeof obj.str === "string" ? obj.str : "";
       })
       .join(" ");
-    pages.push({
+
+    const pageObj: Page = {
       page_num: i,
       text,
       token_count: countTokens(text),
-    });
+    };
+
+    if (options?.extractImages) {
+      try {
+        const opList = await page.getOperatorList();
+        const images: Page["images"] = [];
+        let imgIndex = 0;
+
+        for (let j = 0; j < opList.fnArray.length; j++) {
+          const op = opList.fnArray[j];
+          if (op === OPS_PAINT_IMAGE || op === OPS_PAINT_JPEG) {
+            const imgName = opList.argsArray[j]?.[0];
+            if (typeof imgName === "string") {
+              // Record image presence — pdfjs gives raw pixel data, not encoded formats
+              images.push({
+                data: "",
+                mime_type: op === OPS_PAINT_JPEG ? "image/jpeg" : "image/unknown",
+                alt_text: `[Embedded image ${imgIndex + 1} on page ${i + 1}]`,
+                index_on_page: imgIndex,
+              });
+              imgIndex++;
+            }
+          }
+        }
+
+        if (images.length > 0) {
+          pageObj.images = images;
+        }
+      } catch {
+        // Ignore image extraction errors
+      }
+    }
+
+    pages.push(pageObj);
   }
 
   return pages;

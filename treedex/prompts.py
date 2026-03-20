@@ -78,3 +78,14 @@ Return ONLY valid JSON.
 
 JSON output:
 """
+
+IMAGE_DESCRIPTION_PROMPT = """\
+Describe this image concisely in 1-2 sentences. Focus on:
+- What the image shows (diagram, chart, photo, table, etc.)
+- Key information visible (labels, data points, text)
+- Its likely purpose in a document context
+
+Be factual and specific. Do not speculate beyond what is visible.
+
+Description:
+"""

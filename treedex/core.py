@@ -26,7 +26,43 @@ from treedex.prompts import (
     STRUCTURE_CONTINUE_PROMPT,
     RETRIEVAL_PROMPT,
     ANSWER_PROMPT,
+    IMAGE_DESCRIPTION_PROMPT,
 )
+
+
+def _describe_images(pages: list[dict], llm=None, verbose: bool = False) -> None:
+    """Append image descriptions to page text, modifying pages in place."""
+    from treedex.loaders import _count_tokens
+
+    for page in pages:
+        images = page.get("images")
+        if not images:
+            continue
+
+        descriptions = []
+        for img in images:
+            alt = img.get("alt_text", "").strip()
+            if alt:
+                descriptions.append(f"[Image: {alt}]")
+            elif llm is not None and getattr(llm, "supports_vision", False) and img.get("data"):
+                try:
+                    desc = llm.generate_with_image(
+                        IMAGE_DESCRIPTION_PROMPT,
+                        img["data"],
+                        img["mime_type"],
+                    )
+                    descriptions.append(f"[Image: {desc.strip()}]")
+                except Exception:
+                    descriptions.append("[Image present]")
+            else:
+                descriptions.append("[Image present]")
+
+        if descriptions:
+            page["text"] = page["text"] + "\n" + "\n".join(descriptions)
+            page["token_count"] = _count_tokens(page["text"])
+
+        if verbose and descriptions:
+            print(f"  Page {page['page_num']}: {len(descriptions)} image(s) described")
 
 
 class QueryResult:
@@ -73,7 +109,7 @@ class TreeDex:
     @classmethod
     def from_file(cls, path: str, llm, loader=None,
                   max_tokens: int = 20000, overlap: int = 1,
-                  verbose: bool = True):
+                  verbose: bool = True, extract_images: bool = False):
         """Build a TreeDex index from a file.
 
         Args:
@@ -83,6 +119,7 @@ class TreeDex:
             max_tokens: Max tokens per page group for structure extraction
             overlap: Page overlap between groups
             verbose: Print progress info
+            extract_images: Extract images from PDFs for vision LLM description
         """
         if verbose:
             print(f"Loading: {os.path.basename(path)}")
@@ -90,7 +127,7 @@ class TreeDex:
         if loader is not None:
             pages = loader.load(path)
         else:
-            pages = auto_loader(path)
+            pages = auto_loader(path, extract_images=extract_images)
 
         if verbose:
             total_tokens = sum(p["token_count"] for p in pages)
@@ -104,6 +141,9 @@ class TreeDex:
                    max_tokens: int = 20000, overlap: int = 1,
                    verbose: bool = True):
         """Build a TreeDex index from pre-extracted pages."""
+        # Describe images before grouping — appends text markers to pages
+        _describe_images(pages, llm=llm, verbose=verbose)
+
         groups = group_pages(pages, max_tokens=max_tokens, overlap=overlap)
 
         if verbose:
@@ -205,11 +245,17 @@ class TreeDex:
         """Save the index to a JSON file."""
         stripped = strip_text_from_tree(self.tree)
 
+        # Strip images from pages — descriptions are already in text
+        clean_pages = []
+        for p in self.pages:
+            cp = {k: v for k, v in p.items() if k != "images"}
+            clean_pages.append(cp)
+
         data = {
             "version": "1.0",
             "framework": "TreeDex",
             "tree": stripped,
-            "pages": self.pages,
+            "pages": clean_pages,
         }
 
         with open(path, "w", encoding="utf-8") as f:

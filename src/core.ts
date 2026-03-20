@@ -23,9 +23,52 @@ import {
   structureContinuePrompt,
   retrievalPrompt,
   answerPrompt,
+  imageDescriptionPrompt,
 } from "./prompts.js";
+import { countTokens } from "./pdf-parser.js";
 import type { Page, TreeNode, IndexData, Stats } from "./types.js";
 import type { BaseLLM } from "./llm-backends.js";
+
+/** Append image descriptions to page text, modifying pages in place. */
+async function describeImages(
+  pages: Page[],
+  llm?: BaseLLM | null,
+  verbose: boolean = false,
+): Promise<void> {
+  for (const page of pages) {
+    if (!page.images || page.images.length === 0) continue;
+
+    const descriptions: string[] = [];
+    for (const img of page.images) {
+      const alt = (img.alt_text ?? "").trim();
+      if (alt) {
+        descriptions.push(`[Image: ${alt}]`);
+      } else if (llm?.supportsVision && img.data) {
+        try {
+          const desc = await llm.generateWithImage(
+            imageDescriptionPrompt(),
+            img.data,
+            img.mime_type,
+          );
+          descriptions.push(`[Image: ${desc.trim()}]`);
+        } catch {
+          descriptions.push("[Image present]");
+        }
+      } else {
+        descriptions.push("[Image present]");
+      }
+    }
+
+    if (descriptions.length > 0) {
+      page.text = page.text + "\n" + descriptions.join("\n");
+      page.token_count = countTokens(page.text);
+    }
+
+    if (verbose && descriptions.length > 0) {
+      console.log(`  Page ${page.page_num}: ${descriptions.length} image(s) described`);
+    }
+  }
+}
 
 /** Result of a TreeDex query. */
 export class QueryResult {
@@ -100,6 +143,7 @@ export class TreeDex {
       maxTokens?: number;
       overlap?: number;
       verbose?: boolean;
+      extractImages?: boolean;
     },
   ): Promise<TreeDex> {
     const {
@@ -107,6 +151,7 @@ export class TreeDex {
       maxTokens = 20000,
       overlap = 1,
       verbose = true,
+      extractImages = false,
     } = options ?? {};
 
     if (verbose) {
@@ -118,7 +163,7 @@ export class TreeDex {
     if (loader) {
       pages = await loader.load(path);
     } else {
-      pages = await autoLoader(path);
+      pages = await autoLoader(path, { extractImages });
     }
 
     if (verbose) {
@@ -140,6 +185,9 @@ export class TreeDex {
     },
   ): Promise<TreeDex> {
     const { maxTokens = 20000, overlap = 1, verbose = true } = options ?? {};
+
+    // Describe images before grouping — appends text markers to pages
+    await describeImages(pages, llm, verbose);
 
     const groups = groupPages(pages, maxTokens, overlap);
 
@@ -288,11 +336,14 @@ export class TreeDex {
     const fs = await import("node:fs/promises");
     const stripped = stripTextFromTree(this.tree);
 
+    // Strip images from pages — descriptions are already in text
+    const cleanPages: Page[] = this.pages.map(({ images: _images, ...rest }) => rest);
+
     const data: IndexData = {
       version: "1.0",
       framework: "TreeDex",
       tree: stripped,
-      pages: this.pages,
+      pages: cleanPages,
     };
 
     await fs.writeFile(path, JSON.stringify(data, null, 2), "utf-8");

@@ -33,6 +33,22 @@
 export abstract class BaseLLM {
   abstract generate(prompt: string): Promise<string>;
 
+  /** Whether this backend supports image inputs. */
+  get supportsVision(): boolean {
+    return false;
+  }
+
+  /** Send a prompt with an image and return the generated text. */
+  async generateWithImage(
+    _prompt: string,
+    _imageBase64: string,
+    _mimeType: string,
+  ): Promise<string> {
+    throw new Error(
+      `${this.constructor.name} does not support vision/image inputs.`,
+    );
+  }
+
   toString(): string {
     return `${this.constructor.name}()`;
   }
@@ -65,8 +81,25 @@ export class GeminiLLM extends BaseLLM {
   }
 
   async generate(prompt: string): Promise<string> {
-    const model = await this.getClient() as { generateContent(p: string): Promise<{ response: { text(): string } }> };
+    const model = await this.getClient() as { generateContent(p: unknown): Promise<{ response: { text(): string } }> };
     const response = await model.generateContent(prompt);
+    return response.response.text();
+  }
+
+  get supportsVision(): boolean {
+    return true;
+  }
+
+  async generateWithImage(
+    prompt: string,
+    imageBase64: string,
+    mimeType: string,
+  ): Promise<string> {
+    const model = await this.getClient() as { generateContent(p: unknown): Promise<{ response: { text(): string } }> };
+    const imagePart = {
+      inlineData: { mimeType, data: imageBase64 },
+    };
+    const response = await model.generateContent([prompt, imagePart]);
     return response.response.text();
   }
 
@@ -113,6 +146,40 @@ export class OpenAILLM extends BaseLLM {
     return response.choices[0].message.content;
   }
 
+  get supportsVision(): boolean {
+    return true;
+  }
+
+  async generateWithImage(
+    prompt: string,
+    imageBase64: string,
+    mimeType: string,
+  ): Promise<string> {
+    const client = await this.getClient() as {
+      chat: {
+        completions: {
+          create(opts: unknown): Promise<{
+            choices: Array<{ message: { content: string } }>;
+          }>;
+        };
+      };
+    };
+    const response = await client.chat.completions.create({
+      model: this.modelName,
+      messages: [{
+        role: "user",
+        content: [
+          { type: "text", text: prompt },
+          {
+            type: "image_url",
+            image_url: { url: `data:${mimeType};base64,${imageBase64}` },
+          },
+        ],
+      }],
+    });
+    return response.choices[0].message.content;
+  }
+
   toString(): string {
     return `OpenAILLM(model=${JSON.stringify(this.modelName)})`;
   }
@@ -151,6 +218,43 @@ export class ClaudeLLM extends BaseLLM {
       model: this.modelName,
       max_tokens: 4096,
       messages: [{ role: "user", content: prompt }],
+    });
+    return response.content[0].text;
+  }
+
+  get supportsVision(): boolean {
+    return true;
+  }
+
+  async generateWithImage(
+    prompt: string,
+    imageBase64: string,
+    mimeType: string,
+  ): Promise<string> {
+    const client = await this.getClient() as {
+      messages: {
+        create(opts: unknown): Promise<{
+          content: Array<{ text: string }>;
+        }>;
+      };
+    };
+    const response = await client.messages.create({
+      model: this.modelName,
+      max_tokens: 4096,
+      messages: [{
+        role: "user",
+        content: [
+          {
+            type: "image",
+            source: {
+              type: "base64",
+              media_type: mimeType,
+              data: imageBase64,
+            },
+          },
+          { type: "text", text: prompt },
+        ],
+      }],
     });
     return response.content[0].text;
   }

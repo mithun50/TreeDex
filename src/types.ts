@@ -1,9 +1,17 @@
 /** Shared type definitions for TreeDex. */
 
+export interface PageImage {
+  data: string;           // base64-encoded image
+  mime_type: string;      // "image/png", "image/jpeg"
+  alt_text?: string;      // from HTML/DOCX or vision LLM
+  index_on_page?: number; // position within page
+}
+
 export interface Page {
   page_num: number;
   text: string;
   token_count: number;
+  images?: PageImage[];
 }
 
 export interface TreeNode {

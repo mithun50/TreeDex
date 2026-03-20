@@ -33,9 +33,12 @@ def _text_to_pages(text: str, chars_per_page: int = 3000) -> list[dict]:
 class PDFLoader:
     """Load PDF files using PyMuPDF."""
 
+    def __init__(self, extract_images: bool = False):
+        self.extract_images = extract_images
+
     def load(self, path: str) -> list[dict]:
         from treedex.pdf_parser import extract_pages
-        return extract_pages(path)
+        return extract_pages(path, extract_images=self.extract_images)
 
 
 class TextLoader:
@@ -61,6 +64,13 @@ class _HTMLStripper(HTMLParser):
     def handle_starttag(self, tag, attrs):
         if tag in ("script", "style"):
             self._skip = True
+        if tag == "img":
+            attrs_dict = dict(attrs)
+            alt = attrs_dict.get("alt", "").strip()
+            if alt:
+                self._parts.append(f"\n[Image: {alt}]\n")
+            else:
+                self._parts.append("\n[Image]\n")
 
     def handle_endtag(self, tag):
         if tag in ("script", "style"):
@@ -100,9 +110,22 @@ class DOCXLoader:
 
     def load(self, path: str) -> list[dict]:
         import docx
+        from docx.oxml.ns import qn
 
         doc = docx.Document(path)
-        text = "\n".join(p.text for p in doc.paragraphs)
+        parts = []
+        for paragraph in doc.paragraphs:
+            parts.append(paragraph.text)
+            # Check for inline images in the paragraph's XML
+            for drawing in paragraph._element.findall(f".//{qn('wp:inline')}"):
+                doc_pr = drawing.find(qn("wp:docPr"))
+                if doc_pr is not None:
+                    alt = doc_pr.get("descr", "").strip()
+                    if alt:
+                        parts.append(f"[Image: {alt}]")
+                    else:
+                        parts.append("[Image]")
+        text = "\n".join(parts)
         return _text_to_pages(text, self.chars_per_page)
 
 
@@ -116,7 +139,7 @@ _EXTENSION_MAP = {
 }
 
 
-def auto_loader(path: str) -> list[dict]:
+def auto_loader(path: str, extract_images: bool = False) -> list[dict]:
     """Auto-detect file format and load pages."""
     ext = os.path.splitext(path)[1].lower()
     loader_cls = _EXTENSION_MAP.get(ext)
@@ -125,4 +148,6 @@ def auto_loader(path: str) -> list[dict]:
             f"Unsupported file extension '{ext}'. "
             f"Supported: {', '.join(_EXTENSION_MAP)}"
         )
+    if ext == ".pdf" and extract_images:
+        return PDFLoader(extract_images=True).load(path)
     return loader_cls().load(path)

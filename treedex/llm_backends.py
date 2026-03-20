@@ -53,6 +53,17 @@ class BaseLLM(ABC):
     def generate(self, prompt: str) -> str:
         """Send a prompt and return the generated text."""
 
+    @property
+    def supports_vision(self) -> bool:
+        """Whether this backend supports image inputs."""
+        return False
+
+    def generate_with_image(self, prompt: str, image_base64: str, mime_type: str) -> str:
+        """Send a prompt with an image and return the generated text."""
+        raise NotImplementedError(
+            f"{self.__class__.__name__} does not support vision/image inputs."
+        )
+
     def __repr__(self):
         return f"{self.__class__.__name__}()"
 
@@ -85,6 +96,20 @@ class GeminiLLM(BaseLLM):
         response = model.generate_content(prompt)
         return response.text
 
+    @property
+    def supports_vision(self) -> bool:
+        return True
+
+    def generate_with_image(self, prompt: str, image_base64: str, mime_type: str) -> str:
+        import base64
+        model = self._get_client()
+        image_bytes = base64.b64decode(image_base64)
+        response = model.generate_content([
+            prompt,
+            {"mime_type": mime_type, "data": image_bytes},
+        ])
+        return response.text
+
     def __repr__(self):
         return f"GeminiLLM(model={self.model_name!r})"
 
@@ -112,6 +137,29 @@ class OpenAILLM(BaseLLM):
         response = client.chat.completions.create(
             model=self.model_name,
             messages=[{"role": "user", "content": prompt}],
+        )
+        return response.choices[0].message.content
+
+    @property
+    def supports_vision(self) -> bool:
+        return True
+
+    def generate_with_image(self, prompt: str, image_base64: str, mime_type: str) -> str:
+        client = self._get_client()
+        response = client.chat.completions.create(
+            model=self.model_name,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:{mime_type};base64,{image_base64}",
+                        },
+                    },
+                ],
+            }],
         )
         return response.choices[0].message.content
 
@@ -143,6 +191,32 @@ class ClaudeLLM(BaseLLM):
             model=self.model_name,
             max_tokens=4096,
             messages=[{"role": "user", "content": prompt}],
+        )
+        return response.content[0].text
+
+    @property
+    def supports_vision(self) -> bool:
+        return True
+
+    def generate_with_image(self, prompt: str, image_base64: str, mime_type: str) -> str:
+        client = self._get_client()
+        response = client.messages.create(
+            model=self.model_name,
+            max_tokens=4096,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": mime_type,
+                            "data": image_base64,
+                        },
+                    },
+                    {"type": "text", "text": prompt},
+                ],
+            }],
         )
         return response.content[0].text
 

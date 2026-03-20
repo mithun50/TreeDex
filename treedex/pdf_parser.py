@@ -1,27 +1,69 @@
+import base64
+
 import fitz  # pymupdf
 import tiktoken
 
 _enc = tiktoken.get_encoding("cl100k_base")
+
+_MIME_MAP = {
+    "png": "image/png",
+    "jpeg": "image/jpeg",
+    "jpg": "image/jpeg",
+    "jpe": "image/jpeg",
+    "bmp": "image/bmp",
+    "tiff": "image/tiff",
+    "tif": "image/tiff",
+}
+
+_MIN_IMAGE_BYTES = 500
+_MAX_IMAGE_BYTES = 10 * 1024 * 1024  # 10 MB
 
 
 def _count_tokens(text: str) -> int:
     return len(_enc.encode(text))
 
 
-def extract_pages(pdf_path: str) -> list[dict]:
+def extract_pages(pdf_path: str, extract_images: bool = False) -> list[dict]:
     """Extract text from each page of a PDF.
 
-    Returns a list of dicts with page_num, text, and token_count.
+    Returns a list of dicts with page_num, text, token_count, and optionally images.
     """
     pages = []
     with fitz.open(pdf_path) as doc:
         for i, page in enumerate(doc):
             text = page.get_text()
-            pages.append({
+            page_dict = {
                 "page_num": i,
                 "text": text,
                 "token_count": _count_tokens(text),
-            })
+            }
+
+            if extract_images:
+                images = []
+                for img_index, img_info in enumerate(page.get_images(full=True)):
+                    xref = img_info[0]
+                    try:
+                        extracted = doc.extract_image(xref)
+                        if extracted is None:
+                            continue
+                        img_bytes = extracted["image"]
+                        ext = extracted.get("ext", "png")
+                        if len(img_bytes) < _MIN_IMAGE_BYTES:
+                            continue
+                        if len(img_bytes) > _MAX_IMAGE_BYTES:
+                            continue
+                        mime_type = _MIME_MAP.get(ext, f"image/{ext}")
+                        images.append({
+                            "data": base64.b64encode(img_bytes).decode("ascii"),
+                            "mime_type": mime_type,
+                            "index_on_page": img_index,
+                        })
+                    except Exception:
+                        continue
+                if images:
+                    page_dict["images"] = images
+
+            pages.append(page_dict)
     return pages
 
 
