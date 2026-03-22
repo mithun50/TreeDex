@@ -42,3 +42,7 @@ dist/
 
 # Claude
 .claude/
+
+# Personal
+paper/
+svjour3.cls
