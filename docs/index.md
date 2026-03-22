@@ -71,3 +71,4 @@ print(result.pages_str)    # "pages 45-52"
 | [Benchmarks](benchmarks.md) | Performance numbers, scaling characteristics |
 | [Case Studies](case-studies.md) | Before/after comparisons, real-world scenarios |
 | [Configuration](configuration.md) | Tuning guide for different use cases |
+| [Benchmark Report](benchmark-report.md) | TreeDex vs Vector RAG head-to-head on 244-page textbook |
