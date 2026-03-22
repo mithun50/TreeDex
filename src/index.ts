@@ -34,6 +34,8 @@ export {
   assignNodeIds,
   embedTextInTree,
   findLargeNodes,
+  tocToSections,
+  repairOrphans,
 } from "./tree-builder.js";
 export {
   createNodeMapping,
@@ -48,6 +50,7 @@ export {
 export {
   countTokens,
   extractPages,
+  extractToc,
   pagesToTaggedText,
   groupPages,
 } from "./pdf-parser.js";

@@ -33,12 +33,17 @@ def _text_to_pages(text: str, chars_per_page: int = 3000) -> list[dict]:
 class PDFLoader:
     """Load PDF files using PyMuPDF."""
 
-    def __init__(self, extract_images: bool = False):
+    def __init__(self, extract_images: bool = False, detect_headings: bool = False):
         self.extract_images = extract_images
+        self.detect_headings = detect_headings
 
     def load(self, path: str) -> list[dict]:
         from treedex.pdf_parser import extract_pages
-        return extract_pages(path, extract_images=self.extract_images)
+        return extract_pages(
+            path,
+            extract_images=self.extract_images,
+            detect_headings=self.detect_headings,
+        )
 
 
 class TextLoader:
@@ -139,7 +144,11 @@ _EXTENSION_MAP = {
 }
 
 
-def auto_loader(path: str, extract_images: bool = False) -> list[dict]:
+def auto_loader(
+    path: str,
+    extract_images: bool = False,
+    detect_headings: bool = False,
+) -> list[dict]:
     """Auto-detect file format and load pages."""
     ext = os.path.splitext(path)[1].lower()
     loader_cls = _EXTENSION_MAP.get(ext)
@@ -148,6 +157,9 @@ def auto_loader(path: str, extract_images: bool = False) -> list[dict]:
             f"Unsupported file extension '{ext}'. "
             f"Supported: {', '.join(_EXTENSION_MAP)}"
         )
-    if ext == ".pdf" and extract_images:
-        return PDFLoader(extract_images=True).load(path)
+    if ext == ".pdf":
+        return PDFLoader(
+            extract_images=extract_images,
+            detect_headings=detect_headings,
+        ).load(path)
     return loader_cls().load(path)

@@ -12,6 +12,10 @@ Return a JSON list of objects, each with:
 Rules:
 - Use the physical_index tags to determine page numbers
 - Create a logical hierarchy: chapters -> sections -> subsections
+- If the text contains heading markers like [H1], [H2], [H3], use them to determine hierarchy depth:
+  - [H1] = top-level chapters/parts (structure: "1", "2", "3")
+  - [H2] = sections within a chapter (structure: "1.1", "1.2")
+  - [H3] = subsections (structure: "1.1.1", "1.1.2")
 - Every section must have a unique structure ID
 - Return ONLY valid JSON — no extra text
 
@@ -24,13 +28,21 @@ JSON output:
 STRUCTURE_CONTINUE_PROMPT = """\
 You are continuing to extract the hierarchical structure of a document.
 
-Here is the structure extracted so far:
+Here is the structure extracted so far (may be summarized for long documents):
 {previous_structure}
 
 Now extract the structure from the next portion of the document. \
 Continue the numbering from where the previous structure left off. \
 If a section from the previous portion continues into this portion, \
 do NOT duplicate it.
+
+Important:
+- Maintain the correct hierarchy depth throughout
+- If heading markers [H1], [H2], [H3] are present, use them as the primary signal for depth:
+  - [H1] = top-level chapters/parts (structure: "N")
+  - [H2] = sections within a chapter (structure: "N.M")
+  - [H3] = subsections (structure: "N.M.K")
+- Do NOT flatten subsections to the top level
 
 Return a JSON list of NEW sections only (same format as before).
 

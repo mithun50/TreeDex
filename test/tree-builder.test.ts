@@ -5,6 +5,8 @@ import {
   assignNodeIds,
   findLargeNodes,
   embedTextInTree,
+  tocToSections,
+  repairOrphans,
 } from "../src/tree-builder.js";
 import type { Page, TreeNode } from "../src/types.js";
 
@@ -166,5 +168,97 @@ describe("embedTextInTree", () => {
 
     const siUnits = tree[1].nodes[1]; // 2.2
     expect(siUnits.text).toContain("Page 22 content.");
+  });
+});
+
+describe("tocToSections", () => {
+  it("should convert basic ToC to numbered sections", () => {
+    const toc = [
+      { level: 1, title: "Introduction", physical_index: 0 },
+      { level: 2, title: "Background", physical_index: 2 },
+      { level: 2, title: "Motivation", physical_index: 5 },
+      { level: 1, title: "Methods", physical_index: 10 },
+      { level: 2, title: "Data Collection", physical_index: 10 },
+      { level: 3, title: "Surveys", physical_index: 12 },
+    ];
+    const sections = tocToSections(toc);
+
+    expect(sections[0].structure).toBe("1");
+    expect(sections[0].title).toBe("Introduction");
+    expect(sections[1].structure).toBe("1.1");
+    expect(sections[2].structure).toBe("1.2");
+    expect(sections[3].structure).toBe("2");
+    expect(sections[4].structure).toBe("2.1");
+    expect(sections[5].structure).toBe("2.1.1");
+  });
+
+  it("should handle single-level ToC", () => {
+    const toc = [
+      { level: 1, title: "A", physical_index: 0 },
+      { level: 1, title: "B", physical_index: 5 },
+      { level: 1, title: "C", physical_index: 10 },
+    ];
+    const sections = tocToSections(toc);
+    expect(sections.map((s) => s.structure)).toEqual(["1", "2", "3"]);
+  });
+
+  it("should produce a valid tree", () => {
+    const toc = [
+      { level: 1, title: "Ch1", physical_index: 0 },
+      { level: 2, title: "Sec1.1", physical_index: 3 },
+      { level: 2, title: "Sec1.2", physical_index: 7 },
+      { level: 1, title: "Ch2", physical_index: 15 },
+    ];
+    const sections = tocToSections(toc);
+    const tree = listToTree(sections);
+    expect(tree.length).toBe(2);
+    expect(tree[0].nodes.length).toBe(2);
+  });
+});
+
+describe("repairOrphans", () => {
+  it("should not modify data without orphans", () => {
+    const data = makeTestData();
+    const repaired = repairOrphans(data);
+    expect(repaired.length).toBe(data.length);
+  });
+
+  it("should insert missing parents", () => {
+    const data = [
+      { structure: "1", title: "Ch1", physical_index: 0 },
+      { structure: "1.1", title: "Sec1.1", physical_index: 2 },
+      { structure: "2.3.1", title: "Deep orphan", physical_index: 10 },
+    ];
+    const repaired = repairOrphans(data);
+    const structures = repaired.map((s) => s.structure);
+    expect(structures).toContain("2");
+    expect(structures).toContain("2.3");
+    expect(structures).toContain("2.3.1");
+  });
+
+  it("should produce a valid tree after repair", () => {
+    const data = [
+      { structure: "1", title: "Ch1", physical_index: 0 },
+      { structure: "2.1.1", title: "Deep", physical_index: 5 },
+    ];
+    const repaired = repairOrphans(data);
+    const tree = listToTree(repaired);
+    expect(tree.length).toBe(2);
+
+    const ch2 = tree[1];
+    expect(ch2.structure).toBe("2");
+    expect(ch2.nodes.length).toBe(1);
+    expect(ch2.nodes[0].structure).toBe("2.1");
+    expect(ch2.nodes[0].nodes.length).toBe(1);
+  });
+
+  it("should sort output correctly", () => {
+    const data = [
+      { structure: "3.1", title: "Late", physical_index: 20 },
+      { structure: "1.2", title: "Early", physical_index: 5 },
+    ];
+    const repaired = repairOrphans(data);
+    const structures = repaired.map((s) => s.structure);
+    expect(structures).toEqual(["1", "1.2", "3", "3.1"]);
   });
 });

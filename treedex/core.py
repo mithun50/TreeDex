@@ -4,13 +4,15 @@ import json
 import os
 
 from treedex.loaders import auto_loader, PDFLoader
-from treedex.pdf_parser import group_pages
+from treedex.pdf_parser import group_pages, extract_toc
 from treedex.tree_builder import (
     assign_node_ids,
     assign_page_ranges,
     embed_text_in_tree,
     find_large_nodes,
     list_to_tree,
+    repair_orphans,
+    toc_to_sections,
 )
 from treedex.tree_utils import (
     collect_node_texts,
@@ -63,6 +65,31 @@ def _describe_images(pages: list[dict], llm=None, verbose: bool = False) -> None
 
         if verbose and descriptions:
             print(f"  Page {page['page_num']}: {len(descriptions)} image(s) described")
+
+
+def _build_continuation_context(
+    all_sections: list[dict],
+    max_recent: int = 30,
+) -> str:
+    """Build a capped continuation context for structure extraction.
+
+    For small section lists, returns the full JSON.  For large lists, returns
+    a summary with top-level sections and the most recent *max_recent*
+    detailed sections so the LLM doesn't get overwhelmed.
+    """
+    if len(all_sections) <= max_recent:
+        return json.dumps(all_sections, indent=2)
+
+    top_level = [s for s in all_sections if "." not in s["structure"]]
+    recent = all_sections[-max_recent:]
+
+    summary = {
+        "top_level_sections": top_level,
+        "recent_sections (last {})".format(max_recent): recent,
+        "total_sections_so_far": len(all_sections),
+        "last_structure_id": all_sections[-1]["structure"],
+    }
+    return json.dumps(summary, indent=2)
 
 
 class QueryResult:
@@ -124,17 +151,54 @@ class TreeDex:
         if verbose:
             print(f"Loading: {os.path.basename(path)}")
 
+        is_pdf = path.lower().endswith(".pdf")
+
+        # --- Try PDF ToC shortcut ---
+        toc = None
+        if is_pdf and loader is None:
+            toc = extract_toc(path)
+            if toc and verbose:
+                print(f"  Found PDF table of contents ({len(toc)} entries)")
+
+        # Load pages — enable heading detection for PDFs when no ToC
         if loader is not None:
             pages = loader.load(path)
         else:
-            pages = auto_loader(path, extract_images=extract_images)
+            pages = auto_loader(
+                path,
+                extract_images=extract_images,
+                detect_headings=is_pdf and toc is None,
+            )
 
         if verbose:
             total_tokens = sum(p["token_count"] for p in pages)
             print(f"  {len(pages)} pages, {total_tokens:,} tokens")
 
+        # If we have a ToC, build the tree directly — no LLM needed
+        if toc:
+            return cls._from_toc(toc, pages, llm, verbose=verbose)
+
         return cls.from_pages(pages, llm, max_tokens=max_tokens,
                               overlap=overlap, verbose=verbose)
+
+    @classmethod
+    def _from_toc(cls, toc: list[dict], pages: list[dict], llm,
+                  verbose: bool = True):
+        """Build a TreeDex index directly from PDF table of contents."""
+        sections = toc_to_sections(toc)
+
+        if verbose:
+            print(f"  Built {len(sections)} sections from PDF ToC (no LLM needed)")
+
+        tree = list_to_tree(sections)
+        assign_page_ranges(tree, total_pages=len(pages))
+        assign_node_ids(tree)
+        embed_text_in_tree(tree, pages)
+
+        if verbose:
+            print(f"  Tree: {count_nodes(tree)} nodes")
+
+        return cls(tree, pages, llm)
 
     @classmethod
     def from_pages(cls, pages: list[dict], llm,
@@ -158,9 +222,9 @@ class TreeDex:
             if i == 0:
                 prompt = STRUCTURE_EXTRACTION_PROMPT.format(text=group_text)
             else:
-                prev_json = json.dumps(all_sections, indent=2)
+                prev_context = _build_continuation_context(all_sections)
                 prompt = STRUCTURE_CONTINUE_PROMPT.format(
-                    previous_structure=prev_json, text=group_text
+                    previous_structure=prev_context, text=group_text
                 )
 
             response = llm.generate(prompt)
@@ -173,6 +237,9 @@ class TreeDex:
 
         if verbose:
             print(f"  Extracted {len(all_sections)} sections")
+
+        # Repair orphaned sections before building the tree
+        all_sections = repair_orphans(all_sections)
 
         # Build tree
         tree = list_to_tree(all_sections)

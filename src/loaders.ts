@@ -28,14 +28,19 @@ export function textToPages(
 /** Load PDF files using pdfjs-dist. */
 export class PDFLoader {
   readonly extractImages: boolean;
+  readonly detectHeadings: boolean;
 
-  constructor(options?: { extractImages?: boolean }) {
+  constructor(options?: { extractImages?: boolean; detectHeadings?: boolean }) {
     this.extractImages = options?.extractImages ?? false;
+    this.detectHeadings = options?.detectHeadings ?? false;
   }
 
   async load(path: string): Promise<Page[]> {
     const { extractPages } = await import("./pdf-parser.js");
-    return extractPages(path, { extractImages: this.extractImages });
+    return extractPages(path, {
+      extractImages: this.extractImages,
+      detectHeadings: this.detectHeadings,
+    });
   }
 }
 
@@ -171,7 +176,7 @@ const EXTENSION_MAP: Record<string, { new (): Loader }> = {
 /** Auto-detect file format and load pages. */
 export async function autoLoader(
   filePath: string,
-  options?: { extractImages?: boolean },
+  options?: { extractImages?: boolean; detectHeadings?: boolean },
 ): Promise<Page[]> {
   const { extname } = await import("node:path");
   const ext = extname(filePath).toLowerCase();
@@ -182,8 +187,11 @@ export async function autoLoader(
       `Unsupported file extension '${ext}'. Supported: ${supported}`,
     );
   }
-  if (ext === ".pdf" && options?.extractImages) {
-    return new PDFLoader({ extractImages: true }).load(filePath);
+  if (ext === ".pdf") {
+    return new PDFLoader({
+      extractImages: options?.extractImages,
+      detectHeadings: options?.detectHeadings,
+    }).load(filePath);
   }
   const loader = new LoaderClass();
   return loader.load(filePath);

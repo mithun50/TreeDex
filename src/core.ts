@@ -1,13 +1,15 @@
 /** TreeDex: Tree-based document RAG framework. */
 
 import { autoLoader } from "./loaders.js";
-import { groupPages } from "./pdf-parser.js";
+import { groupPages, extractToc } from "./pdf-parser.js";
 import {
   assignNodeIds,
   assignPageRanges,
   embedTextInTree,
   findLargeNodes,
   listToTree,
+  repairOrphans,
+  tocToSections,
 } from "./tree-builder.js";
 import {
   collectNodeTexts,
@@ -68,6 +70,32 @@ async function describeImages(
       console.log(`  Page ${page.page_num}: ${descriptions.length} image(s) described`);
     }
   }
+}
+
+/**
+ * Build a capped continuation context for structure extraction.
+ *
+ * For small section lists returns the full JSON. For large lists returns a
+ * summary with top-level sections and the most recent sections.
+ */
+function buildContinuationContext(
+  allSections: Array<{ structure: string; [key: string]: unknown }>,
+  maxRecent: number = 30,
+): string {
+  if (allSections.length <= maxRecent) {
+    return JSON.stringify(allSections, null, 2);
+  }
+
+  const topLevel = allSections.filter((s) => !s.structure.includes("."));
+  const recent = allSections.slice(-maxRecent);
+
+  const summary = {
+    top_level_sections: topLevel,
+    [`recent_sections (last ${maxRecent})`]: recent,
+    total_sections_so_far: allSections.length,
+    last_structure_id: allSections[allSections.length - 1].structure,
+  };
+  return JSON.stringify(summary, null, 2);
 }
 
 /** Result of a TreeDex query. */
@@ -159,11 +187,26 @@ export class TreeDex {
       console.log(`Loading: ${basename(path)}`);
     }
 
+    const isPdf = path.toLowerCase().endsWith(".pdf");
+
+    // --- Try PDF ToC shortcut ---
+    let toc: Awaited<ReturnType<typeof extractToc>> = null;
+    if (isPdf && !loader) {
+      toc = await extractToc(path);
+      if (toc && verbose) {
+        console.log(`  Found PDF table of contents (${toc.length} entries)`);
+      }
+    }
+
+    // Load pages — enable heading detection for PDFs when no ToC
     let pages: Page[];
     if (loader) {
       pages = await loader.load(path);
     } else {
-      pages = await autoLoader(path, { extractImages });
+      pages = await autoLoader(path, {
+        extractImages,
+        detectHeadings: isPdf && toc === null,
+      });
     }
 
     if (verbose) {
@@ -171,7 +214,37 @@ export class TreeDex {
       console.log(`  ${pages.length} pages, ${totalTokens.toLocaleString()} tokens`);
     }
 
+    // If we have a ToC, build the tree directly — no LLM needed
+    if (toc) {
+      return TreeDex._fromToc(toc, pages, llm, verbose);
+    }
+
     return TreeDex.fromPages(pages, llm, { maxTokens, overlap, verbose });
+  }
+
+  /** Build a TreeDex index directly from PDF table of contents. */
+  private static _fromToc(
+    toc: Array<{ level: number; title: string; physical_index: number }>,
+    pages: Page[],
+    llm: BaseLLM,
+    verbose: boolean = true,
+  ): TreeDex {
+    const sections = tocToSections(toc);
+
+    if (verbose) {
+      console.log(`  Built ${sections.length} sections from PDF ToC (no LLM needed)`);
+    }
+
+    const tree = listToTree(sections);
+    assignPageRanges(tree, pages.length);
+    assignNodeIds(tree);
+    embedTextInTree(tree, pages);
+
+    if (verbose) {
+      console.log(`  Tree: ${countNodes(tree)} nodes`);
+    }
+
+    return new TreeDex(tree, pages, llm);
   }
 
   /** Build a TreeDex index from pre-extracted pages. */
@@ -212,8 +285,8 @@ export class TreeDex {
       if (i === 0) {
         prompt = structureExtractionPrompt(groups[i]);
       } else {
-        const prevJson = JSON.stringify(allSections, null, 2);
-        prompt = structureContinuePrompt(prevJson, groups[i]);
+        const prevContext = buildContinuationContext(allSections);
+        prompt = structureContinuePrompt(prevContext, groups[i]);
       }
 
       const response = await llm.generate(prompt);
@@ -242,8 +315,11 @@ export class TreeDex {
       console.log(`  Extracted ${allSections.length} sections`);
     }
 
+    // Repair orphaned sections before building the tree
+    const repairedSections = repairOrphans(allSections);
+
     // Build tree
-    const tree = listToTree(allSections);
+    const tree = listToTree(repairedSections);
     assignPageRanges(tree, pages.length);
     assignNodeIds(tree);
     embedTextInTree(tree, pages);

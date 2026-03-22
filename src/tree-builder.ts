@@ -2,6 +2,112 @@
 
 import type { TreeNode, Page } from "./types.js";
 
+export interface TocEntry {
+  level: number;
+  title: string;
+  physical_index: number;
+}
+
+/**
+ * Convert ToC entries `{level, title, physical_index}` into flat sections
+ * with hierarchical `structure` numbering (`"1"`, `"1.2"`, `"1.2.3"`).
+ */
+export function tocToSections(
+  toc: TocEntry[],
+): Array<{ structure: string; title: string; physical_index: number }> {
+  const counters: Record<number, number> = {};
+  const sections: Array<{
+    structure: string;
+    title: string;
+    physical_index: number;
+  }> = [];
+
+  for (const entry of toc) {
+    const level = entry.level;
+
+    // Reset deeper counters
+    for (const k of Object.keys(counters)) {
+      if (Number(k) > level) {
+        delete counters[Number(k)];
+      }
+    }
+
+    counters[level] = (counters[level] ?? 0) + 1;
+
+    const parts: string[] = [];
+    for (let l = 1; l <= level; l++) {
+      parts.push(String(counters[l] ?? 1));
+    }
+
+    sections.push({
+      structure: parts.join("."),
+      title: entry.title,
+      physical_index: entry.physical_index,
+    });
+  }
+
+  return sections;
+}
+
+/**
+ * Repair orphaned sections by inserting synthetic parent nodes.
+ *
+ * If `"2.3.1"` exists but `"2.3"` doesn't, a synthetic `"2.3"` node is
+ * inserted so that `listToTree` can build the correct hierarchy.
+ */
+export function repairOrphans(
+  flatList: Array<{
+    structure: string;
+    title: string;
+    physical_index: number;
+    [key: string]: unknown;
+  }>,
+): Array<{
+  structure: string;
+  title: string;
+  physical_index: number;
+  [key: string]: unknown;
+}> {
+  const known = new Set(flatList.map((item) => item.structure));
+  const inserts: Array<{
+    structure: string;
+    title: string;
+    physical_index: number;
+  }> = [];
+
+  for (const item of flatList) {
+    const parts = item.structure.split(".");
+    for (let depth = 1; depth < parts.length; depth++) {
+      const ancestor = parts.slice(0, depth).join(".");
+      if (!known.has(ancestor)) {
+        inserts.push({
+          structure: ancestor,
+          title: `Section ${ancestor}`,
+          physical_index: item.physical_index,
+        });
+        known.add(ancestor);
+      }
+    }
+  }
+
+  if (inserts.length > 0) {
+    const combined = [...flatList, ...inserts];
+    combined.sort((a, b) => {
+      const ap = a.structure.split(".").map(Number);
+      const bp = b.structure.split(".").map(Number);
+      for (let i = 0; i < Math.max(ap.length, bp.length); i++) {
+        const av = ap[i] ?? 0;
+        const bv = bp[i] ?? 0;
+        if (av !== bv) return av - bv;
+      }
+      return 0;
+    });
+    return combined;
+  }
+
+  return flatList;
+}
+
 /**
  * Convert a flat list with `structure` fields into a hierarchical tree.
  *

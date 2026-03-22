@@ -6,6 +6,8 @@ from treedex.tree_builder import (
     assign_node_ids,
     find_large_nodes,
     embed_text_in_tree,
+    toc_to_sections,
+    repair_orphans,
 )
 
 
@@ -149,3 +151,89 @@ class TestEmbedText:
 
         si_units = tree[1]["nodes"][1]  # 2.2
         assert "Page 22 content." in si_units["text"]
+
+
+class TestTocToSections:
+    def test_basic_toc(self):
+        toc = [
+            {"level": 1, "title": "Introduction", "physical_index": 0},
+            {"level": 2, "title": "Background", "physical_index": 2},
+            {"level": 2, "title": "Motivation", "physical_index": 5},
+            {"level": 1, "title": "Methods", "physical_index": 10},
+            {"level": 2, "title": "Data Collection", "physical_index": 10},
+            {"level": 3, "title": "Surveys", "physical_index": 12},
+        ]
+        sections = toc_to_sections(toc)
+
+        assert sections[0]["structure"] == "1"
+        assert sections[0]["title"] == "Introduction"
+        assert sections[1]["structure"] == "1.1"
+        assert sections[2]["structure"] == "1.2"
+        assert sections[3]["structure"] == "2"
+        assert sections[4]["structure"] == "2.1"
+        assert sections[5]["structure"] == "2.1.1"
+
+    def test_single_level(self):
+        toc = [
+            {"level": 1, "title": "A", "physical_index": 0},
+            {"level": 1, "title": "B", "physical_index": 5},
+            {"level": 1, "title": "C", "physical_index": 10},
+        ]
+        sections = toc_to_sections(toc)
+        assert [s["structure"] for s in sections] == ["1", "2", "3"]
+
+    def test_builds_valid_tree(self):
+        toc = [
+            {"level": 1, "title": "Ch1", "physical_index": 0},
+            {"level": 2, "title": "Sec1.1", "physical_index": 3},
+            {"level": 2, "title": "Sec1.2", "physical_index": 7},
+            {"level": 1, "title": "Ch2", "physical_index": 15},
+        ]
+        sections = toc_to_sections(toc)
+        tree = list_to_tree(sections)
+        assert len(tree) == 2
+        assert len(tree[0]["nodes"]) == 2
+
+
+class TestRepairOrphans:
+    def test_no_orphans(self):
+        data = _make_test_data()
+        repaired = repair_orphans(data)
+        assert len(repaired) == len(data)
+
+    def test_inserts_missing_parent(self):
+        data = [
+            {"structure": "1", "title": "Ch1", "physical_index": 0},
+            {"structure": "1.1", "title": "Sec1.1", "physical_index": 2},
+            {"structure": "2.3.1", "title": "Deep orphan", "physical_index": 10},
+        ]
+        repaired = repair_orphans(data)
+        structures = [s["structure"] for s in repaired]
+        assert "2" in structures
+        assert "2.3" in structures
+        assert "2.3.1" in structures
+
+    def test_repaired_builds_valid_tree(self):
+        data = [
+            {"structure": "1", "title": "Ch1", "physical_index": 0},
+            {"structure": "2.1.1", "title": "Deep", "physical_index": 5},
+        ]
+        repaired = repair_orphans(data)
+        tree = list_to_tree(repaired)
+        # "2" and "2.1" should be synthesized, so 2 roots
+        assert len(tree) == 2
+        # "2" should have child "2.1" which has child "2.1.1"
+        ch2 = tree[1]
+        assert ch2["structure"] == "2"
+        assert len(ch2["nodes"]) == 1
+        assert ch2["nodes"][0]["structure"] == "2.1"
+        assert len(ch2["nodes"][0]["nodes"]) == 1
+
+    def test_sorted_output(self):
+        data = [
+            {"structure": "3.1", "title": "Late", "physical_index": 20},
+            {"structure": "1.2", "title": "Early", "physical_index": 5},
+        ]
+        repaired = repair_orphans(data)
+        structures = [s["structure"] for s in repaired]
+        assert structures == ["1", "1.2", "3", "3.1"]

@@ -1,3 +1,61 @@
+def toc_to_sections(toc: list[dict]) -> list[dict]:
+    """Convert ToC entries ``{level, title, physical_index}`` into flat
+    sections with hierarchical ``structure`` numbering (``"1"``, ``"1.2"``,
+    ``"1.2.3"``).
+    """
+    counters: dict[int, int] = {}
+    sections: list[dict] = []
+
+    for entry in toc:
+        level = entry["level"]
+
+        # Reset deeper counters
+        for k in list(counters):
+            if k > level:
+                del counters[k]
+
+        counters[level] = counters.get(level, 0) + 1
+
+        parts = [str(counters.get(l, 1)) for l in range(1, level + 1)]
+
+        sections.append({
+            "structure": ".".join(parts),
+            "title": entry["title"],
+            "physical_index": entry["physical_index"],
+        })
+
+    return sections
+
+
+def repair_orphans(flat_list: list[dict]) -> list[dict]:
+    """Repair orphaned sections by inserting synthetic parent nodes.
+
+    If ``"2.3.1"`` exists but ``"2.3"`` doesn't, a synthetic ``"2.3"`` node
+    is inserted so that ``list_to_tree`` can build the correct hierarchy.
+    """
+    known = {item["structure"] for item in flat_list}
+    inserts: list[dict] = []
+
+    for item in flat_list:
+        parts = item["structure"].split(".")
+        for depth in range(1, len(parts)):
+            ancestor = ".".join(parts[:depth])
+            if ancestor not in known:
+                inserts.append({
+                    "structure": ancestor,
+                    "title": f"Section {ancestor}",
+                    "physical_index": item["physical_index"],
+                })
+                known.add(ancestor)
+
+    if inserts:
+        combined = flat_list + inserts
+        combined.sort(key=lambda x: [int(p) for p in x["structure"].split(".")])
+        return combined
+
+    return flat_list
+
+
 def list_to_tree(flat_list: list[dict]) -> list[dict]:
     """Convert a flat list with `structure` fields into a hierarchical tree.
 

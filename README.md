@@ -22,10 +22,20 @@ Available for both **Python** and **Node.js** — same API, same index format, f
 </p>
 
 1. **Load** — Extract pages from any supported format
-2. **Index** — LLM analyzes page groups and extracts hierarchical structure
-3. **Build** — Flat sections become a tree with page ranges and embedded text
-4. **Query** — LLM selects relevant tree nodes for your question
-5. **Return** — Get context text, source pages, and reasoning
+2. **Detect** — Auto-extract PDF table of contents or detect headings via font-size analysis (`[H1]`/`[H2]`/`[H3]` markers)
+3. **Index** — If a PDF ToC is found, build the tree directly (no LLM needed). Otherwise, LLM analyzes page groups with heading hints to extract hierarchical structure
+4. **Build** — Flat sections become a tree with page ranges and embedded text. Orphaned subsections are auto-repaired
+5. **Query** — LLM selects relevant tree nodes for your question
+6. **Return** — Get context text, source pages, and reasoning
+
+### Smart Hierarchy Detection
+
+TreeDex uses multiple strategies to accurately extract document structure, especially for large (300+ page) documents:
+
+- **PDF ToC extraction** — If the PDF has bookmarks/outline, the tree is built directly from it — zero LLM calls needed
+- **Font-size heading detection** — Analyzes font sizes across the document and injects `[H1]`/`[H2]`/`[H3]` markers so the LLM knows exactly which level each heading belongs to
+- **Capped continuation context** — For multi-chunk documents, the LLM sees a summary of top-level sections + recent sections instead of the full history, preventing prompt bloat
+- **Orphan repair** — If the LLM outputs `"2.3.1"` without a `"2.3"` parent, synthetic parents are auto-inserted to maintain a valid tree
 
 ### Why TreeDex instead of Vector DB?
 
@@ -389,6 +399,14 @@ Use `auto_loader(path)` / `autoLoader(path)` for automatic format detection.
 | Pages string | `.pages_str` | `.pagesStr` | Human-readable: `"pages 5-8, 12-15"` |
 | Reasoning | `.reasoning` | `.reasoning` | LLM's explanation for selection |
 | Answer | `.answer` | `.answer` | LLM-generated answer (agentic mode only) |
+
+### Hierarchy Utilities
+
+| Function | Python | Node.js | Description |
+|----------|--------|---------|-------------|
+| ToC → sections | `toc_to_sections(toc)` | `tocToSections(toc)` | Convert PDF ToC entries to numbered sections |
+| Repair orphans | `repair_orphans(sections)` | `repairOrphans(sections)` | Insert synthetic parents for orphaned subsections |
+| Extract PDF ToC | `extract_toc(path)` | `await extractToc(path)` | Get ToC from PDF bookmarks (returns `None`/`null` if unavailable) |
 
 ### Cross-language Index Compatibility
 

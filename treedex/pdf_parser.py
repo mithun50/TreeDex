@@ -1,4 +1,5 @@
 import base64
+from collections import Counter
 
 import fitz  # pymupdf
 import tiktoken
@@ -23,15 +24,143 @@ def _count_tokens(text: str) -> int:
     return len(_enc.encode(text))
 
 
-def extract_pages(pdf_path: str, extract_images: bool = False) -> list[dict]:
+# ---------------------------------------------------------------------------
+# ToC extraction
+# ---------------------------------------------------------------------------
+
+def extract_toc(pdf_path: str) -> list[dict] | None:
+    """Extract table of contents from PDF bookmarks/outline.
+
+    Returns a list of ``{level, title, physical_index}`` dicts, or *None* if
+    the PDF has no usable ToC (fewer than 3 entries).
+    """
+    with fitz.open(pdf_path) as doc:
+        toc = doc.get_toc()
+        if not toc or len(toc) < 3:
+            return None
+        entries = []
+        for level, title, page in toc:
+            title = title.strip()
+            if title:
+                entries.append({
+                    "level": level,
+                    "title": title,
+                    "physical_index": max(page - 1, 0),
+                })
+        return entries if len(entries) >= 3 else None
+
+
+# ---------------------------------------------------------------------------
+# Font-size heading detection
+# ---------------------------------------------------------------------------
+
+def _analyze_heading_sizes(doc) -> dict[float, str]:
+    """Analyze font sizes across the document and return a mapping of
+    ``{font_size: "H1"/"H2"/"H3"}`` for sizes that are larger than body text.
+
+    Samples up to 50 pages for efficiency on large documents.
+    """
+    size_chars: Counter = Counter()
+    sample_limit = min(len(doc), 50)
+
+    for i in range(sample_limit):
+        page = doc[i]
+        blocks = page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE)["blocks"]
+        for block in blocks:
+            if "lines" not in block:
+                continue
+            for line in block["lines"]:
+                for span in line["spans"]:
+                    text = span["text"].strip()
+                    if text:
+                        size_chars[round(span["size"], 1)] += len(text)
+
+    if not size_chars:
+        return {}
+
+    body_size = size_chars.most_common(1)[0][0]
+
+    heading_sizes = sorted(
+        [s for s in size_chars if s > body_size + 0.5],
+        reverse=True,
+    )
+
+    if not heading_sizes:
+        return {}
+
+    mapping: dict[float, str] = {}
+    for i, size in enumerate(heading_sizes[:3]):
+        mapping[size] = f"H{i + 1}"
+    return mapping
+
+
+def _build_annotated_text(page_dict: dict, heading_map: dict[float, str]) -> str:
+    """Build page text with ``[H1]``/``[H2]``/``[H3]`` heading markers."""
+    lines_out: list[str] = []
+
+    for block in page_dict.get("blocks", []):
+        if "lines" not in block:
+            continue
+        for line in block["lines"]:
+            line_text = ""
+            line_tag: str | None = None
+            for span in line["spans"]:
+                text = span["text"]
+                size = round(span["size"], 1)
+                tag = heading_map.get(size)
+                if tag and text.strip():
+                    # Pick the highest-priority (lowest number) tag on this line
+                    if line_tag is None or tag < line_tag:
+                        line_tag = tag
+                line_text += text
+
+            stripped = line_text.strip()
+            if stripped:
+                if line_tag:
+                    lines_out.append(f"[{line_tag}] {stripped}")
+                else:
+                    lines_out.append(stripped)
+
+    return "\n".join(lines_out)
+
+
+# ---------------------------------------------------------------------------
+# Page extraction
+# ---------------------------------------------------------------------------
+
+def extract_pages(
+    pdf_path: str,
+    extract_images: bool = False,
+    detect_headings: bool = False,
+) -> list[dict]:
     """Extract text from each page of a PDF.
 
     Returns a list of dicts with page_num, text, token_count, and optionally images.
+
+    When *detect_headings* is True the text of each page will contain
+    ``[H1]``/``[H2]``/``[H3]`` markers before heading lines, determined by
+    font-size analysis across the document.
     """
     pages = []
+
     with fitz.open(pdf_path) as doc:
+        # Optionally detect heading font sizes
+        heading_map: dict[float, str] = {}
+        page_dicts: list[dict] | None = None
+        if detect_headings:
+            heading_map = _analyze_heading_sizes(doc)
+            if heading_map:
+                page_dicts = [
+                    page.get_text("dict", flags=fitz.TEXT_PRESERVE_WHITESPACE)
+                    for page in doc
+                ]
+
         for i, page in enumerate(doc):
-            text = page.get_text()
+            if heading_map and page_dicts is not None:
+                text = _build_annotated_text(page_dicts[i], heading_map)
+            else:
+                text = page.get_text()
+
             page_dict = {
                 "page_num": i,
                 "text": text,
