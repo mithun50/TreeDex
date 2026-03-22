@@ -1,0 +1,83 @@
+name: Render Promo Video
+
+on:
+  push:
+    branches: [main, feat/video, feat/image-handling]
+    paths:
+      - "video/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - "video/**"
+  workflow_dispatch:
+    inputs:
+      codec:
+        description: "Output codec"
+        required: false
+        default: "h264"
+        type: choice
+        options:
+          - h264
+          - h265
+          - vp8
+          - vp9
+      crf:
+        description: "Constant Rate Factor (quality, lower = better)"
+        required: false
+        default: "18"
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: video/package-lock.json
+
+      - name: Install Chrome dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
+            libxcomposite1 libxdamage1 libxrandr2 libgbm1 \
+            libpango-1.0-0 libcairo2 libasound2 libxshmfence1 \
+            fonts-noto fonts-liberation ffmpeg
+
+      - name: Install dependencies
+        working-directory: video
+        run: npm ci
+
+      - name: Install Chromium for Remotion
+        working-directory: video
+        run: npx remotion browser ensure
+
+      - name: Type check
+        working-directory: video
+        run: npx tsc --noEmit
+
+      - name: Render video
+        working-directory: video
+        run: |
+          npx remotion render src/index.ts TreeDexVideo out/treedex.mp4 \
+            --codec=${{ github.event.inputs.codec || 'h264' }} \
+            --crf=${{ github.event.inputs.crf || '18' }} \
+            --log=verbose
+
+      - name: Upload rendered video
+        uses: actions/upload-artifact@v4
+        with:
+          name: treedex-promo-video
+          path: video/out/treedex.mp4
+          retention-days: 30
+
+      - name: Print video info
+        working-directory: video
+        run: |
+          ls -lh out/treedex.mp4
+          ffprobe -v quiet -print_format json -show_format -show_streams out/treedex.mp4 | head -50
