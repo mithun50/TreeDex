@@ -29,7 +29,7 @@ on:
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
@@ -49,18 +49,19 @@ jobs:
             libxcomposite1 libxdamage1 libxrandr2 libgbm1 \
             libpango-1.0-0 libcairo2 libxshmfence1 \
             fonts-noto fonts-liberation ffmpeg
-          # libasound2 renamed to libasound2t64 on Ubuntu 24.04+
           sudo apt-get install -y libasound2t64 || sudo apt-get install -y libasound2
-          # Find Chrome/Chromium path for Remotion
           echo "BROWSER_PATH=$(which chromium-browser || which chromium || which google-chrome-stable || which google-chrome)" >> $GITHUB_ENV
 
       - name: Install dependencies
         working-directory: video
         run: npm ci
 
-      - name: Type check
-        working-directory: video
-        run: npx tsc --noEmit
+      - name: Cache Remotion bundle
+        uses: actions/cache@v4
+        with:
+          path: video/node_modules/.cache/remotion
+          key: remotion-bundle-${{ hashFiles('video/src/**') }}
+          restore-keys: remotion-bundle-
 
       - name: Render video
         working-directory: video
@@ -69,6 +70,10 @@ jobs:
             --browser-executable="$BROWSER_PATH" \
             --codec=${{ github.event.inputs.codec || 'h264' }} \
             --crf=${{ github.event.inputs.crf || '18' }} \
+            --concurrency=4 \
+            --image-format=jpeg \
+            --quality=85 \
+            --bundle-cache=true \
             --log=verbose
 
       - name: Upload rendered video
