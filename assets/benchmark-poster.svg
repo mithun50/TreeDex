@@ -1,0 +1,275 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1600" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0f1a"/>
+      <stop offset="100%" style="stop-color:#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#16a34a"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ef4444"/>
+      <stop offset="100%" style="stop-color:#dc2626"/>
+    </linearGradient>
+    <linearGradient id="barGreen" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#4ade80"/>
+    </linearGradient>
+    <linearGradient id="barRed" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ef4444"/>
+      <stop offset="100%" style="stop-color:#f87171"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="1600" fill="url(#bg)"/>
+
+  <!-- Subtle grid pattern -->
+  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-width="0.3" opacity="0.03"/>
+  </pattern>
+  <rect width="1200" height="1600" fill="url(#grid)"/>
+
+  <!-- Top accent line -->
+  <rect x="0" y="0" width="1200" height="5" fill="url(#accent)"/>
+
+  <!-- Title Section -->
+  <text x="600" y="80" text-anchor="middle" fill="#6366f1" font-size="18" font-weight="600" letter-spacing="6" opacity="0.8">BENCHMARK REPORT</text>
+
+  <text x="600" y="140" text-anchor="middle" fill="white" font-size="52" font-weight="800" letter-spacing="-1">TreeDex vs Vector RAG</text>
+
+  <text x="600" y="185" text-anchor="middle" fill="#94a3b8" font-size="20" font-weight="400">Head-to-head on a 244-page textbook | 120k tokens | 20 ground-truth queries</text>
+
+  <!-- Divider -->
+  <line x1="400" y1="215" x2="800" y2="215" stroke="url(#accent)" stroke-width="2" opacity="0.5"/>
+
+  <!-- Document Info Bar -->
+  <rect x="80" y="240" width="1040" height="60" rx="12" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.08" stroke-width="1"/>
+  <text x="160" y="277" text-anchor="middle" fill="#8b5cf6" font-size="22" font-weight="700">244</text>
+  <text x="160" y="295" text-anchor="middle" fill="#64748b" font-size="11">PAGES</text>
+  <text x="370" y="277" text-anchor="middle" fill="#8b5cf6" font-size="22" font-weight="700">120,256</text>
+  <text x="370" y="295" text-anchor="middle" fill="#64748b" font-size="11">TOKENS</text>
+  <text x="600" y="277" text-anchor="middle" fill="#8b5cf6" font-size="22" font-weight="700">240</text>
+  <text x="600" y="295" text-anchor="middle" fill="#64748b" font-size="11">ToC ENTRIES</text>
+  <text x="830" y="277" text-anchor="middle" fill="#8b5cf6" font-size="22" font-weight="700">20</text>
+  <text x="830" y="295" text-anchor="middle" fill="#64748b" font-size="11">QUERIES</text>
+  <text x="1040" y="277" text-anchor="middle" fill="#8b5cf6" font-size="22" font-weight="700">0</text>
+  <text x="1040" y="295" text-anchor="middle" fill="#64748b" font-size="11">LLM CALLS</text>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- Big Numbers Section -->
+  <!-- ════════════════════════════════════════════ -->
+
+  <!-- Hit Rate -->
+  <rect x="80" y="330" width="330" height="180" rx="16" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" filter="url(#shadow)"/>
+  <text x="245" y="375" text-anchor="middle" fill="#64748b" font-size="14" font-weight="600" letter-spacing="2">HIT RATE</text>
+  <text x="165" y="450" text-anchor="middle" fill="#22c55e" font-size="64" font-weight="800">60%</text>
+  <text x="165" y="480" text-anchor="middle" fill="#22c55e" font-size="14" font-weight="600">TreeDex</text>
+  <text x="325" y="450" text-anchor="middle" fill="#ef4444" font-size="64" font-weight="800">55%</text>
+  <text x="325" y="480" text-anchor="middle" fill="#ef4444" font-size="14" font-weight="600">Vector RAG</text>
+  <text x="245" y="500" text-anchor="middle" fill="#4ade80" font-size="13" font-weight="600">TreeDex +5%</text>
+
+  <!-- Recall -->
+  <rect x="435" y="330" width="330" height="180" rx="16" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" filter="url(#shadow)"/>
+  <text x="600" y="375" text-anchor="middle" fill="#64748b" font-size="14" font-weight="600" letter-spacing="2">RECALL</text>
+  <text x="520" y="450" text-anchor="middle" fill="#22c55e" font-size="64" font-weight="800">60%</text>
+  <text x="520" y="480" text-anchor="middle" fill="#22c55e" font-size="14" font-weight="600">TreeDex</text>
+  <text x="680" y="450" text-anchor="middle" fill="#ef4444" font-size="64" font-weight="800">33%</text>
+  <text x="680" y="480" text-anchor="middle" fill="#ef4444" font-size="14" font-weight="600">Vector RAG</text>
+  <text x="600" y="500" text-anchor="middle" fill="#4ade80" font-size="13" font-weight="600">TreeDex 1.8x better</text>
+
+  <!-- Precision -->
+  <rect x="790" y="330" width="330" height="180" rx="16" fill="#ffffff" fill-opacity="0.04" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1" filter="url(#shadow)"/>
+  <text x="955" y="375" text-anchor="middle" fill="#64748b" font-size="14" font-weight="600" letter-spacing="2">PRECISION</text>
+  <text x="875" y="450" text-anchor="middle" fill="#22c55e" font-size="64" font-weight="800">30%</text>
+  <text x="875" y="480" text-anchor="middle" fill="#22c55e" font-size="14" font-weight="600">TreeDex</text>
+  <text x="1035" y="450" text-anchor="middle" fill="#ef4444" font-size="64" font-weight="800">13%</text>
+  <text x="1035" y="480" text-anchor="middle" fill="#ef4444" font-size="14" font-weight="600">Vector RAG</text>
+  <text x="955" y="500" text-anchor="middle" fill="#4ade80" font-size="13" font-weight="600">TreeDex 2.3x better</text>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- Bar Charts Section -->
+  <!-- ════════════════════════════════════════════ -->
+
+  <text x="600" y="565" text-anchor="middle" fill="white" font-size="24" font-weight="700">Build Performance</text>
+
+  <!-- Build Time Bars -->
+  <rect x="80" y="590" width="500" height="120" rx="12" fill="#ffffff" fill-opacity="0.03"/>
+  <text x="100" y="618" fill="#94a3b8" font-size="13" font-weight="600">BUILD TIME</text>
+
+  <text x="100" y="648" fill="#22c55e" font-size="13" font-weight="600">TreeDex</text>
+  <rect x="210" y="635" width="12" height="18" rx="4" fill="url(#barGreen)"/>
+  <text x="232" y="649" fill="#4ade80" font-size="14" font-weight="700">4.2ms</text>
+
+  <text x="100" y="688" fill="#ef4444" font-size="13" font-weight="600">Vector RAG</text>
+  <rect x="210" y="675" width="310" height="18" rx="4" fill="url(#barRed)"/>
+  <text x="530" y="689" fill="#f87171" font-size="14" font-weight="700">216.7ms</text>
+
+  <rect x="360" y="610" width="90" height="28" rx="14" fill="#22c55e" fill-opacity="0.15"/>
+  <text x="405" y="629" text-anchor="middle" fill="#4ade80" font-size="14" font-weight="700">52x faster</text>
+
+  <!-- Index Size Bars -->
+  <rect x="620" y="590" width="500" height="120" rx="12" fill="#ffffff" fill-opacity="0.03"/>
+  <text x="640" y="618" fill="#94a3b8" font-size="13" font-weight="600">INDEX SIZE (tokens)</text>
+
+  <text x="640" y="648" fill="#22c55e" font-size="13" font-weight="600">TreeDex</text>
+  <rect x="750" y="635" width="28" height="18" rx="4" fill="url(#barGreen)"/>
+  <text x="788" y="649" fill="#4ade80" font-size="14" font-weight="700">8,517</text>
+
+  <text x="640" y="688" fill="#ef4444" font-size="13" font-weight="600">Vector RAG</text>
+  <rect x="750" y="675" width="310" height="18" rx="4" fill="url(#barRed)"/>
+  <text x="1070" y="689" fill="#f87171" font-size="14" font-weight="700">117,437</text>
+
+  <rect x="870" y="610" width="110" height="28" rx="14" fill="#22c55e" fill-opacity="0.15"/>
+  <text x="925" y="629" text-anchor="middle" fill="#4ade80" font-size="14" font-weight="700">13.8x smaller</text>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- Feature Comparison Table -->
+  <!-- ════════════════════════════════════════════ -->
+
+  <text x="600" y="770" text-anchor="middle" fill="white" font-size="24" font-weight="700">Feature Comparison</text>
+
+  <!-- Table Header -->
+  <rect x="80" y="790" width="1040" height="42" rx="8" fill="url(#accent)" opacity="0.3"/>
+  <text x="330" y="817" text-anchor="middle" fill="white" font-size="14" font-weight="700">FEATURE</text>
+  <text x="700" y="817" text-anchor="middle" fill="#22c55e" font-size="14" font-weight="700">TREEDEX</text>
+  <text x="960" y="817" text-anchor="middle" fill="#ef4444" font-size="14" font-weight="700">VECTOR RAG</text>
+
+  <!-- Row 1 -->
+  <rect x="80" y="836" width="1040" height="38" rx="0" fill="#ffffff" fill-opacity="0.02"/>
+  <text x="130" y="860" fill="#cbd5e1" font-size="14">Index structure</text>
+  <text x="700" y="860" text-anchor="middle" fill="#4ade80" font-size="14" font-weight="600">Hierarchical tree</text>
+  <text x="960" y="860" text-anchor="middle" fill="#f87171" font-size="14">Flat chunks</text>
+
+  <!-- Row 2 -->
+  <rect x="80" y="878" width="1040" height="38" rx="0" fill="#ffffff" fill-opacity="0.04"/>
+  <text x="130" y="902" fill="#cbd5e1" font-size="14">Page attribution</text>
+  <text x="700" y="902" text-anchor="middle" fill="#4ade80" font-size="14" font-weight="600">Exact page ranges</text>
+  <text x="960" y="902" text-anchor="middle" fill="#f87171" font-size="14">Approximate</text>
+
+  <!-- Row 3 -->
+  <rect x="80" y="920" width="1040" height="38" rx="0" fill="#ffffff" fill-opacity="0.02"/>
+  <text x="130" y="944" fill="#cbd5e1" font-size="14">LLM calls to build</text>
+  <text x="700" y="944" text-anchor="middle" fill="#4ade80" font-size="14" font-weight="600">0 (PDF ToC)</text>
+  <text x="960" y="944" text-anchor="middle" fill="#f87171" font-size="14">303 embedding calls</text>
+
+  <!-- Row 4 -->
+  <rect x="80" y="962" width="1040" height="38" rx="0" fill="#ffffff" fill-opacity="0.04"/>
+  <text x="130" y="986" fill="#cbd5e1" font-size="14">Infrastructure</text>
+  <text x="700" y="986" text-anchor="middle" fill="#4ade80" font-size="14" font-weight="600">None (JSON file)</text>
+  <text x="960" y="986" text-anchor="middle" fill="#f87171" font-size="14">Vector DB + embedding API</text>
+
+  <!-- Row 5 -->
+  <rect x="80" y="1004" width="1040" height="38" rx="0" fill="#ffffff" fill-opacity="0.02"/>
+  <text x="130" y="1028" fill="#cbd5e1" font-size="14">Human readable</text>
+  <text x="700" y="1028" text-anchor="middle" fill="#4ade80" font-size="14" font-weight="600">Yes — inspect, edit, git</text>
+  <text x="960" y="1028" text-anchor="middle" fill="#f87171" font-size="14">No — opaque vectors</text>
+
+  <!-- Row 6 -->
+  <rect x="80" y="1046" width="1040" height="38" rx="0" fill="#ffffff" fill-opacity="0.04"/>
+  <text x="130" y="1070" fill="#cbd5e1" font-size="14">Preserves hierarchy</text>
+  <text x="700" y="1070" text-anchor="middle" fill="#4ade80" font-size="14" font-weight="600">Chapters > Sections > Sub</text>
+  <text x="960" y="1070" text-anchor="middle" fill="#f87171" font-size="14">No hierarchy</text>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- How It Works -->
+  <!-- ════════════════════════════════════════════ -->
+
+  <text x="600" y="1140" text-anchor="middle" fill="white" font-size="24" font-weight="700">How TreeDex Works</text>
+
+  <!-- Pipeline boxes -->
+  <rect x="80" y="1165" width="180" height="80" rx="12" fill="#6366f1" fill-opacity="0.15" stroke="#6366f1" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="170" y="1198" text-anchor="middle" fill="#a5b4fc" font-size="28">&#x1F4C4;</text>
+  <text x="170" y="1228" text-anchor="middle" fill="#c7d2fe" font-size="13" font-weight="600">PDF Document</text>
+
+  <!-- Arrow -->
+  <text x="280" y="1210" text-anchor="middle" fill="#6366f1" font-size="24">&#x2192;</text>
+
+  <rect x="300" y="1165" width="180" height="80" rx="12" fill="#22c55e" fill-opacity="0.15" stroke="#22c55e" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="390" y="1195" text-anchor="middle" fill="#86efac" font-size="14" font-weight="700">Extract ToC</text>
+  <text x="390" y="1215" text-anchor="middle" fill="#6ee7b7" font-size="12">Zero LLM calls</text>
+  <text x="390" y="1235" text-anchor="middle" fill="#4ade80" font-size="11">~31ms</text>
+
+  <text x="500" y="1210" text-anchor="middle" fill="#6366f1" font-size="24">&#x2192;</text>
+
+  <rect x="520" y="1165" width="180" height="80" rx="12" fill="#8b5cf6" fill-opacity="0.15" stroke="#8b5cf6" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="610" y="1195" text-anchor="middle" fill="#c4b5fd" font-size="14" font-weight="700">Build Tree</text>
+  <text x="610" y="1215" text-anchor="middle" fill="#a78bfa" font-size="12">240 nodes, 22 chapters</text>
+  <text x="610" y="1235" text-anchor="middle" fill="#8b5cf6" font-size="11">~4ms</text>
+
+  <text x="720" y="1210" text-anchor="middle" fill="#6366f1" font-size="24">&#x2192;</text>
+
+  <rect x="740" y="1165" width="180" height="80" rx="12" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="830" y="1195" text-anchor="middle" fill="#fcd34d" font-size="14" font-weight="700">Query</text>
+  <text x="830" y="1215" text-anchor="middle" fill="#fbbf24" font-size="12">LLM navigates tree</text>
+  <text x="830" y="1235" text-anchor="middle" fill="#f59e0b" font-size="11">1 call, ~2k tokens</text>
+
+  <text x="940" y="1210" text-anchor="middle" fill="#6366f1" font-size="24">&#x2192;</text>
+
+  <rect x="960" y="1165" width="160" height="80" rx="12" fill="#06b6d4" fill-opacity="0.15" stroke="#06b6d4" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="1040" y="1195" text-anchor="middle" fill="#67e8f9" font-size="14" font-weight="700">Result</text>
+  <text x="1040" y="1215" text-anchor="middle" fill="#22d3ee" font-size="12">Context + pages</text>
+  <text x="1040" y="1235" text-anchor="middle" fill="#06b6d4" font-size="11">Exact attribution</text>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- v0.1.5 Features -->
+  <!-- ════════════════════════════════════════════ -->
+
+  <text x="600" y="1310" text-anchor="middle" fill="white" font-size="24" font-weight="700">v0.1.5 — Smart Hierarchy Detection</text>
+
+  <!-- Feature cards -->
+  <rect x="80" y="1335" width="240" height="100" rx="12" fill="#ffffff" fill-opacity="0.04" stroke="#22c55e" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="200" y="1368" text-anchor="middle" fill="#4ade80" font-size="14" font-weight="700">PDF ToC Extraction</text>
+  <text x="200" y="1390" text-anchor="middle" fill="#94a3b8" font-size="12">Read bookmarks directly</text>
+  <text x="200" y="1410" text-anchor="middle" fill="#94a3b8" font-size="12">Zero LLM calls needed</text>
+  <text x="200" y="1425" text-anchor="middle" fill="#4ade80" font-size="11" font-weight="600">~31ms for any size doc</text>
+
+  <rect x="345" y="1335" width="240" height="100" rx="12" fill="#ffffff" fill-opacity="0.04" stroke="#8b5cf6" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="465" y="1368" text-anchor="middle" fill="#a78bfa" font-size="14" font-weight="700">Heading Detection</text>
+  <text x="465" y="1390" text-anchor="middle" fill="#94a3b8" font-size="12">Font-size analysis</text>
+  <text x="465" y="1410" text-anchor="middle" fill="#94a3b8" font-size="12">[H1] [H2] [H3] markers</text>
+  <text x="465" y="1425" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">+2.7% tokens only</text>
+
+  <rect x="610" y="1335" width="240" height="100" rx="12" fill="#ffffff" fill-opacity="0.04" stroke="#f59e0b" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="730" y="1368" text-anchor="middle" fill="#fbbf24" font-size="14" font-weight="700">Capped Context</text>
+  <text x="730" y="1390" text-anchor="middle" fill="#94a3b8" font-size="12">Top-level + last 30 sections</text>
+  <text x="730" y="1410" text-anchor="middle" fill="#94a3b8" font-size="12">Not full history</text>
+  <text x="730" y="1425" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">90% token savings (500pg)</text>
+
+  <rect x="875" y="1335" width="240" height="100" rx="12" fill="#ffffff" fill-opacity="0.04" stroke="#06b6d4" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="995" y="1368" text-anchor="middle" fill="#22d3ee" font-size="14" font-weight="700">Orphan Repair</text>
+  <text x="995" y="1390" text-anchor="middle" fill="#94a3b8" font-size="12">Auto-insert missing parents</text>
+  <text x="995" y="1410" text-anchor="middle" fill="#94a3b8" font-size="12">No more broken trees</text>
+  <text x="995" y="1425" text-anchor="middle" fill="#22d3ee" font-size="11" font-weight="600">Handles any LLM output</text>
+
+  <!-- ════════════════════════════════════════════ -->
+  <!-- Footer -->
+  <!-- ════════════════════════════════════════════ -->
+
+  <rect x="0" y="1465" width="1200" height="135" fill="#ffffff" fill-opacity="0.02"/>
+
+  <!-- Install commands -->
+  <rect x="250" y="1485" width="280" height="36" rx="8" fill="#000000" fill-opacity="0.4" stroke="#6366f1" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="390" y="1509" text-anchor="middle" fill="#a5b4fc" font-size="15" font-weight="600" font-family="monospace">pip install treedex</text>
+
+  <rect x="570" y="1485" width="280" height="36" rx="8" fill="#000000" fill-opacity="0.4" stroke="#6366f1" stroke-opacity="0.3" stroke-width="1"/>
+  <text x="710" y="1509" text-anchor="middle" fill="#a5b4fc" font-size="15" font-weight="600" font-family="monospace">npm install treedex</text>
+
+  <text x="600" y="1555" text-anchor="middle" fill="#64748b" font-size="14">github.com/mithun50/TreeDex</text>
+  <text x="600" y="1578" text-anchor="middle" fill="#475569" font-size="12">MIT License | Python 3.10+ | Node.js 18+ | 18+ LLM Providers</text>
+
+  <!-- TreeDex logo text -->
+  <text x="600" y="1470" text-anchor="middle" fill="url(#accent)" font-size="20" font-weight="800" letter-spacing="1" filter="url(#glow)">TreeDex</text>
+</svg>
