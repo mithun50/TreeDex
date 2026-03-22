@@ -40,24 +40,23 @@ jobs:
           cache: npm
           cache-dependency-path: video/package-lock.json
 
-      - name: Install Chrome dependencies
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            chromium-browser \
             libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
             libxcomposite1 libxdamage1 libxrandr2 libgbm1 \
             libpango-1.0-0 libcairo2 libxshmfence1 \
             fonts-noto fonts-liberation ffmpeg
           # libasound2 renamed to libasound2t64 on Ubuntu 24.04+
           sudo apt-get install -y libasound2t64 || sudo apt-get install -y libasound2
+          # Find Chrome/Chromium path for Remotion
+          echo "BROWSER_PATH=$(which chromium-browser || which chromium || which google-chrome-stable || which google-chrome)" >> $GITHUB_ENV
 
       - name: Install dependencies
         working-directory: video
         run: npm ci
-
-      - name: Install Chromium for Remotion
-        working-directory: video
-        run: npx remotion browser ensure
 
       - name: Type check
         working-directory: video
@@ -67,6 +66,7 @@ jobs:
         working-directory: video
         run: |
           npx remotion render src/index.ts TreeDexVideo out/treedex.mp4 \
+            --browser-executable="$BROWSER_PATH" \
             --codec=${{ github.event.inputs.codec || 'h264' }} \
             --crf=${{ github.event.inputs.crf || '18' }} \
             --log=verbose
