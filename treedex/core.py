@@ -123,6 +123,35 @@ class QueryResult:
         )
 
 
+class MultiQueryResult:
+    """Result of querying multiple TreeDex indexes simultaneously.
+
+    Attributes:
+        results: Per-index QueryResult objects in the same order as the
+            input indexes.
+        labels: Human-readable label for each index (e.g. filenames).
+        combined_context: All per-index contexts merged with
+            ``[Document N]`` separators for easy downstream consumption.
+        answer: Optional agentic answer generated over the combined context.
+    """
+
+    def __init__(
+        self,
+        results: list[QueryResult],
+        labels: list[str],
+        combined_context: str,
+        answer: str = "",
+    ):
+        self.results = results
+        self.labels = labels
+        self.combined_context = combined_context
+        self.answer = answer
+
+    def __repr__(self) -> str:
+        parts = [f"[{self.labels[i]}] {repr(r)}" for i, r in enumerate(self.results)]
+        return "MultiQueryResult(\n  " + ",\n  ".join(parts) + "\n)"
+
+
 class TreeDex:
     """Tree-based document index for RAG retrieval."""
 
@@ -368,3 +397,80 @@ class TreeDex:
             self.tree, max_pages=max_pages,
             max_tokens=max_tokens, pages=self.pages
         )
+
+    @classmethod
+    def query_all(
+        cls,
+        indexes: list["TreeDex"],
+        question: str,
+        llm=None,
+        agentic: bool = False,
+        labels: list[str] | None = None,
+    ) -> "MultiQueryResult":
+        """Query multiple TreeDex indexes simultaneously and merge results.
+
+        All indexes are queried sequentially and results are combined into a
+        single :class:`MultiQueryResult` whose ``combined_context`` labels
+        each source document clearly.
+
+        Args:
+            indexes: List of TreeDex instances to query.
+            question: The question to ask every index.
+            llm: Shared LLM instance. Falls back to each index's own LLM when
+                not provided.
+            agentic: If ``True``, generate a single answer over the combined
+                context using the LLM after all retrievals are done.
+            labels: Human-readable names for each index (e.g. filenames).
+                Defaults to ``"Document 1"``, ``"Document 2"``, …
+
+        Returns:
+            A :class:`MultiQueryResult` with per-index results, merged
+            context, and an optional agentic answer.
+
+        Example::
+
+            multi = TreeDex.query_all(
+                [index1, index2, index3],
+                "What are the safety guidelines?",
+                llm=llm,
+                labels=["Manual A", "Manual B", "Manual C"],
+                agentic=True,
+            )
+            print(multi.combined_context)
+            print(multi.answer)
+        """
+        if not indexes:
+            raise ValueError("query_all requires at least one index.")
+
+        if labels is None:
+            labels = [f"Document {i + 1}" for i in range(len(indexes))]
+
+        if len(labels) != len(indexes):
+            raise ValueError("labels length must match indexes length.")
+
+        # Query each index (no per-index agentic; single answer at the end)
+        results = [
+            idx.query(question, llm=llm, agentic=False)
+            for idx in indexes
+        ]
+
+        # Merge contexts with clear document separators
+        sections = []
+        for i, result in enumerate(results):
+            ctx = result.context.strip()
+            if ctx:
+                sections.append(f"[{labels[i]}]\n{ctx}")
+        combined_context = "\n\n---\n\n".join(sections)
+
+        # Optional: generate one answer over the combined context
+        answer = ""
+        if agentic and combined_context:
+            active_llm = llm or next(
+                (idx.llm for idx in indexes if idx.llm is not None), None
+            )
+            if active_llm is None:
+                raise ValueError("No LLM provided for agentic mode in query_all.")
+            prompt = ANSWER_PROMPT.format(context=combined_context, query=question)
+            answer = active_llm.generate(prompt)
+
+        return MultiQueryResult(results, labels, combined_context, answer)

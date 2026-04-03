@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { writeFile, mkdir, rm, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { TreeDex, QueryResult } from "../src/core.js";
+import { TreeDex, QueryResult, MultiQueryResult } from "../src/core.js";
 import { FunctionLLM } from "../src/llm-backends.js";
 import {
   listToTree,
@@ -223,5 +223,127 @@ describe("TreeDex.findLargeSections", () => {
     const index = TreeDex.fromTree(tree, pages);
     const large = index.findLargeSections({ maxPages: 100 });
     expect(large.length).toBe(0);
+  });
+});
+
+describe("MultiQueryResult", () => {
+  it("should store results and labels", () => {
+    const r1 = new QueryResult("ctx1", ["0001"], [[0, 1]], "reason1");
+    const r2 = new QueryResult("ctx2", ["0002"], [[2, 3]], "reason2");
+    const multi = new MultiQueryResult(
+      [r1, r2],
+      ["Doc A", "Doc B"],
+      "[Doc A]\nctx1\n\n---\n\n[Doc B]\nctx2",
+    );
+    expect(multi.results).toHaveLength(2);
+    expect(multi.labels).toEqual(["Doc A", "Doc B"]);
+    expect(multi.combinedContext).toContain("[Doc A]");
+    expect(multi.combinedContext).toContain("[Doc B]");
+    expect(multi.answer).toBe("");
+  });
+
+  it("should store agentic answer", () => {
+    const r = new QueryResult("ctx", ["0001"], [[0, 0]], "reason");
+    const multi = new MultiQueryResult([r], ["Doc A"], "[Doc A]\nctx", "My answer");
+    expect(multi.answer).toBe("My answer");
+  });
+
+  it("should have toString", () => {
+    const r = new QueryResult("ctx", ["0001"], [[0, 0]], "reason");
+    const multi = new MultiQueryResult([r], ["Doc A"], "[Doc A]\nctx");
+    expect(multi.toString()).toContain("Doc A");
+  });
+});
+
+describe("TreeDex.queryAll", () => {
+  it("should query multiple indexes and merge contexts", async () => {
+    const llm = makeMockLlm();
+    const { tree, pages } = makeTreeAndPages();
+    const index1 = TreeDex.fromTree(tree, pages, llm);
+    const index2 = TreeDex.fromTree(tree, pages, llm);
+
+    const multi = await TreeDex.queryAll([index1, index2], "What methods were used?");
+
+    expect(multi.results).toHaveLength(2);
+    expect(multi.labels).toEqual(["Document 1", "Document 2"]);
+    expect(multi.combinedContext).toContain("[Document 1]");
+    expect(multi.combinedContext).toContain("[Document 2]");
+    expect(multi.combinedContext).toContain("---");
+  });
+
+  it("should use custom labels", async () => {
+    const llm = makeMockLlm();
+    const { tree, pages } = makeTreeAndPages();
+    const index1 = TreeDex.fromTree(tree, pages, llm);
+    const index2 = TreeDex.fromTree(tree, pages, llm);
+
+    const multi = await TreeDex.queryAll(
+      [index1, index2],
+      "question",
+      { labels: ["Manual A", "Manual B"] },
+    );
+
+    expect(multi.labels).toEqual(["Manual A", "Manual B"]);
+    expect(multi.combinedContext).toContain("[Manual A]");
+    expect(multi.combinedContext).toContain("[Manual B]");
+  });
+
+  it("should use shared override LLM", async () => {
+    const { tree, pages } = makeTreeAndPages();
+    const index1 = TreeDex.fromTree(tree, pages); // no llm
+    const index2 = TreeDex.fromTree(tree, pages); // no llm
+    const llm = makeMockLlm();
+
+    const multi = await TreeDex.queryAll([index1, index2], "question", { llm });
+
+    expect(multi.results).toHaveLength(2);
+    expect(multi.combinedContext.length).toBeGreaterThan(0);
+  });
+
+  it("should generate agentic answer over combined context", async () => {
+    const baseLlm = makeMockLlm();
+    const agenticLlm = new FunctionLLM((prompt: string) => {
+      if (prompt.includes("retrieval system")) {
+        return JSON.stringify({ node_ids: ["0001"], reasoning: "relevant" });
+      }
+      return "The combined answer from all documents.";
+    });
+
+    const { tree, pages } = makeTreeAndPages();
+    const index1 = TreeDex.fromTree(tree, pages, agenticLlm);
+
+    const multi = await TreeDex.queryAll(
+      [index1],
+      "What is the answer?",
+      { agentic: true },
+    );
+
+    expect(multi.answer).toBe("The combined answer from all documents.");
+  });
+
+  it("should throw for empty indexes array", async () => {
+    await expect(TreeDex.queryAll([], "question")).rejects.toThrow(
+      "queryAll requires at least one index",
+    );
+  });
+
+  it("should throw when labels length mismatches", async () => {
+    const llm = makeMockLlm();
+    const { tree, pages } = makeTreeAndPages();
+    const index = TreeDex.fromTree(tree, pages, llm);
+
+    await expect(
+      TreeDex.queryAll([index], "question", { labels: ["A", "B"] }),
+    ).rejects.toThrow("labels length must match");
+  });
+
+  it("should have empty answer when not agentic", async () => {
+    const llm = makeMockLlm();
+    const { tree, pages } = makeTreeAndPages();
+    const index = TreeDex.fromTree(tree, pages, llm);
+
+    const multi = await TreeDex.queryAll([index], "question");
+
+    expect(multi.answer).toBe("");
   });
 });

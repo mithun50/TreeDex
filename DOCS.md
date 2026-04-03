@@ -302,11 +302,48 @@ Counters are maintained per level. When a new Level 1 appears, all deeper counte
 | Build from pages | `TreeDex.from_pages(pages, llm, **opts)` | `await TreeDex.fromPages(pages, llm, opts?)` | From pre-extracted pages |
 | Build from tree | `TreeDex.from_tree(tree, pages, llm)` | `TreeDex.fromTree(tree, pages, llm)` | From existing tree (no LLM) |
 | Query | `index.query(q, llm=, agentic=)` | `await index.query(q, {llm?, agentic?})` | Retrieve relevant sections |
+| **Multi-index query** | **`TreeDex.query_all(indexes, q, ...)`** | **`await TreeDex.queryAll(indexes, q, ...)`** | **Query multiple indexes simultaneously** |
 | Save | `index.save(path)` | `await index.save(path)` | Export to JSON |
 | Load | `TreeDex.load(path, llm)` | `await TreeDex.load(path, llm)` | Import from JSON |
 | Show tree | `index.show_tree()` | `index.showTree()` | Pretty-print |
 | Stats | `index.stats()` | `index.stats()` | Return `{total_pages, total_tokens, ...}` |
 | Find large | `index.find_large_sections(**opts)` | `index.findLargeSections(opts?)` | Nodes exceeding thresholds |
+
+#### `query_all` / `queryAll` Options
+
+Query multiple TreeDex indexes simultaneously. Indexes are queried in parallel
+(Node.js) or sequentially (Python), then results are merged into a single
+`MultiQueryResult` with `[Label]` separators between sources.
+
+| Parameter | Python | Node.js | Default | Description |
+|-----------|--------|---------|---------|-------------|
+| indexes | `list[TreeDex]` | `TreeDex[]` | required | List of indexes to query |
+| question | `str` | `string` | required | The user's question |
+| llm | `llm=` | `{ llm? }` | `None` | Shared LLM override; falls back to each index's own LLM |
+| agentic | `agentic=` | `{ agentic? }` | `False` | Generate a single answer over the combined context |
+| labels | `labels=` | `{ labels? }` | `["Document 1", ...]` | Human-readable name per index |
+
+```python
+multi = TreeDex.query_all(
+    [index_a, index_b, index_c],
+    "What are the safety guidelines?",
+    labels=["Manual A", "Manual B", "Manual C"],
+    agentic=True,
+)
+print(multi.combined_context)   # merged context with [Manual A]/[Manual B] headers
+print(multi.answer)             # single answer over all sources
+print(multi.results[0].pages_str)  # pages from Manual A
+```
+
+```typescript
+const multi = await TreeDex.queryAll(
+  [indexA, indexB, indexC],
+  "What are the safety guidelines?",
+  { labels: ["Manual A", "Manual B", "Manual C"], agentic: true },
+);
+console.log(multi.combinedContext);
+console.log(multi.answer);
+```
 
 #### `from_file` Options
 
@@ -330,6 +367,17 @@ Counters are maintained per level. When a new Level 1 appears, all deeper counte
 | Pages string | `.pages_str` | `.pagesStr` | `str` | `"pages 5-8, 12-15"` |
 | Reasoning | `.reasoning` | `.reasoning` | `str` | LLM's selection explanation |
 | Answer | `.answer` | `.answer` | `str` | Generated answer (agentic mode only) |
+
+### MultiQueryResult
+
+Returned by `TreeDex.query_all()` / `TreeDex.queryAll()`.
+
+| Property | Python | Node.js | Type | Description |
+|----------|--------|---------|------|-------------|
+| Per-index results | `.results` | `.results` | `list[QueryResult]` | One result per index, in input order |
+| Labels | `.labels` | `.labels` | `list[str]` | Human-readable name for each index |
+| Combined context | `.combined_context` | `.combinedContext` | `str` | All contexts merged with `[Label]` headers and `---` separators |
+| Answer | `.answer` | `.answer` | `str` | Single answer over all sources (agentic only) |
 
 ### Hierarchy Utilities
 

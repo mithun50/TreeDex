@@ -1,6 +1,6 @@
 /** TreeDex: Tree-based document RAG framework. */
 
-export { TreeDex, QueryResult } from "./core.js";
+export { TreeDex, QueryResult, MultiQueryResult } from "./core.js";
 export {
   PDFLoader,
   TextLoader,

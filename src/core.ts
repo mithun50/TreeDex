@@ -142,6 +142,37 @@ export class QueryResult {
   }
 }
 
+/** Result of querying multiple TreeDex indexes simultaneously. */
+export class MultiQueryResult {
+  /** Per-index results in the same order as the input indexes. */
+  readonly results: QueryResult[];
+  /** Labels for each index (e.g. filenames or custom names). */
+  readonly labels: string[];
+  /** All per-index contexts merged with [Document N] separators. */
+  readonly combinedContext: string;
+  /** Optional agentic answer generated over the combined context. */
+  readonly answer: string;
+
+  constructor(
+    results: QueryResult[],
+    labels: string[],
+    combinedContext: string,
+    answer: string = "",
+  ) {
+    this.results = results;
+    this.labels = labels;
+    this.combinedContext = combinedContext;
+    this.answer = answer;
+  }
+
+  toString(): string {
+    const parts = this.results.map(
+      (r, i) => `[${this.labels[i]}] ${r.toString()}`,
+    );
+    return `MultiQueryResult(\n  ${parts.join(",\n  ")}\n)`;
+  }
+}
+
 /** Tree-based document index for RAG retrieval. */
 export class TreeDex {
   readonly tree: TreeNode[];
@@ -470,5 +501,73 @@ export class TreeDex {
       maxTokens: options?.maxTokens ?? 20000,
       pages: this.pages,
     });
+  }
+
+  /**
+   * Query multiple TreeDex indexes simultaneously and merge results.
+   *
+   * All indexes are queried in parallel. Results are combined into a single
+   * `MultiQueryResult` with a `combinedContext` that labels each source.
+   *
+   * @param indexes - Array of TreeDex instances to query.
+   * @param question - The question to ask each index.
+   * @param options - Shared LLM, optional per-index labels, and agentic mode.
+   *
+   * @example
+   * const multi = await TreeDex.queryAll(
+   *   [index1, index2, index3],
+   *   "What are the safety guidelines?",
+   *   { llm, labels: ["Manual A", "Manual B", "Manual C"], agentic: true },
+   * );
+   * console.log(multi.combinedContext);
+   * console.log(multi.answer);
+   */
+  static async queryAll(
+    indexes: TreeDex[],
+    question: string,
+    options?: {
+      llm?: BaseLLM;
+      agentic?: boolean;
+      labels?: string[];
+    },
+  ): Promise<MultiQueryResult> {
+    if (indexes.length === 0) {
+      throw new Error("queryAll requires at least one index.");
+    }
+
+    const llm = options?.llm;
+    const agentic = options?.agentic ?? false;
+    const labels = options?.labels ?? indexes.map((_, i) => `Document ${i + 1}`);
+
+    if (labels.length !== indexes.length) {
+      throw new Error("labels length must match indexes length.");
+    }
+
+    // Query all indexes in parallel (no agentic per-index; answer at the end)
+    const results = await Promise.all(
+      indexes.map((idx) => idx.query(question, { llm, agentic: false })),
+    );
+
+    // Merge contexts with clear document separators
+    const sections: string[] = [];
+    for (let i = 0; i < results.length; i++) {
+      const ctx = results[i].context.trim();
+      if (ctx.length > 0) {
+        sections.push(`[${labels[i]}]\n${ctx}`);
+      }
+    }
+    const combinedContext = sections.join("\n\n---\n\n");
+
+    // Optional: generate a single answer over all combined context
+    let answer = "";
+    if (agentic && combinedContext.length > 0) {
+      const activeLlm = llm ?? indexes.find((idx) => idx.llm)?.llm ?? null;
+      if (!activeLlm) {
+        throw new Error("No LLM provided for agentic mode in queryAll.");
+      }
+      answer = await activeLlm.generate(answerPrompt(combinedContext, question));
+    }
+
+    return new MultiQueryResult(results, labels, combinedContext, answer);
   }
 }
