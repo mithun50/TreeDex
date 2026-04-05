@@ -36,7 +36,7 @@ If the PDF has native bookmarks/outline, the tree is built directly from them. T
 ### Strategy B — Font-Size Heading Detection
 If no bookmarks exist, TreeDex analyzes font sizes across up to 50 pages. It identifies the body text size (the most frequent) and maps larger sizes to `[H1]`, `[H2]`, `[H3]` markers, which are injected into the page text before the LLM sees it.
 
-```
+```text
 [H1] Chapter 1: Introduction
 This chapter covers the background...
 
@@ -85,7 +85,7 @@ A deep clone of the tree is made with **all `text` fields removed**. Only titles
 ### Step 2 — LLM navigates the skeleton
 The skeleton (typically 1–2k tokens even for 300-page docs) is sent to the LLM along with your question:
 
-```
+```text
 You are a document retrieval system. Given this tree structure, pick
 the node_ids most relevant to the query. Return JSON only.
 
@@ -97,7 +97,7 @@ The LLM reasons over **titles and hierarchy only** — it never sees page conten
 ### Step 3 — Content fetched via hash map
 Selected `node_ids` are looked up in a pre-built `O(1)` hash map. The actual page text for those nodes is retrieved and formatted:
 
-```
+```text
 [2: Safety Guidelines]
 Section 2 covers personal protective equipment...
 ```
@@ -138,7 +138,7 @@ Each index is queried independently. Results are merged into a single `MultiQuer
 
 ## Full Flow Diagram
 
-```
+```text
 Document (PDF / TXT / HTML / DOCX)
     │
     ▼

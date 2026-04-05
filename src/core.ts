@@ -543,6 +543,12 @@ export class TreeDex {
       throw new Error("labels length must match indexes length.");
     }
 
+    if (!llm && indexes.some((idx) => idx.llm === null)) {
+      throw new Error(
+        "No LLM provided for one or more indexes. Pass options.llm or set llm on every TreeDex.",
+      );
+    }
+
     // Query all indexes in parallel (no agentic per-index; answer at the end)
     const results = await Promise.all(
       indexes.map((idx) => idx.query(question, { llm, agentic: false })),

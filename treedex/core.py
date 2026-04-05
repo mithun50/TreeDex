@@ -448,6 +448,12 @@ class TreeDex:
         if len(labels) != len(indexes):
             raise ValueError("labels length must match indexes length.")
 
+        if llm is None and any(idx.llm is None for idx in indexes):
+            raise ValueError(
+                "No LLM provided for one or more indexes. Pass llm= to "
+                "query_all() or set llm on every TreeDex instance."
+            )
+
         # Query each index (no per-index agentic; single answer at the end)
         results = [
             idx.query(question, llm=llm, agentic=False)
