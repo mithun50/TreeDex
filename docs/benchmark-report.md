@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Benchmark Report
-nav_order: 8
+nav_order: 9
 ---
 
 # Benchmark Report: TreeDex vs Vector RAG

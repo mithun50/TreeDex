@@ -1,6 +1,6 @@
 """TreeDex: Tree-based document RAG framework."""
 
-from treedex.core import TreeDex, QueryResult
+from treedex.core import TreeDex, QueryResult, MultiQueryResult
 from treedex.loaders import PDFLoader, TextLoader, HTMLLoader, DOCXLoader, auto_loader
 from treedex.llm_backends import (
     BaseLLM,
@@ -29,6 +29,7 @@ __all__ = [
     # Core
     "TreeDex",
     "QueryResult",
+    "MultiQueryResult",
     # Loaders
     "PDFLoader",
     "TextLoader",

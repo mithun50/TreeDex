@@ -383,6 +383,7 @@ Use `auto_loader(path)` / `autoLoader(path)` for automatic format detection.
 | Create from tree | `TreeDex.from_tree(tree, pages)` | `TreeDex.fromTree(tree, pages)` |
 | Query | `index.query(question)` | `await index.query(question)` |
 | Agentic query | `index.query(q, agentic=True)` | `await index.query(q, { agentic: true })` |
+| **Multi-index query** | **`TreeDex.query_all(indexes, q)`** | **`await TreeDex.queryAll(indexes, q)`** |
 | Save | `index.save(path)` | `await index.save(path)` |
 | Load | `TreeDex.load(path, llm)` | `await TreeDex.load(path, llm)` |
 | Show tree | `index.show_tree()` | `index.showTree()` |
@@ -399,6 +400,41 @@ Use `auto_loader(path)` / `autoLoader(path)` for automatic format detection.
 | Pages string | `.pages_str` | `.pagesStr` | Human-readable: `"pages 5-8, 12-15"` |
 | Reasoning | `.reasoning` | `.reasoning` | LLM's explanation for selection |
 | Answer | `.answer` | `.answer` | LLM-generated answer (agentic mode only) |
+
+### `MultiQueryResult`
+
+Returned by `TreeDex.query_all()` / `TreeDex.queryAll()` when querying multiple indexes at once.
+
+| Property | Python | Node.js | Description |
+|----------|--------|---------|-------------|
+| Per-index results | `.results` | `.results` | One `QueryResult` per index, in input order |
+| Labels | `.labels` | `.labels` | Human-readable name for each index |
+| Combined context | `.combined_context` | `.combinedContext` | All contexts merged with `[Label]` headers |
+| Answer | `.answer` | `.answer` | Single answer over all sources (agentic only) |
+
+**Example:**
+
+```python
+multi = TreeDex.query_all(
+    [index_a, index_b],
+    "What are the safety guidelines?",
+    labels=["Manual A", "Manual B"],
+    agentic=True,
+)
+print(multi.combined_context)    # [Manual A]\n...\n---\n[Manual B]\n...
+print(multi.answer)              # unified answer across both documents
+print(multi.results[0].pages_str)  # pages matched in Manual A
+```
+
+```typescript
+const multi = await TreeDex.queryAll(
+  [indexA, indexB],
+  "What are the safety guidelines?",
+  { labels: ["Manual A", "Manual B"], agentic: true },
+);
+console.log(multi.combinedContext);
+console.log(multi.answer);
+```
 
 ### Hierarchy Utilities
 

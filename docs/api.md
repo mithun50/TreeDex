@@ -1,7 +1,7 @@
 ---
 layout: default
 title: API Reference
-nav_order: 3
+nav_order: 4
 ---
 
 # API Reference
@@ -123,6 +123,57 @@ const result = await index.query(question, {
 // Or shorthand: await index.query(question, llm)
 ```
 
+#### `query_all` / `queryAll` _(static)_
+
+Query **multiple indexes simultaneously** and merge results into a single
+`MultiQueryResult`. All indexes are queried in parallel (Node.js) or
+sequentially (Python). Results are combined with clear `[Document N]`
+separators so downstream LLMs or users can distinguish sources.
+
+```python
+multi = TreeDex.query_all(
+    indexes: list[TreeDex],
+    question: str,
+    llm=None,                  # Shared LLM override (falls back to each index's LLM)
+    agentic: bool = False,     # Generate one answer over the combined context
+    labels: list[str] = None   # Human-readable names (default: "Document 1", "Document 2", …)
+) -> MultiQueryResult
+```
+
+```typescript
+const multi = await TreeDex.queryAll(indexes, question, {
+  llm?,      // Shared LLM override
+  agentic?,  // Generate one answer over combined context
+  labels?,   // Human-readable names per index
+});
+```
+
+**Example:**
+
+```python
+multi = TreeDex.query_all(
+    [index_a, index_b, index_c],
+    "What are the safety guidelines?",
+    llm=llm,
+    labels=["Manual A", "Manual B", "Manual C"],
+    agentic=True,
+)
+print(multi.combined_context)   # merged text with [Manual A] / [Manual B] headers
+print(multi.answer)             # single LLM-generated answer over all sources
+print(multi.results[0].pages_str)  # pages matched in Manual A
+```
+
+```typescript
+const multi = await TreeDex.queryAll(
+  [indexA, indexB, indexC],
+  "What are the safety guidelines?",
+  { llm, labels: ["Manual A", "Manual B", "Manual C"], agentic: true },
+);
+console.log(multi.combinedContext);
+console.log(multi.answer);
+console.log(multi.results[0].pagesStr);
+```
+
 #### `save`
 
 Export the index to a JSON file.
@@ -195,6 +246,33 @@ Returned by `index.query()`.
 | Pages string | `.pages_str` | `.pagesStr` | `str` | Human-readable: `"pages 5-8, 12-15"` |
 | Reasoning | `.reasoning` | `.reasoning` | `str` | LLM's explanation |
 | Answer | `.answer` | `.answer` | `str` | Generated answer (agentic mode only) |
+
+---
+
+## MultiQueryResult
+
+Returned by `TreeDex.query_all()` / `TreeDex.queryAll()`.
+
+| Property | Python | Node.js | Type | Description |
+|----------|--------|---------|------|-------------|
+| Per-index results | `.results` | `.results` | `list[QueryResult]` | One `QueryResult` per index, in input order |
+| Labels | `.labels` | `.labels` | `list[str]` | Human-readable name for each index |
+| Combined context | `.combined_context` | `.combinedContext` | `str` | All contexts merged with `[Label]` headers and `---` separators |
+| Answer | `.answer` | `.answer` | `str` | Single LLM-generated answer over all sources (agentic mode only) |
+
+**Combined context format:**
+
+```
+[Manual A]
+[Section: Safety Guidelines]
+Content from Manual A...
+
+---
+
+[Manual B]
+[Section: Hazard Procedures]
+Content from Manual B...
+```
 
 ---
 

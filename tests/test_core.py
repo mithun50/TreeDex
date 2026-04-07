@@ -6,7 +6,7 @@ import tempfile
 
 import pytest
 
-from treedex.core import TreeDex, QueryResult
+from treedex.core import TreeDex, QueryResult, MultiQueryResult
 from treedex.llm_backends import FunctionLLM
 from treedex.tree_builder import list_to_tree, assign_page_ranges, assign_node_ids, embed_text_in_tree
 
@@ -182,3 +182,107 @@ class TestFindLargeSections:
         index = TreeDex.from_tree(tree, pages)
         large = index.find_large_sections(max_pages=100)
         assert len(large) == 0
+
+
+class TestMultiQueryResult:
+    def test_stores_results_and_labels(self):
+        r1 = QueryResult("ctx1", ["0001"], [(0, 1)], "reason1")
+        r2 = QueryResult("ctx2", ["0002"], [(2, 3)], "reason2")
+        multi = MultiQueryResult(
+            [r1, r2],
+            ["Doc A", "Doc B"],
+            "[Doc A]\nctx1\n\n---\n\n[Doc B]\nctx2",
+        )
+        assert len(multi.results) == 2
+        assert multi.labels == ["Doc A", "Doc B"]
+        assert "[Doc A]" in multi.combined_context
+        assert "[Doc B]" in multi.combined_context
+        assert multi.answer == ""
+
+    def test_stores_agentic_answer(self):
+        r = QueryResult("ctx", ["0001"], [(0, 0)], "reason")
+        multi = MultiQueryResult([r], ["Doc A"], "[Doc A]\nctx", "My answer")
+        assert multi.answer == "My answer"
+
+    def test_repr(self):
+        r = QueryResult("ctx", ["0001"], [(0, 0)], "reason")
+        multi = MultiQueryResult([r], ["Doc A"], "[Doc A]\nctx")
+        assert "Doc A" in repr(multi)
+
+
+class TestQueryAll:
+    def test_queries_multiple_indexes(self):
+        llm = _make_mock_llm()
+        tree, pages = _make_tree_and_pages()
+        index1 = TreeDex.from_tree(tree, pages, llm)
+        index2 = TreeDex.from_tree(tree, pages, llm)
+
+        multi = TreeDex.query_all([index1, index2], "What methods were used?")
+
+        assert len(multi.results) == 2
+        assert multi.labels == ["Document 1", "Document 2"]
+        assert "[Document 1]" in multi.combined_context
+        assert "[Document 2]" in multi.combined_context
+        assert "---" in multi.combined_context
+
+    def test_custom_labels(self):
+        llm = _make_mock_llm()
+        tree, pages = _make_tree_and_pages()
+        index1 = TreeDex.from_tree(tree, pages, llm)
+        index2 = TreeDex.from_tree(tree, pages, llm)
+
+        multi = TreeDex.query_all(
+            [index1, index2],
+            "question",
+            labels=["Manual A", "Manual B"],
+        )
+
+        assert multi.labels == ["Manual A", "Manual B"]
+        assert "[Manual A]" in multi.combined_context
+        assert "[Manual B]" in multi.combined_context
+
+    def test_shared_override_llm(self):
+        tree, pages = _make_tree_and_pages()
+        index1 = TreeDex.from_tree(tree, pages)  # no llm
+        index2 = TreeDex.from_tree(tree, pages)  # no llm
+        llm = _make_mock_llm()
+
+        multi = TreeDex.query_all([index1, index2], "question", llm=llm)
+
+        assert len(multi.results) == 2
+        assert len(multi.combined_context) > 0
+
+    def test_agentic_answer(self):
+        def agentic_generate(prompt: str) -> str:
+            if "retrieval system" in prompt:
+                return json.dumps({"node_ids": ["0001"], "reasoning": "relevant"})
+            return "The combined answer from all documents."
+
+        llm = FunctionLLM(agentic_generate)
+        tree, pages = _make_tree_and_pages()
+        index = TreeDex.from_tree(tree, pages, llm)
+
+        multi = TreeDex.query_all([index], "What is the answer?", agentic=True)
+
+        assert multi.answer == "The combined answer from all documents."
+
+    def test_raises_for_empty_indexes(self):
+        with pytest.raises(ValueError, match="at least one index"):
+            TreeDex.query_all([], "question")
+
+    def test_raises_for_label_mismatch(self):
+        llm = _make_mock_llm()
+        tree, pages = _make_tree_and_pages()
+        index = TreeDex.from_tree(tree, pages, llm)
+
+        with pytest.raises(ValueError, match="labels length must match"):
+            TreeDex.query_all([index], "question", labels=["A", "B"])
+
+    def test_no_answer_when_not_agentic(self):
+        llm = _make_mock_llm()
+        tree, pages = _make_tree_and_pages()
+        index = TreeDex.from_tree(tree, pages, llm)
+
+        multi = TreeDex.query_all([index], "question")
+
+        assert multi.answer == ""

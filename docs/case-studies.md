@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Case Studies
-nav_order: 6
+nav_order: 7
 ---
 
 # Case Studies
